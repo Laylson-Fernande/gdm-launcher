@@ -122,12 +122,21 @@ jobs:
           cp app/build/outputs/apk/release/app-release.apk \
             "garagem-launcher-${{ steps.version.outputs.version_name }}.apk"
 
+      - name: Require release notes
+        if: steps.version.outputs.should_build == 'true'
+        run: |
+          NOTES="releases/${{ steps.version.outputs.version_name }}.md"
+          if [ ! -f "${NOTES}" ]; then
+            echo "::error::Missing release notes file: ${NOTES}"
+            exit 1
+          fi
+
       - name: Create GitHub Release
         if: steps.version.outputs.should_build == 'true'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.version.outputs.tag }}
           name: ${{ steps.version.outputs.tag }}
+          body_path: releases/${{ steps.version.outputs.version_name }}.md
           files: garagem-launcher-*.apk
-          generate_release_notes: true
           fail_on_unmatched_files: true

@@ -25,6 +25,7 @@ public final class LauncherPrefs {
     private static final String KEY_ASK_DEFAULT = "ask_default_launcher";
     private static final String KEY_DOCK_TOGGLES = "dock_toggles";
     private static final String KEY_LANGUAGE = "language";
+    private static final String KEY_FONT = "font";
 
     /** App languages (language tags), in the order shown in Settings. To add one, append its tag
      *  here, its name to {@code LANGUAGE_NAMES} and create {@code res/values-<tag>/}. */
@@ -32,6 +33,11 @@ public final class LauncherPrefs {
     /** Each language's name written in itself, so someone who can't read the current one finds theirs. */
     public static final String[] LANGUAGE_NAMES = {"Português", "English"};
     public static final String DEFAULT_LANGUAGE = "en";
+
+    /** App fonts: file prefix in assets/fonts ({@code <id>-400/500/600.ttf}), in the order shown in Settings. */
+    public static final String[] FONTS = {"Exo2", "Montserrat", "Rajdhani", "Outfit", "Inter", "PublicSans"};
+    public static final String[] FONT_NAMES = {"Exo 2", "Montserrat", "Rajdhani", "Outfit", "Inter", "Public Sans"};
+    public static final String DEFAULT_FONT = "Exo2";
 
     /** Maximum optional items in the dock (Home and Apps are fixed and not counted). */
     public static final int MAX_DOCK_TOGGLES = 5;
@@ -109,6 +115,20 @@ public final class LauncherPrefs {
     public static void setLanguage(Context c, String tag) {
         // commit: the app restarts the screens right after and needs to read the new value.
         prefs(c).edit().putString(KEY_LANGUAGE, tag == null ? DEFAULT_LANGUAGE : tag).commit();
+    }
+
+    /** Font chosen in Settings; Exo 2 when none was chosen or the saved one no longer exists. */
+    public static String font(Context c) {
+        String id = prefs(c).getString(KEY_FONT, DEFAULT_FONT);
+        for (String known : FONTS) {
+            if (known.equals(id)) return id;
+        }
+        return DEFAULT_FONT;
+    }
+
+    public static void setFont(Context c, String id) {
+        // commit: the app restarts the screens right after and needs to read the new value.
+        prefs(c).edit().putString(KEY_FONT, id == null ? DEFAULT_FONT : id).commit();
     }
 
     public static void resetDockToggles(Context c) {

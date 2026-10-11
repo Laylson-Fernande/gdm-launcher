@@ -94,4 +94,7 @@
     <string name="settings_enter_password">Enter the password</string>
     <string name="settings_sign_in">Enter</string>
     <string name="settings_wrong_password">Wrong password</string>
+    <string name="settings_appearance_section">Appearance</string>
+    <string name="settings_font">Font</string>
+    <string name="settings_font_hint">Typeface used across the launcher</string>
 </resources>

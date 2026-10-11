@@ -106,6 +106,7 @@ public class SettingsActivity extends Activity {
         list = new OptionList(this, (LinearLayout) findViewById(R.id.settings_content));
         showCompatAlert();
         buildLanguage();
+        buildAppearance();
         buildLauncher();
         buildDock();
         buildSound();
@@ -165,12 +166,34 @@ public class SettingsActivity extends Activity {
             i -> {
                 if (LauncherPrefs.LANGUAGES[i].equals(LauncherPrefs.language(this))) return;
                 LauncherPrefs.setLanguage(this, LauncherPrefs.LANGUAGES[i]);
-                restartInNewLanguage();
+                restartScreens();
             }).local();
     }
 
-    /** Recreates the home screen (and the rest of the stack) in the new language. */
-    private void restartInNewLanguage() {
+    // ------------------------------------------------------------------ appearance
+
+    private void buildAppearance() {
+        list.section(getString(R.string.settings_appearance_section));
+        int[] values = new int[LauncherPrefs.FONTS.length];
+        for (int i = 0; i < values.length; i++) values[i] = i;
+        list.choice(getString(R.string.settings_font), getString(R.string.settings_font_hint),
+            LauncherPrefs.FONT_NAMES, values,
+            () -> {
+                String id = LauncherPrefs.font(this);
+                for (int i = 0; i < LauncherPrefs.FONTS.length; i++) {
+                    if (LauncherPrefs.FONTS[i].equals(id)) return i;
+                }
+                return -1;
+            },
+            i -> {
+                if (LauncherPrefs.FONTS[i].equals(LauncherPrefs.font(this))) return;
+                LauncherPrefs.setFont(this, LauncherPrefs.FONTS[i]);
+                restartScreens();
+            }).local();
+    }
+
+    /** Recreates the home screen (and the rest of the stack) with the new language or font. */
+    private void restartScreens() {
         Ui.applyLanguage(this);
         Intent home = new Intent(this, HomeActivity.class);
         home.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);

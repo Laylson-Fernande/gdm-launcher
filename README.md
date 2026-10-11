@@ -44,7 +44,7 @@ El proyecto forma parte de **Garagem do Madeira**, un espacio sobre coches, hazl
 | 🎚️ | **Equalizer** | 10-band EQ with presets, loudness and sound field (fader/balance) |
 | 🌀 | **Fan** | Cooling fan preferences |
 | 📱 | **Apps** | Paged grid of installed apps |
-| ⚙️ | **Settings** | Language, default launcher, dock, sound, display, reverse camera, 360° camera, navigation app and "About the unit" |
+| ⚙️ | **Settings** | Language, font, default launcher, dock, sound, display, reverse camera, 360° camera, navigation app and "About the unit" |
 
 🔇 Opening the home screen **never** turns the radio on or interrupts what's playing.
 
@@ -64,6 +64,12 @@ Strings are split by area (`strings_home.xml`, `strings_radio.xml`, `strings_set
 3. If you need a regional variant (like `pt` → `pt-BR`), adjust `Ui.applyLanguage`.
 
 Contributions with new translations are very welcome! 🙌
+
+## 🔤 Fonts
+
+**Exo 2** is the default. In **Settings → Appearance → Font** you can switch to **Montserrat**, **Rajdhani**, **Outfit**, **Inter** or **Public Sans**.
+
+Each font ships as three static weights in `app/src/main/assets/fonts/` (`<Font>-400.ttf`, `-500.ttf`, `-600.ttf`), subset to Latin to keep the APK small. To add one, drop the three files and its OFL license there, then add its file prefix to `FONTS` and its display name to `FONT_NAMES` in `home/LauncherPrefs.java`.
 
 ## 📦 Build and install
 
@@ -137,7 +143,7 @@ adb shell am start -n com.garagemdomadeira.nwd.launcher/.RadioActivity --ez demo
 | ☕ Language | Pure Java, classic Android Views, **no external libraries** |
 | 🤖 minSdk / targetSdk | 17 / 19 |
 | 🖥️ Resolution | Designed for 1280×720 |
-| 🔤 Font | [Exo 2](https://github.com/googlefonts/Exo-2.0) (OFL license in `app/src/main/assets/fonts/OFL.txt`) |
+| 🔤 Fonts | [Exo 2](https://github.com/googlefonts/Exo-2.0) (default), [Montserrat](https://github.com/JulietaUla/Montserrat), [Rajdhani](https://fonts.google.com/specimen/Rajdhani), [Outfit](https://github.com/Outfitio/Outfit-Fonts), [Inter](https://github.com/rsms/inter) and [Public Sans](https://github.com/uswds/public-sans), all under the SIL Open Font License (`app/src/main/assets/fonts/OFL-*.txt`) |
 
 - No AndroidX, AppCompat or Compose: only Android Views and custom Views drawn on `Canvas`.
 - Icons are drawn in code (`ui/IconView`), since vector drawables only exist from Android 5.
@@ -151,7 +157,7 @@ adb shell am start -n com.garagemdomadeira.nwd.launcher/.RadioActivity --ez demo
 app/src/main/
 ├── AndroidManifest.xml
 ├── aidl/                        # system service interfaces (radio, settings, Bluetooth)
-├── assets/fonts/                # Exo 2 + OFL license
+├── assets/fonts/                # fonts (400/500/600, Latin subset) + OFL licenses
 ├── java/com/garagemdomadeira/nwd/launcher/
 │   ├── *Activity.java           # one Activity per screen
 │   ├── bt/                      # Bluetooth client (phone and music)

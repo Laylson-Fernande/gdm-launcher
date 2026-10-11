@@ -284,6 +284,8 @@ public class HomeActivity extends Activity {
         fanDot = findViewById(R.id.fan_status_dot);
         fanText = text(R.id.fan_status_text);
         text(R.id.fan_status_title).setTypeface(Ui.medium(this));
+        // Status column: 290 wide − 12 padding − 52 icon − 18 gap.
+        Ui.autoFit(text(R.id.fan_status_title), 208);
         fanText.setTypeface(Ui.medium(this));
         IconView fanIcon = icon(R.id.fan_status_icon, IconView.Icon.FAN, IconView.Style.NONE);
         fanIcon.setClickable(false);
@@ -330,6 +332,7 @@ public class HomeActivity extends Activity {
         btText = text(R.id.bt_status_text);
         btDeviceView = text(R.id.bt_status_device);
         btText.setTypeface(Ui.medium(this));
+        Ui.autoFit(btText, 208);
         btDeviceView.setTypeface(Ui.regular(this));
         findViewById(R.id.bt_status).setOnClickListener(v -> open(PhoneActivity.class));
 
