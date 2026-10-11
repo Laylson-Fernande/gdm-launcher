@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 高级界面、开发者属性菜单和系统辅助功能（前缀 adv_）。 -->
+<resources>
+    <!-- 高级 -->
+    <string name="adv_title">高级</string>
+    <string name="adv_alert">工厂选项。修改前请记下原值。</string>
+    <string name="adv_open">打开 ›</string>
+
+    <string name="adv_sec_shortcuts">主机菜单</string>
+    <string name="adv_car_settings">车辆设置</string>
+    <string name="adv_car_settings_sub">NWD 车辆设置</string>
+    <string name="adv_factory_menu">工厂菜单</string>
+    <string name="adv_factory_menu_sub">NWD 密码：%1$s</string>
+    <string name="adv_android_settings">Android 设置</string>
+    <string name="adv_camera_360">360 全景</string>
+    <string name="adv_360_settings">360 设置</string>
+    <string name="adv_360_settings_sub">360 应用的完整设置界面</string>
+
+    <string name="adv_sec_development">开发</string>
+    <string name="adv_adb_wifi">无线 ADB（Wi‑Fi）</string>
+    <string name="adv_adb_wifi_sub">端口 5555，无需授权确认。用完请关闭。</string>
+    <string name="adv_log_logcat">系统日志保存到文件（logcat）</string>
+    <string name="adv_log_kernel">内核日志保存到文件</string>
+    <string name="adv_log_sub">由 NWD 保存到内部存储</string>
+    <string name="adv_system_props">系统属性</string>
+    <string name="adv_system_props_sub">查看、修改和导出所有属性</string>
+
+    <string name="adv_sec_factory_audio">工厂音频</string>
+    <string name="adv_phase">反转相位</string>
+    <string name="adv_phase_sub">工厂菜单中的 \"Phase exchange\"（相位交换）。设置错误时声音发空。</string>
+    <string name="adv_dual_mic">双麦克风（回声）</string>
+    <string name="adv_dual_mic_sub">双麦克风回声消除。可能需要重启。</string>
+    <string name="adv_music_max">音乐最大音量</string>
+    <string name="adv_music_max_sub">5 到 15</string>
+    <string name="adv_bt_unmute">蓝牙取消静音延迟</string>
+    <string name="adv_bt_unmute_sub">单位 ms。用于解决开头的爆音或断音</string>
+
+    <string name="adv_sec_carplay">CarPlay</string>
+    <string name="adv_carplay_note">仅对 CarPlay 通话生效。</string>
+    <string name="adv_mic_gain">麦克风增益</string>
+    <string name="adv_speaker_gain">扬声器增益</string>
+    <string name="adv_noise">降噪</string>
+    <string name="adv_noise_sub">神经网络降噪</string>
+    <string name="adv_aec_type">回声消除类型</string>
+    <string name="adv_aec_delay">回声消除延迟</string>
+    <string name="adv_in_ms">单位 ms</string>
+
+    <string name="adv_sec_car">车辆</string>
+    <string name="adv_radio_region">收音机地区</string>
+    <string name="adv_radio_region_sub">更改收音波段和步进。地区错误 = 电台错误。</string>
+    <string-array name="adv_radio_regions">
+        <item>欧洲</item>
+        <item>美国</item>
+        <item>中国</item>
+        <item>日本</item>
+        <item>OIRT</item>
+        <item>拉丁美洲</item>
+        <item>台湾</item>
+        <item>澳大利亚</item>
+        <item>南美洲</item>
+        <item>伊朗</item>
+        <item>中东</item>
+        <item>全球</item>
+    </string-array>
+    <string name="adv_hand_brake">播放视频需拉手刹</string>
+    <string name="adv_hand_brake_sub">关闭此项属于驾驶员自身的安全决定</string>
+    <string name="adv_any_key_power">任意键开机</string>
+    <string name="adv_auto_wakeup">自动唤醒</string>
+    <string name="adv_auto_wakeup_sub">状态保存在 persist.nwd.autowakeup</string>
+    <string name="adv_backcar_track">倒车轨迹线</string>
+    <string name="adv_backcar_assist">倒车辅助线</string>
+    <string name="adv_backcar_sub">来自工厂菜单；请确认摄像头是否会重新加载</string>
+    <string name="adv_autorun">自启动应用</string>
+    <string name="adv_autorun_none">无</string>
+    <string name="adv_autorun_sub">NWD 白名单（whitelist_packagename / appautorun_packagename）。如需修改，请使用车辆设置。</string>
+
+    <string name="adv_sec_360">360 全景（工厂）</string>
+    <string name="adv_360_note">开机延迟、硬件箭头、鸟瞰图中的车辆、图像和泊车监控仍保留在 360 应用中，直到确认 Garagem 能保存其偏好设置。</string>
+    <string name="adv_360_app_settings">360 应用设置</string>
+    <string name="adv_calibration">校准</string>
+    <string name="adv_calibration_sub">应用密码：0000。流程在其应用内完成。</string>
+
+    <string name="adv_sec_car_on">车辆启动时（待确认）</string>
+    <string name="adv_car_on_note">实验性功能。移到设置界面前请先测试。</string>
+    <string name="adv_wake_wifi">打开 Wi‑Fi</string>
+    <string name="adv_wake_hotspot">打开热点</string>
+    <string name="adv_touch_wake">触摸唤醒屏幕</string>
+    <string name="adv_multi_window">允许小窗口</string>
+
+    <!-- 开发者菜单（系统属性） -->
+    <string name="adv_dev_title">开发者菜单</string>
+    <string name="adv_back">返回</string>
+    <string name="adv_refresh">刷新</string>
+    <string name="adv_export">导出 .txt</string>
+    <string name="adv_filter_hint">按名称或值筛选</string>
+    <string name="adv_props_count">%1$d 个属性</string>
+    <string name="adv_props_count_filtered">%1$d / %2$d 个属性</string>
+    <string name="adv_props_read_failed">无法读取属性（getprop 未返回任何内容）。</string>
+    <string name="adv_prop_dialog_msg">当前值：%1$s\n修改请求将发送给 NWD 系统；并非所有属性都接受修改。</string>
+    <string name="adv_prop_empty_paren">（空）</string>
+    <string name="adv_prop_empty">空</string>
+    <string name="adv_prop_save">保存</string>
+    <string name="adv_prop_applying">正在应用 %1$s = %2$s…</string>
+    <string name="adv_prop_not_applied">系统未应用 %1$s（当前值：%2$s）。可通过 adb：setprop %1$s %3$s</string>
+    <string name="adv_exporting">正在导出…</string>
+    <string name="adv_export_failed">无法写入文件。</string>
+    <string name="adv_export_done">已导出 %1$d 个属性到 %2$s</string>
+
+    <!-- 外部应用 -->
+    <string name="adv_toast_opened_launcher">无法直接打开此界面；已打开该应用的启动界面。</string>
+    <string name="adv_toast_app_missing">此主机上未找到该应用（%1$s）</string>
+
+    <!-- 平台兼容性 -->
+    <string name="adv_compat_untested">该 NWD 平台尚未在 Garagem 上测试（%1$s），可能无法正常工作。</string>
+    <string name="adv_compat_incompatible">此设备似乎不是兼容的 NWD 主机。Garagem 可能无法控制声音、收音机或蓝牙。</string>
+    <string name="adv_compat_ok">确定</string>
+    <string name="adv_compat_untested_label">NWD 未测试</string>
+    <string name="adv_compat_incompatible_label">不兼容</string>
+</resources>

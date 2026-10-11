@@ -50,18 +50,26 @@ El proyecto forma parte de **Garagem do Madeira**, un espacio sobre coches, hazl
 
 ## 🌍 Languages
 
-The app ships in **English** (default) and **Portuguese**, selectable in **Settings → Language**, independent of the system language.
+The app ships in 8 languages, selectable in **Settings → Language** (each shown with a reference flag), independent of the system language:
 
-- English: `app/src/main/res/values/strings*.xml`
-- Portuguese: `app/src/main/res/values-pt/strings*.xml`
+| | Language | Strings |
+|---|---|---|
+| 🇺🇸 | English (default) | `app/src/main/res/values/strings*.xml` |
+| 🇧🇷 | Portuguese (Brazil) | `app/src/main/res/values-pt/strings*.xml` |
+| 🇪🇸 | Spanish | `app/src/main/res/values-es/strings*.xml` |
+| 🇫🇷 | French | `app/src/main/res/values-fr/strings*.xml` |
+| 🇷🇺 | Russian | `app/src/main/res/values-ru/strings*.xml` |
+| 🇯🇵 | Japanese | `app/src/main/res/values-ja/strings*.xml` |
+| 🇨🇳 | Mandarin (Simplified Chinese) | `app/src/main/res/values-zh/strings*.xml` |
+| 🇮🇳 | Hindi | `app/src/main/res/values-hi/strings*.xml` |
 
 Strings are split by area (`strings_home.xml`, `strings_radio.xml`, `strings_settings.xml`…), each name prefixed with its area (`home_`, `radio_`, `settings_`…).
 
-➕ **Adding a language** (e.g. Spanish):
+➕ **Adding a language** (e.g. German):
 
-1. Copy `res/values-pt/` to `res/values-es/` and translate the texts.
-2. In `home/LauncherPrefs.java`, add the tag to `LANGUAGES` (`"es"`) and the language's own name to `LANGUAGE_NAMES` (`"Español"`).
-3. If you need a regional variant (like `pt` → `pt-BR`), adjust `Ui.applyLanguage`.
+1. Copy `res/values-pt/` to `res/values-de/` and translate the texts.
+2. In `home/LauncherPrefs.java`, add the tag to `LANGUAGES` (`"de"`) and the language's own name, with its flag, to `LANGUAGE_NAMES` (`"🇩🇪 Deutsch"`).
+3. If you need a regional variant (like `pt` → `pt-BR` or `zh` → `zh-CN`), adjust `Ui.applyLanguage`.
 
 Contributions with new translations are very welcome! 🙌
 

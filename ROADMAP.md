@@ -14,7 +14,7 @@
 - [x] Tela de Apps
 - [x] 14 temas
 - [x] Mudança de fonte
-- [x] Idioma PT / EN
+- [x] Idiomas: PT, EN, ES, FR, RU, JA, ZH, HI
 - [x] Dock customizável
 - [x] Configurações de som
 - [x] Configurações de tela
@@ -52,7 +52,7 @@
 - [x] Apps screen
 - [x] 14 themes
 - [x] Font change
-- [x] Language PT / EN
+- [x] Languages: PT, EN, ES, FR, RU, JA, ZH, HI
 - [x] Customizable dock
 - [x] Sound settings
 - [x] Display settings

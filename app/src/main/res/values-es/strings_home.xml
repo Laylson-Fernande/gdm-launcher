@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Pantalla de inicio -->
+    <string name="home_screen_off">Apagar pantalla</string>
+    <string name="home_settings">Ajustes</string>
+    <string name="home_battery_voltage">Voltaje de la batería</string>
+    <string name="home_volume_down">Bajar volumen</string>
+    <string name="home_mute">Silenciar</string>
+    <string name="home_volume_up">Subir volumen</string>
+    <string name="home_mute_volume">Silenciar (volumen %1$d)</string>
+    <string name="home_unmute_volume">Activar sonido (volumen %1$d)</string>
+    <string name="home_cover">Portada del álbum</string>
+    <string name="home_now_playing">REPRODUCIENDO</string>
+    <string name="home_now_playing_radio">REPRODUCIENDO · RADIO</string>
+    <string name="home_now_playing_mp3">REPRODUCIENDO · MP3</string>
+    <string name="home_now_playing_bt">REPRODUCIENDO · BLUETOOTH</string>
+    <string name="home_previous">Anterior</string>
+    <string name="home_play_pause">Reproducir o pausar</string>
+    <string name="home_next">Siguiente</string>
+    <string name="home_play">Reproducir</string>
+    <string name="home_pause">Pausar</string>
+    <string name="home_radio">Radio</string>
+    <string name="home_radio_unavailable">Radio no disponible</string>
+    <string name="home_radio_turn_on">Encender radio</string>
+    <string name="home_radio_turn_off">Apagar radio</string>
+    <string name="home_music">Música</string>
+    <string name="home_phone_disconnected">Teléfono desconectado</string>
+    <string name="home_bt_music">Música Bluetooth</string>
+    <string name="home_nothing_playing">Nada en reproducción</string>
+    <string name="home_answer">Contestar</string>
+    <string name="home_hang_up">Colgar</string>
+    <string name="home_call_incoming">Entrante</string>
+    <string name="home_call_outgoing">Llamando</string>
+    <string name="home_call_active">En llamada</string>
+    <string name="home_unknown_number">Número desconocido</string>
+    <string name="home_fan">Ventilador</string>
+    <string name="home_fan_caps">VENTILADOR</string>
+    <string name="home_fan_on">ENC.</string>
+    <string name="home_fan_off">APAG.</string>
+    <string name="home_bluetooth">Bluetooth</string>
+    <string name="home_bt_connected">CONECTADO</string>
+    <string name="home_bt_disconnected">DESCONECTADO</string>
+    <string name="home_phone">Teléfono</string>
+    <string name="home_tap_to_connect">Toca para conectar</string>
+    <string name="home_tap_to_wake">Toca para encender la pantalla</string>
+    <!-- Día de la semana, nombre del mes, día del mes, año -->
+    <string name="home_date">%1$s, %3$d de %2$s de %4$d</string>
+    <bool name="home_capitalize_month">false</bool>
+    <string name="home_settings_not_found">Ajustes no encontrados</string>
+
+    <!-- Diálogos del launcher predeterminado -->
+    <string name="home_default_launcher_title">Launcher predeterminado</string>
+    <string name="home_default_launcher_message">La central tiene otro launcher como predeterminado:\n%1$s\n\n¿Establecer Garagem como launcher predeterminado?</string>
+    <string name="home_not_set_paren">(no definido)</string>
+    <string name="home_not_set">no definido</string>
+    <string name="home_not_now">Ahora no</string>
+    <string name="home_set">Establecer</string>
+    <string name="home_default_launcher_done">Garagem establecido como launcher predeterminado</string>
+    <string name="home_default_launcher_failed_title">No se pudo cambiar</string>
+    <string name="home_default_launcher_failed_message">El sistema no aplicó el cambio (valor actual: %1$s).\n\nPara establecerlo manualmente, conecta adb y ejecuta:</string>
+
+    <!-- Botones de diálogo -->
+    <string name="home_cancel">Cancelar</string>
+    <string name="home_ok">OK</string>
+
+    <!-- Cajón de apps -->
+    <string name="home_apps_back">Volver</string>
+    <string name="home_apps_title">Apps</string>
+    <string name="home_apps_empty">Sin apps</string>
+    <string name="home_apps_prev_page">Página anterior</string>
+    <string name="home_apps_next_page">Página siguiente</string>
+    <string name="home_apps_not_found">App no encontrada</string>
+    <string name="home_app_fan">Ventilador</string>
+
+    <!-- Dock: etiqueta corta / nombre completo (lista de Ajustes) -->
+    <string name="home_dock_home">INICIO</string>
+    <string name="home_dock_home_title">Inicio</string>
+    <string name="home_dock_radio">RADIO</string>
+    <string name="home_dock_radio_title">Radio</string>
+    <string name="home_dock_music">MP3</string>
+    <string name="home_dock_music_title">Música (USB/SD)</string>
+    <string name="home_dock_bt_music">BLUETOOTH</string>
+    <string name="home_dock_bt_music_title">Música Bluetooth</string>
+    <string name="home_dock_phone">TELÉFONO</string>
+    <string name="home_dock_phone_title">Teléfono</string>
+    <string name="home_dock_eq">ECUALIZADOR</string>
+    <string name="home_dock_eq_title">Ecualizador</string>
+    <string name="home_dock_aux">AUX</string>
+    <string name="home_dock_aux_title">AUX</string>
+    <string name="home_dock_cam360">360</string>
+    <string name="home_dock_cam360_title">Cámara 360</string>
+    <string name="home_dock_video">VIDEO</string>
+    <string name="home_dock_video_title">Video</string>
+    <string name="home_dock_apps">APPS</string>
+    <string name="home_dock_apps_title">Apps</string>
+</resources>

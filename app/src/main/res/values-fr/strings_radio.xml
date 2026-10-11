@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Radio screen -->
+    <string name="radio_cd_power">Allumer/éteindre la radio</string>
+    <string name="radio_cd_exit">Éteindre et quitter</string>
+    <string name="radio_chip_stereo">STÉRÉO</string>
+    <string name="radio_chip_traffic">TRAFIC</string>
+    <string name="radio_chip_seeking">RECHERCHE</string>
+    <string name="radio_chip_scanning">BALAYAGE</string>
+    <string name="radio_chip_intro">INTRO</string>
+    <string name="radio_cd_station_art">Logo de la station</string>
+    <string name="radio_cd_prev_saved">Station mémorisée précédente</string>
+    <string name="radio_cd_step_down">Descendre de 0,1 MHz</string>
+    <string name="radio_cd_ams">Rechercher et mémoriser</string>
+    <string name="radio_cd_step_up">Monter de 0,1 MHz</string>
+    <string name="radio_cd_next_saved">Station mémorisée suivante</string>
+    <string name="radio_cd_keypad">Saisir la fréquence</string>
+    <string name="radio_presets_title">Présélections %1$s</string>
+    <string name="radio_cd_prev_preset">Présélection précédente</string>
+    <string name="radio_cd_next_preset">Présélection suivante</string>
+    <string name="radio_presets_hint">toucher pour écouter · maintenir pour mémoriser</string>
+    <string name="radio_preset_saved">Station mémorisée en %1$d</string>
+    <string name="radio_preset_empty">Vide</string>
+    <string name="radio_off">RADIO ÉTEINTE</string>
+    <string name="radio_banner_connecting">Connexion au service radio…</string>
+    <string name="radio_banner_not_found">Service radio de l\'autoradio introuvable. Voir le diagnostic.</string>
+    <string name="radio_banner_disconnected">Service radio déconnecté, nouvelle tentative…</string>
+    <!-- Keypad -->
+    <string name="radio_keypad_title">Saisir la fréquence (%1$s)</string>
+    <string name="radio_keypad_cancel">Annuler</string>
+    <string name="radio_keypad_tune">Syntoniser</string>
+    <!-- Diagnostics dialog -->
+    <string name="radio_diag_title">Diagnostic</string>
+    <string name="radio_diag_close">Fermer</string>
+    <string name="radio_diag_next_band">Bande suivante</string>
+    <string name="radio_diag_request_state">Demander l\'état</string>
+    <string name="radio_diag_activate_source">Activer la source</string>
+    <string name="radio_diag_reconnect">Reconnecter</string>
+    <!-- RDS programme types (PTY 0..31) -->
+    <string-array name="radio_pty_names">
+        <item>Aucun</item>
+        <item>Infos</item>
+        <item>Actualité</item>
+        <item>Information</item>
+        <item>Sport</item>
+        <item>Éducation</item>
+        <item>Fiction</item>
+        <item>Culture</item>
+        <item>Sciences</item>
+        <item>Divers</item>
+        <item>Pop</item>
+        <item>Rock</item>
+        <item>Variétés</item>
+        <item>Classique léger</item>
+        <item>Classique</item>
+        <item>Autre</item>
+        <item>Météo</item>
+        <item>Économie</item>
+        <item>Enfants</item>
+        <item>Société</item>
+        <item>Religion</item>
+        <item>Libre antenne</item>
+        <item>Voyage</item>
+        <item>Loisirs</item>
+        <item>Jazz</item>
+        <item>Country</item>
+        <item>Musique nationale</item>
+        <item>Rétro</item>
+        <item>Folk</item>
+        <item>Documentaire</item>
+        <item>Test</item>
+        <item>Alarme</item>
+    </string-array>
+</resources>

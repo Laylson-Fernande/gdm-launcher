@@ -30,9 +30,13 @@ public final class LauncherPrefs {
 
     /** App languages (language tags), in the order shown in Settings. To add one, append its tag
      *  here, its name to {@code LANGUAGE_NAMES} and create {@code res/values-<tag>/}. */
-    public static final String[] LANGUAGES = {"pt", "en"};
-    /** Each language's name written in itself, so someone who can't read the current one finds theirs. */
-    public static final String[] LANGUAGE_NAMES = {"Português", "English"};
+    public static final String[] LANGUAGES = {"pt", "en", "es", "fr", "ru", "ja", "zh", "hi"};
+    /** Each language's name written in itself (with a reference flag), so someone who can't read
+     *  the current one finds theirs. "zh" is Mandarin in Simplified Chinese. */
+    public static final String[] LANGUAGE_NAMES = {
+        "🇧🇷 Português", "🇺🇸 English", "🇪🇸 Español", "🇫🇷 Français",
+        "🇷🇺 Русский", "🇯🇵 日本語", "🇨🇳 中文（普通话）", "🇮🇳 हिन्दी",
+    };
     public static final String DEFAULT_LANGUAGE = "en";
 
     /** App fonts: file prefix in assets/fonts ({@code <id>-400/500/600.ttf}), in the order shown in Settings. */

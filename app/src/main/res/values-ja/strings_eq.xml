@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Layout -->
+    <string name="eq_back">戻る</string>
+    <string name="eq_tab_eq">イコライザー</string>
+    <string name="eq_tab_site">音場</string>
+    <string name="eq_tab_channels">チャンネル</string>
+    <string name="eq_tab_diag">診断</string>
+    <string name="eq_site_title">音場</string>
+    <string name="eq_site_hint">車の図をタップまたはドラッグして、音の中心位置を選びます。</string>
+
+    <!-- Presets -->
+    <string name="eq_preset_standard">標準</string>
+    <string name="eq_preset_pop">ポップ</string>
+    <string name="eq_preset_rock">ロック</string>
+    <string name="eq_preset_classic">クラシック</string>
+    <string name="eq_preset_jazz">ジャズ</string>
+    <string name="eq_preset_custom">カスタム</string>
+    <string name="eq_loudness">ラウドネス</string>
+    <string name="eq_reset">リセット</string>
+
+    <!-- Seats -->
+    <string name="eq_seat_driver">運転席</string>
+    <string name="eq_seat_passenger">助手席</string>
+    <string name="eq_seat_rear">後席</string>
+    <string name="eq_seat_center">中央</string>
+
+    <!-- Sound field -->
+    <string name="eq_site_pad_front">前</string>
+    <string name="eq_site_pad_rear">後</string>
+    <string name="eq_site_fader">前 ↔ 後: %1$s</string>
+    <string name="eq_site_balance">左 ↔ 右: %1$s</string>
+    <string name="eq_site_center_value">中央 (%1$d/%2$d)</string>
+    <!-- e.g. "3 to front (4/14)" -->
+    <string name="eq_site_toward">%2$s へ %1$d (%3$d/%4$d)</string>
+    <string name="eq_dir_front">前</string>
+    <string name="eq_dir_rear">後</string>
+    <string name="eq_dir_left">左</string>
+    <string name="eq_dir_right">右</string>
+
+    <!-- Channels -->
+    <string name="eq_reset_channels">チャンネルをリセット</string>
+    <string name="eq_mute">ミュート</string>
+    <string name="eq_phase">位相</string>
+    <string name="eq_muted">ミュート中</string>
+    <string name="eq_speaker_fl">FL</string>
+    <string name="eq_speaker_fr">FR</string>
+    <string name="eq_speaker_rl">RL</string>
+    <string name="eq_speaker_rr">RR</string>
+    <string name="eq_speaker_c">C</string>
+    <string name="eq_speaker_sub">SUB</string>
+
+    <!-- Diagnostics -->
+    <string name="eq_hardware">ハードウェア</string>
+    <string name="eq_audio_path">オーディオ経路</string>
+    <string name="eq_mode_auto">自動</string>
+    <string name="eq_mode_force_mcu">MCU を強制</string>
+    <string name="eq_mode_force_arm">ARM DSP を強制</string>
+    <string name="eq_tests">テスト</string>
+    <string name="eq_read_mcu">MCU を読み取り</string>
+    <string name="eq_test_dsp">DSP をテスト</string>
+    <string name="eq_reapply">再適用</string>
+    <string name="eq_reconnect">再接続</string>
+    <string name="eq_apply_on_boot">起動時に適用 (DSP)</string>
+    <string name="eq_no_connection">未接続</string>
+    <string name="eq_chip_none">なし</string>
+    <string name="eq_yes">はい</string>
+    <string name="eq_no">いいえ</string>
+    <string name="eq_info_path">経路: %1$s</string>
+    <string name="eq_info_chip">チップ: %1$s · DTS %2$s</string>
+    <string name="eq_info_method">方式: %1$s · 最大 %2$d/%3$d</string>
+</resources>

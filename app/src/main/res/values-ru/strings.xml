@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Russian translation. English is the default language (values/). -->
+<resources>
+    <string name="settings_language_section">Язык</string>
+    <string name="settings_language">Язык</string>
+    <string name="settings_language_hint">Язык приложения</string>
+</resources>

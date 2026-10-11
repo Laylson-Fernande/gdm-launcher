@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Hindi (हिन्दी). English is the default language (values/). -->
+<resources>
+    <string name="settings_language_section">भाषा</string>
+    <string name="settings_language">भाषा</string>
+    <string name="settings_language_hint">ऐप की भाषा</string>
+</resources>

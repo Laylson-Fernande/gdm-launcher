@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Layout -->
+    <string name="eq_back">वापस</string>
+    <string name="eq_tab_eq">इक्वलाइज़र</string>
+    <string name="eq_tab_site">फ़ील्ड</string>
+    <string name="eq_tab_channels">चैनल</string>
+    <string name="eq_tab_diag">जाँच</string>
+    <string name="eq_site_title">साउंड फ़ील्ड</string>
+    <string name="eq_site_hint">आवाज़ का केंद्र चुनने के लिए कार पर टैप करें या खींचें।</string>
+
+    <!-- Presets -->
+    <string name="eq_preset_standard">स्टैंडर्ड</string>
+    <string name="eq_preset_pop">पॉप</string>
+    <string name="eq_preset_rock">रॉक</string>
+    <string name="eq_preset_classic">क्लासिकल</string>
+    <string name="eq_preset_jazz">जैज़</string>
+    <string name="eq_preset_custom">कस्टम</string>
+    <string name="eq_loudness">लाउडनेस</string>
+    <string name="eq_reset">रीसेट</string>
+
+    <!-- Seats -->
+    <string name="eq_seat_driver">ड्राइवर</string>
+    <string name="eq_seat_passenger">यात्री</string>
+    <string name="eq_seat_rear">पीछे</string>
+    <string name="eq_seat_center">बीच में</string>
+
+    <!-- Sound field -->
+    <string name="eq_site_pad_front">आगे</string>
+    <string name="eq_site_pad_rear">पीछे</string>
+    <string name="eq_site_fader">आगे ↔ पीछे: %1$s</string>
+    <string name="eq_site_balance">बाएँ ↔ दाएँ: %1$s</string>
+    <string name="eq_site_center_value">बीच में (%1$d/%2$d)</string>
+    <!-- e.g. "3 आगे की ओर (4/14)" -->
+    <string name="eq_site_toward">%1$d %2$s की ओर (%3$d/%4$d)</string>
+    <string name="eq_dir_front">आगे</string>
+    <string name="eq_dir_rear">पीछे</string>
+    <string name="eq_dir_left">बाएँ</string>
+    <string name="eq_dir_right">दाएँ</string>
+
+    <!-- Channels -->
+    <string name="eq_reset_channels">चैनल रीसेट करें</string>
+    <string name="eq_mute">म्यूट</string>
+    <string name="eq_phase">फ़ेज़</string>
+    <string name="eq_muted">म्यूट</string>
+    <string name="eq_speaker_fl">FL</string>
+    <string name="eq_speaker_fr">FR</string>
+    <string name="eq_speaker_rl">RL</string>
+    <string name="eq_speaker_rr">RR</string>
+    <string name="eq_speaker_c">C</string>
+    <string name="eq_speaker_sub">SUB</string>
+
+    <!-- Diagnostics -->
+    <string name="eq_hardware">हार्डवेयर</string>
+    <string name="eq_audio_path">ऑडियो पाथ</string>
+    <string name="eq_mode_auto">ऑटोमैटिक</string>
+    <string name="eq_mode_force_mcu">MCU ज़बरदस्ती</string>
+    <string name="eq_mode_force_arm">ARM DSP ज़बरदस्ती</string>
+    <string name="eq_tests">टेस्ट</string>
+    <string name="eq_read_mcu">MCU पढ़ें</string>
+    <string name="eq_test_dsp">DSP टेस्ट करें</string>
+    <string name="eq_reapply">फिर से लागू करें</string>
+    <string name="eq_reconnect">फिर से कनेक्ट करें</string>
+    <string name="eq_apply_on_boot">स्टार्टअप पर लागू करें (DSP)</string>
+    <string name="eq_no_connection">कनेक्शन नहीं</string>
+    <string name="eq_chip_none">कोई नहीं</string>
+    <string name="eq_yes">हाँ</string>
+    <string name="eq_no">नहीं</string>
+    <string name="eq_info_path">पाथ: %1$s</string>
+    <string name="eq_info_chip">चिप: %1$s · DTS %2$s</string>
+    <string name="eq_info_method">तरीका: %1$s · अधिकतम %2$d/%3$d</string>
+</resources>

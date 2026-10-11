@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Español (neutro). El inglés es el idioma predeterminado (values/). -->
+<resources>
+    <string name="settings_language_section">Idioma</string>
+    <string name="settings_language">Idioma</string>
+    <string name="settings_language_hint">Idioma de la app</string>
+</resources>

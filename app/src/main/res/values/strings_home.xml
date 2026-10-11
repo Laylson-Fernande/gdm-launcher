@@ -45,6 +45,10 @@
     <string name="home_tap_to_wake">Tap to turn the screen on</string>
     <!-- Weekday, month name, day of month, year -->
     <string name="home_date">%1$s, %2$s %3$d, %4$d</string>
+    <!-- SimpleDateFormat pattern for the month in home_date, and whether to capitalize it
+         (languages that write months in lowercase turn it off). -->
+    <string name="home_month_pattern" translatable="false">MMMM</string>
+    <bool name="home_capitalize_month">true</bool>
     <string name="home_settings_not_found">Settings not found</string>
 
     <!-- Default launcher dialogs -->
