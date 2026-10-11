@@ -1,0 +1,49 @@
+# Gradle
+.gradle/
+build/
+**/build/
+.kotlin/
+.externalNativeBuild/
+.cxx/
+
+# Local machine configuration (SDK path, signing secrets)
+local.properties
+*.keystore
+*.jks
+keystore.properties
+signing.properties
+
+# Build outputs
+*.apk
+*.aab
+*.ap_
+*.dex
+*.class
+output-metadata.json
+captures/
+
+# IDEs
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+.project
+.classpath
+.settings/
+*.swp
+*~
+
+# Logs and dumps
+*.log
+*.hprof
+lint-results*.*
+
+# OS files
+.DS_Store
+._*
+Thumbs.db
+desktop.ini
+
+# Claude Code local settings
+.claude/settings.local.json

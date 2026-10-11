@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="background">#FF050608</color>
+    <color name="surface">#FF15181C</color>
+    <color name="surface_high">#FF22262B</color>
+    <color name="surface_top">#FF2B3036</color>
+    <color name="outline">#FF353A41</color>
+    <color name="outline_strong">#FF555B63</color>
+    <color name="text">#FFE9EBEE</color>
+    <color name="text_muted">#FF8D949D</color>
+    <color name="text_dim">#FF5D636B</color>
+    <color name="accent">#FFFFFFFF</color>
+    <!-- Thin divider lines (fineline) -->
+    <color name="hairline">#FF1C1F24</color>
+    <color name="hairline_strong">#FF2C3036</color>
+    <color name="caption">#FF7D838C</color>
+</resources>

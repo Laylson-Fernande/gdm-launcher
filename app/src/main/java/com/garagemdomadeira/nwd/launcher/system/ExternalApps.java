@@ -1,0 +1,154 @@
+package com.garagemdomadeira.nwd.launcher.system;
+
+import android.app.Activity;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Handler;
+import android.os.Looper;
+import android.provider.Settings;
+import android.widget.Toast;
+
+import com.garagemdomadeira.nwd.launcher.R;
+
+/**
+ * Head-unit apps that Garagem only launches (they don't become our own screens): AUX, video,
+ * 360 camera and the NWD settings menus.
+ */
+public final class ExternalApps {
+    private ExternalApps() {
+    }
+
+    public static final String PKG_AUX = "com.nwd.auxin";
+    public static final String PKG_VIDEO = "com.nwd.android.video.ui";
+    public static final String PKG_AVM = "com.ivicar.avm";
+    public static final String PKG_CARKIT_360 = "com.nwd.carkit360camera";
+    public static final String PKG_CAR_SETTING = "com.android.car.setting";
+    public static final String PKG_FACTORY = "com.nwd.factory.setting";
+
+    private static final String HOME_HORIZONTAL = ".home_horizontalActivity";
+    private static final String AVM_MAIN = "com.ivicar.modules.main.view.MainNowadaActivity";
+    private static final String AVM_SETTINGS = "com.ivicar.modules.setting.view.SettingActivity";
+    private static final String AVM_CALIBRATE = "com.ivicar.modules.calibrate.view.CalibrateActivity";
+
+    /** Opens the 360 without changing the view (extra_view = -1). Dynamic receiver: the AVM process must be alive. */
+    private static final String ACTION_360_IN = "com.nwd.action.360.activity.in";
+    private static final String EXTRA_VIEW = "extra_view";
+    /** If the screen doesn't leave the foreground within this time, the broadcast was not handled. */
+    private static final long AVM_FALLBACK_MS = 1200;
+
+    /** Default factory menu password; {@code Settings.System nwd_factory_password} takes precedence. */
+    private static final String FACTORY_PASSWORD = "1617";
+
+    public static boolean installed(Context c, String pkg) {
+        try {
+            c.getPackageManager().getPackageInfo(pkg, 0);
+            return true;
+        } catch (PackageManager.NameNotFoundException e) {
+            return false;
+        }
+    }
+
+    public static boolean hasAux(Context c) {
+        return installed(c, PKG_AUX);
+    }
+
+    public static boolean hasVideo(Context c) {
+        return installed(c, PKG_VIDEO);
+    }
+
+    public static boolean hasAvm(Context c) {
+        return installed(c, PKG_AVM);
+    }
+
+    public static boolean has360(Context c) {
+        return hasAvm(c) || installed(c, PKG_CARKIT_360);
+    }
+
+    public static void openAux(Context c) {
+        open(c, PKG_AUX, PKG_AUX + HOME_HORIZONTAL);
+    }
+
+    public static void openVideo(Context c) {
+        open(c, PKG_VIDEO, PKG_VIDEO + HOME_HORIZONTAL);
+    }
+
+    /**
+     * 360 camera: with the ivicar AVM, requests it via broadcast (opens on the last view). If the
+     * current screen stays in front, the AVM process wasn't alive: opens via the launcher Activity.
+     */
+    public static void open360(Activity from) {
+        if (hasAvm(from)) {
+            Intent in = new Intent(ACTION_360_IN);
+            in.putExtra(EXTRA_VIEW, -1);
+            from.sendBroadcast(in);
+            new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                if (from.isFinishing() || !from.hasWindowFocus()) return;
+                open(from, PKG_AVM, AVM_MAIN);
+            }, AVM_FALLBACK_MS);
+            return;
+        }
+        open(from, PKG_CARKIT_360, PKG_CARKIT_360 + HOME_HORIZONTAL);
+    }
+
+    public static void open360Settings(Context c) {
+        open(c, PKG_AVM, AVM_SETTINGS);
+    }
+
+    public static void open360Calibration(Context c) {
+        open(c, PKG_AVM, AVM_CALIBRATE);
+    }
+
+    /** Vehicle settings. {@code page} (optional) goes in the ref0 extra, e.g. setNaviPath. */
+    public static void openCarSettings(Context c, String page) {
+        Intent i = component(PKG_CAR_SETTING, PKG_CAR_SETTING + HOME_HORIZONTAL);
+        if (page != null) i.putExtra("ref0", page);
+        start(c, i, PKG_CAR_SETTING);
+    }
+
+    public static void openFactoryMenu(Context c) {
+        open(c, PKG_FACTORY, PKG_FACTORY + ".LoginActivity");
+    }
+
+    public static String factoryPassword(Context c) {
+        String custom = Settings.System.getString(c.getContentResolver(), "nwd_factory_password");
+        return custom == null || custom.trim().isEmpty() ? FACTORY_PASSWORD : custom.trim();
+    }
+
+    public static void openAndroidSettings(Context c) {
+        open(c, "com.android.settings", "com.android.settings.Settings");
+    }
+
+    /** Opens the Activity; if it isn't exported or doesn't exist, falls back to the package's launcher Activity. */
+    private static void open(Context c, String pkg, String cls) {
+        start(c, component(pkg, cls), pkg);
+    }
+
+    private static Intent component(String pkg, String cls) {
+        Intent i = new Intent(Intent.ACTION_MAIN);
+        i.setComponent(new ComponentName(pkg, cls));
+        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        return i;
+    }
+
+    private static void start(Context c, Intent i, String pkg) {
+        try {
+            c.startActivity(i);
+            return;
+        } catch (Exception ignored) {
+            // Activity not exported (e.g. internal AVM screens) or missing on this head unit.
+        }
+        Intent launch = c.getPackageManager().getLaunchIntentForPackage(pkg);
+        if (launch != null) {
+            launch.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            try {
+                c.startActivity(launch);
+                Toast.makeText(c, c.getString(R.string.adv_toast_opened_launcher), Toast.LENGTH_LONG).show();
+                return;
+            } catch (Exception ignored) {
+            }
+        }
+        Toast.makeText(c, c.getString(R.string.adv_toast_app_missing, pkg), Toast.LENGTH_LONG).show();
+    }
+}

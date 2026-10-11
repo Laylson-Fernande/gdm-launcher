@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Layout -->
+    <string name="eq_back">Back</string>
+    <string name="eq_tab_eq">Equalizer</string>
+    <string name="eq_tab_site">Field</string>
+    <string name="eq_tab_channels">Channels</string>
+    <string name="eq_tab_diag">Diag.</string>
+    <string name="eq_site_title">Sound field</string>
+    <string name="eq_site_hint">Tap or drag on the car to choose where the sound is centered.</string>
+
+    <!-- Presets -->
+    <string name="eq_preset_standard">Standard</string>
+    <string name="eq_preset_pop">Pop</string>
+    <string name="eq_preset_rock">Rock</string>
+    <string name="eq_preset_classic">Classical</string>
+    <string name="eq_preset_jazz">Jazz</string>
+    <string name="eq_preset_custom">Custom</string>
+    <string name="eq_loudness">Loudness</string>
+    <string name="eq_reset">Reset</string>
+
+    <!-- Seats -->
+    <string name="eq_seat_driver">Driver</string>
+    <string name="eq_seat_passenger">Passenger</string>
+    <string name="eq_seat_rear">Rear</string>
+    <string name="eq_seat_center">Center</string>
+
+    <!-- Sound field -->
+    <string name="eq_site_pad_front">FRONT</string>
+    <string name="eq_site_pad_rear">REAR</string>
+    <string name="eq_site_fader">Front ↔ Rear: %1$s</string>
+    <string name="eq_site_balance">Left ↔ Right: %1$s</string>
+    <string name="eq_site_center_value">center (%1$d/%2$d)</string>
+    <!-- e.g. "3 to front (4/14)" -->
+    <string name="eq_site_toward">%1$d to %2$s (%3$d/%4$d)</string>
+    <string name="eq_dir_front">front</string>
+    <string name="eq_dir_rear">rear</string>
+    <string name="eq_dir_left">left</string>
+    <string name="eq_dir_right">right</string>
+
+    <!-- Channels -->
+    <string name="eq_reset_channels">Reset channels</string>
+    <string name="eq_mute">Mute</string>
+    <string name="eq_phase">Phase</string>
+    <string name="eq_muted">muted</string>
+    <string name="eq_speaker_fl">FL</string>
+    <string name="eq_speaker_fr">FR</string>
+    <string name="eq_speaker_rl">RL</string>
+    <string name="eq_speaker_rr">RR</string>
+    <string name="eq_speaker_c">C</string>
+    <string name="eq_speaker_sub">SUB</string>
+
+    <!-- Diagnostics -->
+    <string name="eq_hardware">Hardware</string>
+    <string name="eq_audio_path">Audio path</string>
+    <string name="eq_mode_auto">Automatic</string>
+    <string name="eq_mode_force_mcu">Force MCU</string>
+    <string name="eq_mode_force_arm">Force ARM DSP</string>
+    <string name="eq_tests">Tests</string>
+    <string name="eq_read_mcu">Read MCU</string>
+    <string name="eq_test_dsp">Test DSP</string>
+    <string name="eq_reapply">Reapply</string>
+    <string name="eq_reconnect">Reconnect</string>
+    <string name="eq_apply_on_boot">Apply at startup (DSP)</string>
+    <string name="eq_no_connection">no connection</string>
+    <string name="eq_chip_none">none</string>
+    <string name="eq_yes">yes</string>
+    <string name="eq_no">no</string>
+    <string name="eq_info_path">Path: %1$s</string>
+    <string name="eq_info_chip">Chip: %1$s · DTS %2$s</string>
+    <string name="eq_info_method">Method: %1$s · max %2$d/%3$d</string>
+</resources>

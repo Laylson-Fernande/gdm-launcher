@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Screen opening: rises 24dp and fades in. -->
+<set xmlns:android="http://schemas.android.com/apk/res/android"
+    android:interpolator="@android:anim/decelerate_interpolator"
+    android:shareInterpolator="true"
+    android:zAdjustment="top">
+    <alpha android:duration="240" android:fromAlpha="0" android:toAlpha="1" />
+    <translate android:duration="240" android:fromYDelta="24dp" android:toYDelta="0" />
+</set>

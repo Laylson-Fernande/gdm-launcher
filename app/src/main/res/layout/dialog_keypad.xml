@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/keypad_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="440dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:background="@drawable/panel"
+        android:clickable="true"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <TextView
+            android:id="@+id/keypad_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textColor="@color/text"
+            android:textSize="26sp" />
+
+        <TextView
+            android:id="@+id/keypad_range"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textColor="@color/text_muted"
+            android:textSize="18sp" />
+
+        <TextView
+            android:id="@+id/keypad_input"
+            android:layout_width="match_parent"
+            android:layout_height="84dp"
+            android:gravity="center"
+            android:singleLine="true"
+            android:text="—"
+            android:textColor="@color/text"
+            android:textSize="64sp" />
+
+        <LinearLayout
+            android:id="@+id/keypad_keys"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/keypad_cancel"
+                style="@style/PillButton"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:text="@string/radio_keypad_cancel" />
+
+            <TextView
+                android:id="@+id/keypad_ok"
+                style="@style/PillButton"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:text="@string/radio_keypad_tune" />
+        </LinearLayout>
+    </LinearLayout>
+</FrameLayout>

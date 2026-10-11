@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    MP3 (USB/SD), minimalist: header, thin line, now playing | list, separated by a thin line.
+    Content area 1280×560 (the dock is attached at the bottom).
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/music_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/main_bg"
+    android:orientation="vertical"
+    android:paddingLeft="16dp"
+    android:paddingRight="24dp"
+    android:paddingTop="16dp">
+
+    <!-- Header -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <com.garagemdomadeira.nwd.launcher.ui.IconView
+            android:id="@+id/music_back"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:contentDescription="@string/media_back" />
+
+        <TextView
+            android:id="@+id/music_title_bar"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:layout_weight="1"
+            android:text="MP3"
+            android:textColor="@color/text"
+            android:textSize="30sp" />
+
+        <TextView
+            android:id="@+id/music_shuffle"
+            style="@style/LineButton"
+            android:text="@string/media_music_shuffle" />
+
+        <TextView
+            android:id="@+id/music_repeat"
+            style="@style/LineButton"
+            android:text="@string/media_music_repeat" />
+
+        <TextView
+            android:id="@+id/music_reload"
+            style="@style/LineButton"
+            android:text="@string/media_music_refresh" />
+    </LinearLayout>
+
+    <View
+        style="@style/HairlineH"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="14dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="horizontal">
+
+        <!-- ===== Now playing ===== -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1.15"
+            android:orientation="vertical"
+            android:paddingLeft="32dp"
+            android:paddingRight="36dp"
+            android:paddingTop="26dp">
+
+            <TextView
+                style="@style/Caption"
+                android:text="@string/media_music_now_playing" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <FrameLayout
+                    android:layout_width="132dp"
+                    android:layout_height="132dp"
+                    android:background="@drawable/art_frame"
+                    android:padding="1dp">
+
+                    <com.garagemdomadeira.nwd.launcher.ui.IconView
+                        android:id="@+id/music_art_icon"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:padding="30dp"
+                        android:clickable="false"
+                        android:focusable="false" />
+
+                    <ImageView
+                        android:id="@+id/music_art"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:contentDescription="@string/media_music_cover"
+                        android:scaleType="centerCrop"
+                        android:visibility="gone" />
+                </FrameLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="28dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/music_track"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:ellipsize="end"
+                        android:includeFontPadding="false"
+                        android:singleLine="true"
+                        android:text="—"
+                        android:textColor="@color/text"
+                        android:textSize="34sp" />
+
+                    <TextView
+                        android:id="@+id/music_artist"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:ellipsize="end"
+                        android:singleLine="true"
+                        android:textColor="@color/text_muted"
+                        android:textSize="22sp" />
+
+                    <TextView
+                        android:id="@+id/music_album"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:ellipsize="end"
+                        android:singleLine="true"
+                        android:textColor="@color/text_dim"
+                        android:textSize="18sp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+            <SeekBar
+                android:id="@+id/music_seek"
+                android:layout_width="match_parent"
+                android:layout_height="28dp"
+                android:max="1000"
+                android:paddingLeft="7dp"
+                android:paddingRight="7dp"
+                android:progress="0"
+                android:progressDrawable="@drawable/seek_line"
+                android:splitTrack="false"
+                android:thumb="@drawable/seek_thumb"
+                android:thumbOffset="7dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/music_pos"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="0:00"
+                    android:textColor="@color/caption"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/music_dur"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0:00"
+                    android:textColor="@color/caption"
+                    android:textSize="16sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <com.garagemdomadeira.nwd.launcher.ui.IconView
+                    android:id="@+id/music_prev"
+                    android:layout_width="72dp"
+                    android:layout_height="72dp"
+                    android:contentDescription="@string/media_previous" />
+
+                <com.garagemdomadeira.nwd.launcher.ui.IconView
+                    android:id="@+id/music_play"
+                    android:layout_width="88dp"
+                    android:layout_height="88dp"
+                    android:layout_marginLeft="40dp"
+                    android:layout_marginRight="40dp"
+                    android:contentDescription="@string/media_play_pause" />
+
+                <com.garagemdomadeira.nwd.launcher.ui.IconView
+                    android:id="@+id/music_next"
+                    android:layout_width="72dp"
+                    android:layout_height="72dp"
+                    android:contentDescription="@string/media_next" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/music_status"
+                style="@style/Caption"
+                android:layout_width="match_parent"
+                android:layout_marginBottom="14dp"
+                android:layout_marginTop="6dp"
+                android:gravity="center" />
+        </LinearLayout>
+
+        <!-- Thin vertical line -->
+        <View
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:layout_marginBottom="18dp"
+            android:layout_marginTop="18dp"
+            android:background="@color/hairline" />
+
+        <!-- ===== List ===== -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:paddingLeft="28dp"
+            android:paddingTop="26dp">
+
+            <TextView
+                android:id="@+id/music_list_title"
+                style="@style/Caption"
+                android:text="@string/media_music_list" />
+
+            <View
+                style="@style/HairlineH"
+                android:layout_marginTop="14dp" />
+
+            <ListView
+                android:id="@+id/music_list"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:divider="@color/hairline"
+                android:dividerHeight="1dp"
+                android:listSelector="@android:color/transparent"
+                android:scrollbars="none" />
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>
