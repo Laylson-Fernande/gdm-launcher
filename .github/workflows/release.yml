@@ -23,10 +23,10 @@ jobs:
           cache: gradle
 
       - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
-
-      - name: Accept Android SDK licenses
-        run: yes | sdkmanager --licenses || true
+        uses: android-actions/setup-android@v4
+        with:
+          # Avoid the deprecated `tools` package (removed by Google; breaks sdkmanager).
+          packages: platform-tools
 
       - name: Make gradlew executable
         run: chmod +x gradlew
