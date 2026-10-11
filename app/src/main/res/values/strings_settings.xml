@@ -97,4 +97,6 @@
     <string name="settings_appearance_section">Appearance</string>
     <string name="settings_font">Font</string>
     <string name="settings_font_hint">Typeface used across the launcher</string>
+    <string name="settings_theme_color">Theme color</string>
+    <string name="settings_theme_color_hint">Top: black background · bottom: tinted background</string>
 </resources>

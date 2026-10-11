@@ -109,7 +109,7 @@ public class MusicActivity extends Activity {
         artIcon = (IconView) findViewById(R.id.music_art_icon);
         artIcon.set(IconView.Icon.MUSIC, IconView.Style.NONE);
         artIcon.setClickable(false);
-        artIcon.color(0xFF4A4F57);
+        artIcon.color(Ui.OUTLINE_STRONG);
 
         playBtn = (IconView) findViewById(R.id.music_play);
         playBtn.set(IconView.Icon.PLAY, IconView.Style.OUTLINE_CIRCLE);
@@ -300,7 +300,7 @@ public class MusicActivity extends Activity {
             }
             sub.setText(who);
             boolean current = position == state.index;
-            title.setTextColor(current ? Ui.TEXT : 0xFFB4B7BC);
+            title.setTextColor(current ? Ui.TEXT : Ui.TEXT_SOFT);
             row.setActivated(current);
             return row;
         }

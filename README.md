@@ -44,7 +44,7 @@ El proyecto forma parte de **Garagem do Madeira**, un espacio sobre coches, hazl
 | 🎚️ | **Equalizer** | 10-band EQ with presets, loudness and sound field (fader/balance) |
 | 🌀 | **Fan** | Cooling fan preferences |
 | 📱 | **Apps** | Paged grid of installed apps |
-| ⚙️ | **Settings** | Language, font, default launcher, dock, sound, display, reverse camera, 360° camera, navigation app and "About the unit" |
+| ⚙️ | **Settings** | Language, font, theme color, default launcher, dock, sound, display, reverse camera, 360° camera, navigation app and "About the unit" |
 
 🔇 Opening the home screen **never** turns the radio on or interrupts what's playing.
 
@@ -64,6 +64,20 @@ Strings are split by area (`strings_home.xml`, `strings_radio.xml`, `strings_set
 3. If you need a regional variant (like `pt` → `pt-BR`), adjust `Ui.applyLanguage`.
 
 Contributions with new translations are very welcome! 🙌
+
+## 🎨 Theme colors
+
+In **Settings → Appearance → Theme color** you pick one of 14 themes, shown as color swatches:
+
+- **Columns:** grayscale, blue, violet, red, orange, yellow and green.
+- **Top row:** the color as the accent on a black background. Grayscale on black is the default.
+- **Bottom row:** the same accent with the background in a dark shade of the theme color.
+
+Every theme color is derived from the chosen hue in OKLCH (perceptual lightness, chroma and hue), so all themes keep the same lightness per token: dark backgrounds and readable text in any color. Error, warning and success colors never change.
+
+- Tokens and derivation: `ui/Palette.java`
+- Themed versions of the XML drawables and color selectors: `ui/ThemeDrawables.java`
+- Applying the theme to every inflated layout: `ui/ThemeInflater.java`
 
 ## 🔤 Fonts
 

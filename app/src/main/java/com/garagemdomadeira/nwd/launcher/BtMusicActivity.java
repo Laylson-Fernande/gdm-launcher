@@ -74,7 +74,7 @@ public class BtMusicActivity extends Activity {
         findViewById(R.id.bt_music_phone).setOnClickListener(v -> openPhone());
 
         IconView mark = (IconView) findViewById(R.id.bt_music_mark);
-        mark.set(IconView.Icon.BLUETOOTH, IconView.Style.NONE).color(0xFF7D838C);
+        mark.set(IconView.Icon.BLUETOOTH, IconView.Style.NONE).color(Ui.TEXT_MUTED);
         mark.setClickable(false);
 
         trackView = (TextView) findViewById(R.id.bt_music_track);

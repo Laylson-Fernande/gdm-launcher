@@ -92,7 +92,7 @@ public class SlantedTabsView extends View {
                 path.lineTo(r, top);
                 path.lineTo(r + s, base);
                 if (active) {
-                    fill.setColor(Ui.BG);
+                    fill.setColor(Ui.BG_SOFT);
                     c.drawPath(path, fill);
                 }
                 if (i == pressed && !active) {

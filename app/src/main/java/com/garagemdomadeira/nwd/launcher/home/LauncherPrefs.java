@@ -26,6 +26,7 @@ public final class LauncherPrefs {
     private static final String KEY_DOCK_TOGGLES = "dock_toggles";
     private static final String KEY_LANGUAGE = "language";
     private static final String KEY_FONT = "font";
+    private static final String KEY_THEME = "theme";
 
     /** App languages (language tags), in the order shown in Settings. To add one, append its tag
      *  here, its name to {@code LANGUAGE_NAMES} and create {@code res/values-<tag>/}. */
@@ -129,6 +130,18 @@ public final class LauncherPrefs {
     public static void setFont(Context c, String id) {
         // commit: the app restarts the screens right after and needs to read the new value.
         prefs(c).edit().putString(KEY_FONT, id == null ? DEFAULT_FONT : id).commit();
+    }
+
+    /** Theme color chosen in Settings: 0..Palette.THEMES-1, or Palette.DEFAULT (grayscale). */
+    public static int theme(Context c) {
+        int t = prefs(c).getInt(KEY_THEME, com.garagemdomadeira.nwd.launcher.ui.Palette.DEFAULT);
+        return t >= 0 && t < com.garagemdomadeira.nwd.launcher.ui.Palette.THEMES ? t
+            : com.garagemdomadeira.nwd.launcher.ui.Palette.DEFAULT;
+    }
+
+    public static void setTheme(Context c, int theme) {
+        // commit: the app restarts the screens right after and needs to read the new value.
+        prefs(c).edit().putInt(KEY_THEME, theme).commit();
     }
 
     public static void resetDockToggles(Context c) {

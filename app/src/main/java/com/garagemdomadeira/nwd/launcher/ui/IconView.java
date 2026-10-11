@@ -104,8 +104,8 @@ public class IconView extends View {
             float r = Math.min(w, h) / 2f - border.getStrokeWidth();
             float cx = w / 2f;
             float cy = h / 2f;
-            int inner = pressed ? 0xFF3A4048 : 0xFF2A2E34;
-            bg.setShader(new RadialGradient(cx, cy - r * 0.3f, r * 1.2f, inner, 0xFF121417, Shader.TileMode.CLAMP));
+            int inner = pressed ? Ui.OUTLINE : Ui.SURFACE_TOP;
+            bg.setShader(new RadialGradient(cx, cy - r * 0.3f, r * 1.2f, inner, Ui.PRESSED, Shader.TileMode.CLAMP));
             c.drawCircle(cx, cy, r, bg);
             border.setColor(pressed ? Ui.ACCENT : Ui.OUTLINE);
             c.drawCircle(cx, cy, r, border);
@@ -114,21 +114,21 @@ public class IconView extends View {
             float r = Math.min(w, h) / 2f - Ui.dp(getContext(), 1);
             if (pressed) {
                 bg.setShader(null);
-                bg.setColor(0xFF14171B);
+                bg.setColor(Ui.PRESSED);
                 c.drawCircle(w / 2f, h / 2f, r, bg);
             }
-            border.setColor(pressed ? 0xFF6A7079 : 0xFF3A3F46);
+            border.setColor(pressed ? Ui.TEXT_DIM : Ui.OUTLINE);
             c.drawCircle(w / 2f, h / 2f, r, border);
         } else if (style == Style.FLAT_CIRCLE) {
             // Plain gray circle, no border (home screen mute button).
             bg.setShader(null);
-            bg.setColor(pressed ? 0xFF3A3E44 : 0xFF2B2E33);
+            bg.setColor(pressed ? Ui.OUTLINE : Ui.SURFACE_TOP);
             c.drawCircle(w / 2f, h / 2f, Math.min(w, h) / 2f, bg);
         } else if (style == Style.SQUARE) {
             float r = Ui.dp(getContext(), 10);
             rect.set(0, 0, w, h);
             bg.setShader(null);
-            bg.setColor(pressed ? 0xFF3A4048 : Ui.SURFACE_TOP);
+            bg.setColor(pressed ? Ui.OUTLINE : Ui.SURFACE_TOP);
             c.drawRoundRect(rect, r, r, bg);
         }
     }

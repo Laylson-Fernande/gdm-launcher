@@ -114,7 +114,7 @@ public final class OptionList {
     public void section(String title) {
         TextView t = new TextView(activity);
         t.setText(title.toUpperCase());
-        t.setTextColor(activity.getResources().getColor(R.color.caption));
+        t.setTextColor(Ui.TEXT_MUTED);
         t.setTextSize(15);
         if (android.os.Build.VERSION.SDK_INT >= 21) t.setLetterSpacing(0.18f);
         t.setTypeface(Ui.semiBold(activity));
@@ -160,6 +160,13 @@ public final class OptionList {
         return add(new ActionRow(title, subtitle, null, null));
     }
 
+    /** Row with a custom control on the right (e.g. color swatches). */
+    public Row custom(String title, String subtitle, View content) {
+        Row r = new ActionRow(title, subtitle, null, null);
+        r.controls.addView(content);
+        return add(r);
+    }
+
     /** Read-only row: title on the left, value on the right. Hidden if the value is null. */
     public Row info(String title, Text value) {
         return add(new InfoRow(title, value));
@@ -170,7 +177,7 @@ public final class OptionList {
         if (current != null) current.rows.add(r);
         container.addView(r.view);
         View line = new View(activity);
-        line.setBackgroundColor(activity.getResources().getColor(R.color.hairline));
+        line.setBackgroundColor(Ui.HAIRLINE);
         container.addView(line, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, px(1)));
         r.divider = line;
         r.refresh();
@@ -584,7 +591,7 @@ public final class OptionList {
 
         LinearLayout panel = new LinearLayout(activity);
         panel.setOrientation(LinearLayout.VERTICAL);
-        panel.setBackgroundResource(R.drawable.panel);
+        ThemeDrawables.setBackground(panel, R.drawable.panel);
         panel.setClickable(true);
         panel.setPadding(px(28), px(24), px(28), px(24));
         android.widget.FrameLayout.LayoutParams plp = new android.widget.FrameLayout.LayoutParams(px(640),
@@ -612,7 +619,7 @@ public final class OptionList {
             LinearLayout line = new LinearLayout(activity);
             line.setOrientation(LinearLayout.HORIZONTAL);
             line.setGravity(Gravity.CENTER_VERTICAL);
-            line.setBackgroundResource(R.drawable.list_row);
+            ThemeDrawables.setBackground(line, R.drawable.list_row);
             line.setPadding(px(14), 0, px(14), 0);
             line.setActivated(i == selected);
             if (icons != null && icons[i] != null) {
