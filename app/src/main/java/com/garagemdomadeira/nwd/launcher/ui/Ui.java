@@ -25,19 +25,97 @@ public final class Ui {
     public static final int DESIGN_WIDTH = 1280;
     public static final int DESIGN_HEIGHT = 720;
 
-    // Palette: near-black graphite, grays and a single cyan accent.
-    public static final int BG = 0xFF0B0D10;
-    public static final int SURFACE = 0xFF15181C;
-    public static final int SURFACE_HIGH = 0xFF22262B;
-    public static final int SURFACE_TOP = 0xFF2B3036;
-    public static final int OUTLINE = 0xFF353A41;
-    public static final int OUTLINE_STRONG = 0xFF555B63;
-    public static final int TEXT = 0xFFE9EBEE;
-    public static final int TEXT_MUTED = 0xFF8D949D;
-    public static final int TEXT_DIM = 0xFF5D636B;
-    public static final int ACCENT = 0xFFFFFFFF;
-    public static final int ACCENT_DIM = 0x26FFFFFF;
-    public static final int DANGER = 0xFFFF6B6B;
+    // Theme colors: set by applyTheme from the theme chosen in Settings (see Palette).
+    // Not final on purpose: they change when the user picks another theme color.
+    public static int BG;
+    public static int BG_SOFT;
+    public static int SURFACE;
+    public static int SURFACE_HIGH;
+    public static int SURFACE_TOP;
+    public static int PRESSED;
+    public static int HAIRLINE;
+    public static int HAIRLINE_STRONG;
+    public static int OUTLINE;
+    public static int OUTLINE_STRONG;
+    public static int TEXT_DIM;
+    public static int TEXT_MUTED;
+    public static int TEXT_SOFT;
+    public static int TEXT;
+    public static int ACCENT;
+    public static int ACCENT_FILL;
+    public static int ACCENT_DIM;
+
+    // Semantic colors: the same in every theme.
+    public static final int DANGER = Palette.DANGER;
+    public static final int WARNING = Palette.WARNING;
+    public static final int SUCCESS = Palette.SUCCESS;
+
+    /** Palette in use; the default theme until an Activity applies the chosen one. */
+    private static Palette palette;
+    private static int paletteTheme = Integer.MIN_VALUE;
+
+    static {
+        use(Palette.DEFAULT);
+    }
+
+    private static void use(int theme) {
+        if (theme == paletteTheme) return;
+        paletteTheme = theme;
+        palette = Palette.of(theme);
+        BG = palette.bg;
+        BG_SOFT = palette.bgSoft;
+        SURFACE = palette.surface;
+        SURFACE_HIGH = palette.surfaceHigh;
+        SURFACE_TOP = palette.surfaceTop;
+        PRESSED = palette.pressed;
+        HAIRLINE = palette.hairline;
+        HAIRLINE_STRONG = palette.hairlineStrong;
+        OUTLINE = palette.outline;
+        OUTLINE_STRONG = palette.outlineStrong;
+        TEXT_DIM = palette.textDim;
+        TEXT_MUTED = palette.textMuted;
+        TEXT_SOFT = palette.textSoft;
+        TEXT = palette.text;
+        ACCENT = palette.accent;
+        ACCENT_FILL = palette.accentFill;
+        ACCENT_DIM = palette.accentDim;
+    }
+
+    /**
+     * Loads the theme chosen in Settings and themes the Activity: window background and every
+     * layout it inflates from now on ({@link ThemeInflater}). Must run before setContentView.
+     */
+    public static void applyTheme(Activity a) {
+        use(com.garagemdomadeira.nwd.launcher.home.LauncherPrefs.theme(a));
+        ThemeInflater.install(a);
+        a.getWindow().setBackgroundDrawable(new android.graphics.drawable.ColorDrawable(BG));
+    }
+
+    /**
+     * Theme version of a literal color written with a default-theme value (layouts, styles and
+     * views that still carry hex colors), or null if it isn't one of them.
+     */
+    public static Integer themedLiteral(int color) {
+        switch (color) {
+            case 0xFF050608: case 0xFF090A0C: return BG;
+            case 0xFF0B0D10: case 0xFF0C0E11: case 0xFF0B0E13: return BG_SOFT;
+            case 0xFF15181C: case 0xFF1A1D21: return SURFACE;
+            case 0xFF14171B: case 0xFF101215: case 0xFF121417: case 0xFF131518: case 0xFF181B20:
+                return PRESSED;
+            case 0xFF22262B: case 0xFF23272D: case 0xFF24272C: case 0xFF262A30: return SURFACE_HIGH;
+            case 0xFF2B3036: case 0xFF2A2E34: case 0xFF2B2E33: return SURFACE_TOP;
+            case 0xFF1C1F24: return HAIRLINE;
+            case 0xFF2C3036: return HAIRLINE_STRONG;
+            case 0xFF353A41: case 0xFF343A41: case 0xFF3A4048: case 0xFF3A3F46: case 0xFF3A3E44:
+                return OUTLINE;
+            case 0xFF555B63: case 0xFF4A4F57: case 0xFF4A5058: return OUTLINE_STRONG;
+            case 0xFF5D636B: case 0xFF5C626B: case 0xFF6A7079: return TEXT_DIM;
+            case 0xFF8D949D: case 0xFF8E949C: case 0xFF7D838C: case 0xFF9AA0A8: return TEXT_MUTED;
+            case 0xFFB4B7BC: case 0xFFC9CCD1: case 0xFFC6CCD4: return TEXT_SOFT;
+            case 0xFFE9EBEE: return TEXT;
+            default: return null;
+        }
+    }
 
     /** Font the cached typefaces below belong to; reloaded when the user picks another one. */
     private static String loadedFont;
@@ -116,8 +194,10 @@ public final class Ui {
      * Also ignores the system font scale.
      */
     public static void applyDesignDensity(Activity a) {
-        // Every screen calls this before setContentView: the right place to apply the language too.
+        // Every screen calls this before setContentView: the right place to apply the language
+        // and the theme too.
         applyLanguage(a);
+        applyTheme(a);
         Display d = a.getWindowManager().getDefaultDisplay();
         Point size = new Point();
         d.getRealSize(size);

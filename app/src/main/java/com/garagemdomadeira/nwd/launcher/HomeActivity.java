@@ -313,7 +313,7 @@ public class HomeActivity extends Activity {
         icon(R.id.voltage_icon, IconView.Icon.BATTERY, IconView.Style.NONE).color(Ui.TEXT_MUTED);
         npArt = (ImageView) findViewById(R.id.np_art);
         npArtIcon = (IconView) findViewById(R.id.np_art_icon);
-        npArtIcon.color(0xFF5C626B);
+        npArtIcon.color(Ui.TEXT_DIM);
         findViewById(R.id.now_playing).setOnClickListener(v -> openNowPlaying());
 
         cardCall = findViewById(R.id.card_call);
@@ -472,7 +472,7 @@ public class HomeActivity extends Activity {
     private void renderVolume() {
         if (muteButton == null) return;
         muteButton.set(muted ? IconView.Icon.VOLUME_MUTE : IconView.Icon.VOLUME, IconView.Style.NONE);
-        muteButton.color(muted ? Ui.TEXT : 0xFFB4B7BC);
+        muteButton.color(muted ? Ui.TEXT : Ui.TEXT_SOFT);
         muteButton.setContentDescription(getString(
             muted ? R.string.home_unmute_volume : R.string.home_mute_volume, volumeValue));
     }
@@ -546,7 +546,7 @@ public class HomeActivity extends Activity {
         IconView.Icon icon = s.kind == HomeSession.Kind.RADIO ? IconView.Icon.RADIO
             : s.kind == HomeSession.Kind.BT ? IconView.Icon.BLUETOOTH : IconView.Icon.MUSIC;
         npArtIcon.set(icon, IconView.Style.NONE);
-        npArtIcon.color(0xFF5C626B);
+        npArtIcon.color(Ui.TEXT_DIM);
 
         long id = 0;
         if (s.kind == HomeSession.Kind.USB && s.mediaId != null) {

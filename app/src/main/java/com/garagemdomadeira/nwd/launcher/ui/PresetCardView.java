@@ -102,11 +102,11 @@ public class PresetCardView extends View {
         buildShape(l, t, r, b, cut, round);
 
         // Body and header.
-        bodyPaint.setColor(isPressed() ? 0xFF343A41 : Ui.SURFACE_TOP);
+        bodyPaint.setColor(isPressed() ? Ui.OUTLINE : Ui.SURFACE_TOP);
         c.drawPath(shape, bodyPaint);
         c.save();
         c.clipRect(l, t, r, t + headH);
-        headPaint.setColor(isPressed() ? 0xFF262A30 : 0xFF1A1D21);
+        headPaint.setColor(isPressed() ? Ui.SURFACE_HIGH : Ui.SURFACE);
         c.drawPath(shape, headPaint);
         c.restore();
 
@@ -128,7 +128,7 @@ public class PresetCardView extends View {
         if (selectedCard) {
             float y = t + headH;
             linePaint.setShader(new LinearGradient(l, y, r, y,
-                new int[]{0x00FFFFFF, Ui.ACCENT, 0x00FFFFFF}, null, Shader.TileMode.CLAMP));
+                new int[]{Ui.ACCENT & 0x00FFFFFF, Ui.ACCENT, Ui.ACCENT & 0x00FFFFFF}, null, Shader.TileMode.CLAMP));
             linePaint.setStrokeWidth(Ui.dp(ctx, 2));
             c.drawLine(l + cut, y, r - cut, y, linePaint);
         }

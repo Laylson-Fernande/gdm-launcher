@@ -79,7 +79,7 @@ public class AmsButton extends View {
         float inner = outer - Ui.dp(getContext(), 9);
 
         // Outer ring.
-        ring.setColor(isPressed() ? Ui.ACCENT : 0xFF4A5058);
+        ring.setColor(isPressed() ? Ui.ACCENT : Ui.OUTLINE_STRONG);
         c.drawCircle(cx, cy, outer, ring);
         if (busy) {
             rect.set(cx - outer, cy - outer, cx + outer, cy + outer);
@@ -87,8 +87,8 @@ public class AmsButton extends View {
         }
 
         // Inner disc with a subtle gradient.
-        int top = isPressed() ? 0xFF3A4048 : 0xFF2C3036;
-        bg.setShader(new RadialGradient(cx, cy - inner * 0.4f, inner * 1.3f, top, 0xFF131518, Shader.TileMode.CLAMP));
+        int top = isPressed() ? Ui.OUTLINE : Ui.HAIRLINE_STRONG;
+        bg.setShader(new RadialGradient(cx, cy - inner * 0.4f, inner * 1.3f, top, Ui.PRESSED, Shader.TileMode.CLAMP));
         c.drawCircle(cx, cy, inner, bg);
 
         // "◎ AMS": target icon + text, centered together.

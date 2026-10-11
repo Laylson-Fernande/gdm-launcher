@@ -30,6 +30,7 @@ import com.garagemdomadeira.nwd.launcher.ui.IconView;
 import com.garagemdomadeira.nwd.launcher.ui.InputDialog;
 import com.garagemdomadeira.nwd.launcher.ui.OptionList;
 import com.garagemdomadeira.nwd.launcher.ui.PropRows;
+import com.garagemdomadeira.nwd.launcher.ui.ThemeSwatches;
 import com.garagemdomadeira.nwd.launcher.ui.Touch;
 import com.garagemdomadeira.nwd.launcher.ui.Ui;
 
@@ -144,7 +145,7 @@ public class SettingsActivity extends Activity {
         TextView alert = (TextView) findViewById(R.id.settings_alert);
         if (text == null) return;
         alert.setText(text);
-        alert.setTextColor(v == PlatformCompat.Verdict.UNTESTED ? 0xFFFFC857 : Ui.DANGER);
+        alert.setTextColor(v == PlatformCompat.Verdict.UNTESTED ? Ui.WARNING : Ui.DANGER);
         alert.setVisibility(View.VISIBLE);
     }
 
@@ -190,6 +191,16 @@ public class SettingsActivity extends Activity {
                 LauncherPrefs.setFont(this, LauncherPrefs.FONTS[i]);
                 restartScreens();
             }).local();
+
+        int theme = LauncherPrefs.theme(this);
+        list.custom(getString(R.string.settings_theme_color), getString(R.string.settings_theme_color_hint),
+            new ThemeSwatches(this, theme, this::pickTheme));
+    }
+
+    private void pickTheme(int theme) {
+        if (theme == LauncherPrefs.theme(this)) return;
+        LauncherPrefs.setTheme(this, theme);
+        restartScreens();
     }
 
     /** Recreates the home screen (and the rest of the stack) with the new language or font. */

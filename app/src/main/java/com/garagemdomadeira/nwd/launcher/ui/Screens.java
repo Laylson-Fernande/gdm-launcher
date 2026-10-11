@@ -55,7 +55,7 @@ public final class Screens {
 
         LinearLayout column = new LinearLayout(activity);
         column.setOrientation(LinearLayout.VERTICAL);
-        column.setBackgroundColor(0xFF050608);
+        column.setBackgroundColor(Ui.BG);
         column.addView(content, new LinearLayout.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
 

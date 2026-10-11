@@ -97,4 +97,6 @@
     <string name="settings_appearance_section">Aparência</string>
     <string name="settings_font">Fonte</string>
     <string name="settings_font_hint">Fonte usada em todo o launcher</string>
+    <string name="settings_theme_color">Cor do tema</string>
+    <string name="settings_theme_color_hint">Em cima: fundo preto · embaixo: fundo na cor do tema</string>
 </resources>

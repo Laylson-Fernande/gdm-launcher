@@ -67,7 +67,7 @@ public class AdvancedActivity extends Activity {
 
         TextView alert = (TextView) findViewById(R.id.settings_alert);
         alert.setText(R.string.adv_alert);
-        alert.setTextColor(0xFFFFC857);
+        alert.setTextColor(Ui.WARNING);
         alert.setVisibility(View.VISIBLE);
 
         list = new OptionList(this, (LinearLayout) findViewById(R.id.settings_content));

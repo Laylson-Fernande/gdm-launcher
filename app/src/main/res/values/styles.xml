@@ -41,7 +41,7 @@
         <item name="android:paddingLeft">14dp</item>
         <item name="android:paddingRight">14dp</item>
         <item name="android:background">@drawable/chip</item>
-        <item name="android:textColor">#FFC6CCD4</item>
+        <item name="android:textColor">@color/text_soft</item>
         <item name="android:textSize">22sp</item>
         <item name="android:singleLine">true</item>
         <item name="android:visibility">gone</item>

@@ -96,10 +96,6 @@ public class DockView extends LinearLayout {
     /** Total height reserved by the dock (panel + margins), in design dp. */
     public static final int HEIGHT_DP = 160;
 
-    private static final int IDLE = 0xFF8E949C;
-    private static final int PANEL = 0xFF0C0E11;
-    private static final int PANEL_BORDER = 0xFF1C1F24;
-
     private final Paint panel = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint border = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint underline = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -123,11 +119,11 @@ public class DockView extends LinearLayout {
         setWillNotDraw(false);
         int side = Math.round(Ui.dp(c, 44));
         setPadding(side, Math.round(Ui.dp(c, 14)), side, Math.round(Ui.dp(c, 26)));
-        panel.setColor(PANEL);
-        border.setColor(PANEL_BORDER);
+        panel.setColor(Ui.BG_SOFT);
+        border.setColor(Ui.HAIRLINE);
         border.setStyle(Paint.Style.STROKE);
         border.setStrokeWidth(Ui.dp(c, 1.5f));
-        underline.setColor(Ui.TEXT);
+        underline.setColor(Ui.ACCENT);
 
         refresh();
     }
@@ -158,20 +154,20 @@ public class DockView extends LinearLayout {
             slot.setGravity(Gravity.CENTER);
             slot.setClickable(true);
             slot.setContentDescription(item.label(c));
-            slot.setBackgroundResource(com.garagemdomadeira.nwd.launcher.R.drawable.dock_item);
+            ThemeDrawables.setBackground(slot, com.garagemdomadeira.nwd.launcher.R.drawable.dock_item);
 
             IconView icon = new IconView(c);
             icon.set(item.icon, IconView.Style.NONE);
             icon.setClickable(false);
             icon.setDuplicateParentStateEnabled(true);
-            icon.color(IDLE);
+            icon.color(Ui.TEXT_MUTED);
             int iconSize = Math.round(Ui.dp(c, 62));
             slot.addView(icon, new LayoutParams(iconSize, iconSize));
 
             TextView label = new TextView(c);
             label.setText(item.label(c));
             label.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX, Ui.dp(c, 22));
-            label.setTextColor(IDLE);
+            label.setTextColor(Ui.TEXT_MUTED);
             label.setSingleLine(true);
             label.setTypeface(Ui.medium(c));
             label.setIncludeFontPadding(false);
@@ -205,8 +201,8 @@ public class DockView extends LinearLayout {
         for (Item i : Item.values()) {
             if (icons[i.ordinal()] == null) continue;
             boolean on = i == item;
-            icons[i.ordinal()].color(on ? Ui.TEXT : IDLE);
-            labels[i.ordinal()].setTextColor(on ? Ui.TEXT : IDLE);
+            icons[i.ordinal()].color(on ? Ui.ACCENT : Ui.TEXT_MUTED);
+            labels[i.ordinal()].setTextColor(on ? Ui.ACCENT : Ui.TEXT_MUTED);
             labels[i.ordinal()].setTypeface(on ? Ui.semiBold(getContext()) : Ui.medium(getContext()));
         }
         invalidate();

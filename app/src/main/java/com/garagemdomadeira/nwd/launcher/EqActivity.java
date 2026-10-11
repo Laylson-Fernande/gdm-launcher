@@ -14,6 +14,7 @@ import com.garagemdomadeira.nwd.launcher.eq.EqModel;
 import com.garagemdomadeira.nwd.launcher.system.DevMode;
 import com.garagemdomadeira.nwd.launcher.ui.IconView;
 import com.garagemdomadeira.nwd.launcher.ui.SitePadView;
+import com.garagemdomadeira.nwd.launcher.ui.ThemeDrawables;
 import com.garagemdomadeira.nwd.launcher.ui.DockView;
 import com.garagemdomadeira.nwd.launcher.ui.Screens;
 import com.garagemdomadeira.nwd.launcher.ui.Touch;
@@ -265,7 +266,7 @@ public class EqActivity extends Activity {
             LinearLayout card = new LinearLayout(this);
             card.setOrientation(LinearLayout.VERTICAL);
             card.setGravity(Gravity.CENTER_HORIZONTAL);
-            card.setBackgroundResource(R.drawable.pill);
+            ThemeDrawables.setBackground(card, R.drawable.pill);
             card.setPadding(10, 10, 10, 10);
             LinearLayout.LayoutParams clp = new LinearLayout.LayoutParams(150, ViewGroup.LayoutParams.MATCH_PARENT);
             clp.rightMargin = 10;
@@ -453,7 +454,7 @@ public class EqActivity extends Activity {
         tv.setTextColor(Ui.TEXT);
         tv.setTextSize(16);
         tv.setGravity(Gravity.CENTER);
-        tv.setBackgroundResource(R.drawable.pill);
+        ThemeDrawables.setBackground(tv, R.drawable.pill);
         tv.setPadding(18, 12, 18, 12);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
             ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
