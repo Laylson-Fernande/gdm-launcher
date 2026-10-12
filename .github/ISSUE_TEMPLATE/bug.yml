@@ -1,0 +1,22 @@
+name: Bug report
+description: Something is not working / Algo não está funcionando
+title: "[Bug] "
+labels: ["bug"]
+body:
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened? / O que aconteceu?
+      description: Steps to reproduce and what you expected / Passos para reproduzir e o que você esperava
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: App version / Versão do app
+      placeholder: "e.g. 0.4.0"
+  - type: input
+    id: unit
+    attributes:
+      label: Head unit / Central
+      placeholder: "e.g. NWD 1280×720, Android version"
