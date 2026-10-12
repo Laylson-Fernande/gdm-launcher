@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Pantalla avanzada, menú de props de desarrollador y utilidades del sistema (prefijo adv_). -->
+<resources>
+    <!-- Avanzado -->
+    <string name="adv_title">Avanzado</string>
+    <string name="adv_alert">Opciones de fábrica. Anota el valor antes de cambiarlo.</string>
+    <string name="adv_open">Abrir ›</string>
+
+    <string name="adv_sec_shortcuts">Menús de la central</string>
+    <string name="adv_car_settings">Ajustes del vehículo</string>
+    <string name="adv_car_settings_sub">Ajustes del auto NWD</string>
+    <string name="adv_factory_menu">Menú de fábrica</string>
+    <string name="adv_factory_menu_sub">Contraseña NWD: %1$s</string>
+    <string name="adv_android_settings">Ajustes de Android</string>
+    <string name="adv_camera_360">Cámara 360</string>
+    <string name="adv_360_settings">Ajustes 360</string>
+    <string name="adv_360_settings_sub">Pantalla completa de ajustes de la app 360</string>
+
+    <string name="adv_sec_development">Desarrollo</string>
+    <string name="adv_adb_wifi">ADB por Wi‑Fi</string>
+    <string name="adv_adb_wifi_sub">Puerto 5555, sin pedir autorización. Apágalo después de usarlo.</string>
+    <string name="adv_log_logcat">Logs del sistema a archivo (logcat)</string>
+    <string name="adv_log_kernel">Logs del kernel a archivo</string>
+    <string name="adv_log_sub">Guardados por NWD en el almacenamiento interno</string>
+    <string name="adv_system_props">Props del sistema</string>
+    <string name="adv_system_props_sub">Ver, cambiar y exportar todas las props</string>
+
+    <string name="adv_sec_factory_audio">Audio de fábrica</string>
+    <string name="adv_phase">Invertir fase</string>
+    <string name="adv_phase_sub">\"Phase exchange\" en el menú de fábrica. Si está mal, suena hueco.</string>
+    <string name="adv_dual_mic">Micrófonos dobles (eco)</string>
+    <string name="adv_dual_mic_sub">Cancelación de eco con dos micrófonos. Puede requerir reiniciar.</string>
+    <string name="adv_music_max">Volumen máximo de música</string>
+    <string name="adv_music_max_sub">5 a 15</string>
+    <string name="adv_bt_unmute">Retardo de desilencio Bluetooth</string>
+    <string name="adv_bt_unmute_sub">En ms. Para chasquidos o cortes al inicio</string>
+
+    <string name="adv_sec_carplay">CarPlay</string>
+    <string name="adv_carplay_note">Solo se aplican a llamadas de CarPlay.</string>
+    <string name="adv_mic_gain">Ganancia del micrófono</string>
+    <string name="adv_speaker_gain">Ganancia del altavoz</string>
+    <string name="adv_noise">Reducción de ruido</string>
+    <string name="adv_noise_sub">Reducción de ruido por red neuronal</string>
+    <string name="adv_aec_type">Tipo de cancelación de eco</string>
+    <string name="adv_aec_delay">Retardo de cancelación de eco</string>
+    <string name="adv_in_ms">En ms</string>
+
+    <string name="adv_sec_car">Auto</string>
+    <string name="adv_radio_region">Región de radio</string>
+    <string name="adv_radio_region_sub">Cambia la banda y el paso de la radio. Región incorrecta = emisoras incorrectas.</string>
+    <string-array name="adv_radio_regions">
+        <item>Europa</item>
+        <item>EE. UU.</item>
+        <item>China</item>
+        <item>Japón</item>
+        <item>OIRT</item>
+        <item>Latinoamérica</item>
+        <item>Taiwán</item>
+        <item>Australia</item>
+        <item>Sudamérica</item>
+        <item>Irán</item>
+        <item>Medio Oriente</item>
+        <item>Mundial</item>
+    </string-array>
+    <string name="adv_hand_brake">Exigir freno de mano para video</string>
+    <string name="adv_hand_brake_sub">Desactivarlo es una decisión de seguridad del conductor</string>
+    <string name="adv_any_key_power">Encender con cualquier tecla</string>
+    <string name="adv_auto_wakeup">Activación automática</string>
+    <string name="adv_auto_wakeup_sub">Estado en persist.nwd.autowakeup</string>
+    <string name="adv_backcar_track">Líneas guía de reversa</string>
+    <string name="adv_backcar_assist">Líneas de asistencia de reversa</string>
+    <string name="adv_backcar_sub">Del menú de fábrica; verifica si la cámara lo recarga</string>
+    <string name="adv_autorun">Apps de inicio automático</string>
+    <string name="adv_autorun_none">ninguna</string>
+    <string name="adv_autorun_sub">Lista blanca de NWD (whitelist_packagename / appautorun_packagename). Para cambiarla, usa Ajustes del vehículo.</string>
+
+    <string name="adv_sec_360">Cámara 360 (fábrica)</string>
+    <string name="adv_360_note">Retardo de encendido, flecha de hardware, auto en vista aérea, imagen y monitor de estacionamiento quedan en la app 360 hasta confirmar que Garagem puede guardar sus preferencias.</string>
+    <string name="adv_360_app_settings">Ajustes de la app 360</string>
+    <string name="adv_calibration">Calibración</string>
+    <string name="adv_calibration_sub">Contraseña de la app: 0000. El proceso sigue en su app.</string>
+
+    <string name="adv_sec_car_on">Al encender el auto (por confirmar)</string>
+    <string name="adv_car_on_note">Experimental. Prueba antes de moverlo a la pantalla de ajustes.</string>
+    <string name="adv_wake_wifi">Activar Wi‑Fi</string>
+    <string name="adv_wake_hotspot">Activar hotspot</string>
+    <string name="adv_touch_wake">Tocar enciende la pantalla</string>
+    <string name="adv_multi_window">Permitir ventana pequeña</string>
+
+    <!-- Menú de desarrollador (props del sistema) -->
+    <string name="adv_dev_title">Menú de desarrollador</string>
+    <string name="adv_back">Volver</string>
+    <string name="adv_refresh">Actualizar</string>
+    <string name="adv_export">Exportar .txt</string>
+    <string name="adv_filter_hint">Filtrar por nombre o valor</string>
+    <string name="adv_props_count">%1$d props</string>
+    <string name="adv_props_count_filtered">%1$d de %2$d props</string>
+    <string name="adv_props_read_failed">No se pudieron leer las props (getprop no devolvió nada).</string>
+    <string name="adv_prop_dialog_msg">Valor actual: %1$s\nEl cambio se solicita al sistema NWD; no todas las props lo aceptan.</string>
+    <string name="adv_prop_empty_paren">(vacío)</string>
+    <string name="adv_prop_empty">vacío</string>
+    <string name="adv_prop_save">Guardar</string>
+    <string name="adv_prop_applying">Aplicando %1$s = %2$s…</string>
+    <string name="adv_prop_not_applied">El sistema no aplicó %1$s (valor actual: %2$s). Por adb: setprop %1$s %3$s</string>
+    <string name="adv_exporting">Exportando…</string>
+    <string name="adv_export_failed">No se pudo escribir el archivo.</string>
+    <string name="adv_export_done">%1$d props exportadas a %2$s</string>
+
+    <!-- Apps externas -->
+    <string name="adv_toast_opened_launcher">Esta pantalla no se puede abrir directamente; se abrió la pantalla inicial de la app.</string>
+    <string name="adv_toast_app_missing">App no encontrada en esta central (%1$s)</string>
+
+    <!-- Compatibilidad de plataforma -->
+    <string name="adv_compat_untested">Plataforma NWD aún no probada con Garagem (%1$s). Puede fallar.</string>
+    <string name="adv_compat_incompatible">Este dispositivo no parece una central NWD compatible. Garagem puede no controlar el sonido, la radio ni el Bluetooth.</string>
+    <string name="adv_compat_ok">OK</string>
+    <string name="adv_compat_untested_label">NWD no probada</string>
+    <string name="adv_compat_incompatible_label">Incompatible</string>
+</resources>

@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Radio screen -->
+    <string name="radio_cd_power">ラジオのオン/オフ</string>
+    <string name="radio_cd_exit">オフにして終了</string>
+    <string name="radio_chip_stereo">ステレオ</string>
+    <string name="radio_chip_traffic">交通情報</string>
+    <string name="radio_chip_seeking">シーク中</string>
+    <string name="radio_chip_scanning">スキャン中</string>
+    <string name="radio_chip_intro">イントロ</string>
+    <string name="radio_cd_station_art">放送局の画像</string>
+    <string name="radio_cd_prev_saved">前の保存局</string>
+    <string name="radio_cd_step_down">0.1 MHz 下げる</string>
+    <string name="radio_cd_ams">局をスキャンして保存</string>
+    <string name="radio_cd_step_up">0.1 MHz 上げる</string>
+    <string name="radio_cd_next_saved">次の保存局</string>
+    <string name="radio_cd_keypad">周波数を入力</string>
+    <string name="radio_presets_title">プリセット %1$s</string>
+    <string name="radio_cd_prev_preset">前のプリセット</string>
+    <string name="radio_cd_next_preset">次のプリセット</string>
+    <string name="radio_presets_hint">タップで受信 · 長押しで保存</string>
+    <string name="radio_preset_saved">プリセット %1$d に局を保存しました</string>
+    <string name="radio_preset_empty">空き</string>
+    <string name="radio_off">ラジオ オフ</string>
+    <string name="radio_banner_connecting">ラジオサービスに接続中…</string>
+    <string name="radio_banner_not_found">ヘッドユニットのラジオサービスが見つかりません。診断を確認してください。</string>
+    <string name="radio_banner_disconnected">ラジオサービスが切断されました。再試行中…</string>
+    <!-- Keypad -->
+    <string name="radio_keypad_title">周波数を入力 (%1$s)</string>
+    <string name="radio_keypad_cancel">キャンセル</string>
+    <string name="radio_keypad_tune">選局</string>
+    <!-- Diagnostics dialog -->
+    <string name="radio_diag_title">診断</string>
+    <string name="radio_diag_close">閉じる</string>
+    <string name="radio_diag_next_band">次のバンド</string>
+    <string name="radio_diag_request_state">状態を要求</string>
+    <string name="radio_diag_activate_source">ソースを有効化</string>
+    <string name="radio_diag_reconnect">再接続</string>
+    <!-- RDS programme types (PTY 0..31) -->
+    <string-array name="radio_pty_names">
+        <item>なし</item>
+        <item>ニュース</item>
+        <item>時事</item>
+        <item>情報</item>
+        <item>スポーツ</item>
+        <item>教育</item>
+        <item>ドラマ</item>
+        <item>文化</item>
+        <item>科学</item>
+        <item>バラエティ</item>
+        <item>ポップ</item>
+        <item>ロック</item>
+        <item>イージーリスニング</item>
+        <item>ライトクラシック</item>
+        <item>クラシック</item>
+        <item>その他</item>
+        <item>天気</item>
+        <item>経済</item>
+        <item>子ども向け</item>
+        <item>社会</item>
+        <item>宗教</item>
+        <item>リスナー参加</item>
+        <item>旅行</item>
+        <item>レジャー</item>
+        <item>ジャズ</item>
+        <item>カントリー</item>
+        <item>国民音楽</item>
+        <item>オールディーズ</item>
+        <item>フォーク</item>
+        <item>ドキュメンタリー</item>
+        <item>テスト</item>
+        <item>警報</item>
+    </string-array>
+</resources>

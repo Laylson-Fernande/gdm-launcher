@@ -174,7 +174,10 @@ public final class Ui {
      */
     public static void applyLanguage(Context c) {
         String tag = com.garagemdomadeira.nwd.launcher.home.LauncherPrefs.language(c);
-        Locale locale = "pt".equals(tag) ? new Locale("pt", "BR") : new Locale(tag);
+        Locale locale;
+        if ("pt".equals(tag)) locale = new Locale("pt", "BR");
+        else if ("zh".equals(tag)) locale = new Locale("zh", "CN");
+        else locale = new Locale(tag);
         Locale.setDefault(locale);
         setLocale(c.getResources(), locale);
         setLocale(c.getApplicationContext().getResources(), locale);

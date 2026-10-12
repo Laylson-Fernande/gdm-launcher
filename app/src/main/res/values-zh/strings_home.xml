@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- 主屏幕 -->
+    <string name="home_screen_off">关闭屏幕</string>
+    <string name="home_settings">设置</string>
+    <string name="home_battery_voltage">电池电压</string>
+    <string name="home_volume_down">降低音量</string>
+    <string name="home_mute">静音</string>
+    <string name="home_volume_up">提高音量</string>
+    <string name="home_mute_volume">静音（音量 %1$d）</string>
+    <string name="home_unmute_volume">取消静音（音量 %1$d）</string>
+    <string name="home_cover">专辑封面</string>
+    <string name="home_now_playing">正在播放</string>
+    <string name="home_now_playing_radio">正在播放 · 收音机</string>
+    <string name="home_now_playing_mp3">正在播放 · MP3</string>
+    <string name="home_now_playing_bt">正在播放 · 蓝牙</string>
+    <string name="home_previous">上一首</string>
+    <string name="home_play_pause">播放或暂停</string>
+    <string name="home_next">下一首</string>
+    <string name="home_play">播放</string>
+    <string name="home_pause">暂停</string>
+    <string name="home_radio">收音机</string>
+    <string name="home_radio_unavailable">收音机不可用</string>
+    <string name="home_radio_turn_on">打开收音机</string>
+    <string name="home_radio_turn_off">关闭收音机</string>
+    <string name="home_music">音乐</string>
+    <string name="home_phone_disconnected">手机未连接</string>
+    <string name="home_bt_music">蓝牙音乐</string>
+    <string name="home_nothing_playing">未在播放</string>
+    <string name="home_answer">接听</string>
+    <string name="home_hang_up">挂断</string>
+    <string name="home_call_incoming">来电</string>
+    <string name="home_call_outgoing">正在呼叫</string>
+    <string name="home_call_active">通话中</string>
+    <string name="home_unknown_number">未知号码</string>
+    <string name="home_fan">风扇</string>
+    <string name="home_fan_caps">风扇</string>
+    <string name="home_fan_on">开</string>
+    <string name="home_fan_off">关</string>
+    <string name="home_bluetooth">蓝牙</string>
+    <string name="home_bt_connected">已连接</string>
+    <string name="home_bt_disconnected">未连接</string>
+    <string name="home_phone">电话</string>
+    <string name="home_tap_to_connect">点按连接</string>
+    <string name="home_tap_to_wake">点按打开屏幕</string>
+    <!-- 星期、月份名称、日期、年份（中文顺序：年 月 日 星期） -->
+    <string name="home_date">%4$d年%2$s%3$d日 %1$s</string>
+    <!-- "10月" instead of "十月" -->
+    <string name="home_month_pattern" translatable="false" tools:ignore="Untranslatable">M月</string>
+    <string name="home_settings_not_found">未找到设置</string>
+
+    <!-- 默认启动器对话框 -->
+    <string name="home_default_launcher_title">默认启动器</string>
+    <string name="home_default_launcher_message">主机已将其他启动器设为默认：\n%1$s\n\n是否将 Garagem 设为默认启动器？</string>
+    <string name="home_not_set_paren">（未设置）</string>
+    <string name="home_not_set">未设置</string>
+    <string name="home_not_now">暂不</string>
+    <string name="home_set">设置</string>
+    <string name="home_default_launcher_done">已将 Garagem 设为默认启动器</string>
+    <string name="home_default_launcher_failed_title">无法更改</string>
+    <string name="home_default_launcher_failed_message">系统未应用此更改（当前值：%1$s）。\n\n如需手动设置，请连接 adb 并运行：</string>
+
+    <!-- 对话框按钮 -->
+    <string name="home_cancel">取消</string>
+    <string name="home_ok">确定</string>
+
+    <!-- 应用列表 -->
+    <string name="home_apps_back">返回</string>
+    <string name="home_apps_title">应用</string>
+    <string name="home_apps_empty">没有应用</string>
+    <string name="home_apps_prev_page">上一页</string>
+    <string name="home_apps_next_page">下一页</string>
+    <string name="home_apps_not_found">未找到应用</string>
+    <string name="home_app_fan">风扇</string>
+
+    <!-- Dock：短标签 / 全称（设置列表） -->
+    <string name="home_dock_home">主页</string>
+    <string name="home_dock_home_title">主页</string>
+    <string name="home_dock_radio">收音机</string>
+    <string name="home_dock_radio_title">收音机</string>
+    <string name="home_dock_music">MP3</string>
+    <string name="home_dock_music_title">音乐（USB/SD）</string>
+    <string name="home_dock_bt_music">蓝牙</string>
+    <string name="home_dock_bt_music_title">蓝牙音乐</string>
+    <string name="home_dock_phone">电话</string>
+    <string name="home_dock_phone_title">电话</string>
+    <string name="home_dock_eq">均衡器</string>
+    <string name="home_dock_eq_title">均衡器</string>
+    <string name="home_dock_aux">AUX</string>
+    <string name="home_dock_aux_title">AUX</string>
+    <string name="home_dock_cam360">360</string>
+    <string name="home_dock_cam360_title">360 全景</string>
+    <string name="home_dock_video">视频</string>
+    <string name="home_dock_video_title">视频</string>
+    <string name="home_dock_apps">应用</string>
+    <string name="home_dock_apps_title">应用</string>
+</resources>

@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Advanced screen, developer props menu and system helpers (prefix adv_). -->
+<resources>
+    <!-- Advanced -->
+    <string name="adv_title">Расширенные</string>
+    <string name="adv_alert">Заводские параметры. Запишите значение перед изменением.</string>
+    <string name="adv_open">Открыть ›</string>
+
+    <string name="adv_sec_shortcuts">Меню магнитолы</string>
+    <string name="adv_car_settings">Настройки авто</string>
+    <string name="adv_car_settings_sub">Настройки авто NWD</string>
+    <string name="adv_factory_menu">Заводское меню</string>
+    <string name="adv_factory_menu_sub">Пароль NWD: %1$s</string>
+    <string name="adv_android_settings">Настройки Android</string>
+    <string name="adv_camera_360">Камера 360</string>
+    <string name="adv_360_settings">Настройки 360</string>
+    <string name="adv_360_settings_sub">Полный экран настроек приложения 360</string>
+
+    <string name="adv_sec_development">Разработка</string>
+    <string name="adv_adb_wifi">ADB по Wi‑Fi</string>
+    <string name="adv_adb_wifi_sub">Порт 5555, без запроса авторизации. Отключите после работы.</string>
+    <string name="adv_log_logcat">Системные логи в файл (logcat)</string>
+    <string name="adv_log_kernel">Логи ядра в файл</string>
+    <string name="adv_log_sub">NWD сохраняет во внутреннюю память</string>
+    <string name="adv_system_props">Системные props</string>
+    <string name="adv_system_props_sub">Просмотр, изменение и экспорт всех props</string>
+
+    <string name="adv_sec_factory_audio">Заводской звук</string>
+    <string name="adv_phase">Инверсия фазы</string>
+    <string name="adv_phase_sub">\"Phase exchange\" в заводском меню. Неверно — звук глухой.</string>
+    <string name="adv_dual_mic">Два микрофона (эхо)</string>
+    <string name="adv_dual_mic_sub">Подавление эха двумя микрофонами. Может потребовать перезагрузки.</string>
+    <string name="adv_music_max">Макс. громкость музыки</string>
+    <string name="adv_music_max_sub">От 5 до 15</string>
+    <string name="adv_bt_unmute">Задержка звука Bluetooth</string>
+    <string name="adv_bt_unmute_sub">В мс. При щелчках или обрезке в начале</string>
+
+    <string name="adv_sec_carplay">CarPlay</string>
+    <string name="adv_carplay_note">Только для звонков CarPlay.</string>
+    <string name="adv_mic_gain">Усиление микрофона</string>
+    <string name="adv_speaker_gain">Усиление динамика</string>
+    <string name="adv_noise">Шумоподавление</string>
+    <string name="adv_noise_sub">Шумоподавление нейросетью</string>
+    <string name="adv_aec_type">Тип эхоподавления</string>
+    <string name="adv_aec_delay">Задержка эхоподавления</string>
+    <string name="adv_in_ms">В мс</string>
+
+    <string name="adv_sec_car">Автомобиль</string>
+    <string name="adv_radio_region">Регион радио</string>
+    <string name="adv_radio_region_sub">Меняет диапазон и шаг радио. Неверный регион — неверные станции.</string>
+    <string-array name="adv_radio_regions">
+        <item>Европа</item>
+        <item>США</item>
+        <item>Китай</item>
+        <item>Япония</item>
+        <item>OIRT</item>
+        <item>Латинская Америка</item>
+        <item>Тайвань</item>
+        <item>Австралия</item>
+        <item>Южная Америка</item>
+        <item>Иран</item>
+        <item>Ближний Восток</item>
+        <item>Мир</item>
+    </string-array>
+    <string name="adv_hand_brake">Видео только на ручнике</string>
+    <string name="adv_hand_brake_sub">Отключение — решение водителя о безопасности</string>
+    <string name="adv_any_key_power">Включение любой кнопкой</string>
+    <string name="adv_auto_wakeup">Автопробуждение</string>
+    <string name="adv_auto_wakeup_sub">Состояние в persist.nwd.autowakeup</string>
+    <string name="adv_backcar_track">Линии траектории заднего хода</string>
+    <string name="adv_backcar_assist">Вспомогательные линии заднего хода</string>
+    <string name="adv_backcar_sub">Из заводского меню; проверьте, не перезагружает ли их камера</string>
+    <string name="adv_autorun">Автозапуск приложений</string>
+    <string name="adv_autorun_none">нет</string>
+    <string name="adv_autorun_sub">Белый список NWD (whitelist_packagename / appautorun_packagename). Для изменения откройте Настройки авто.</string>
+
+    <string name="adv_sec_360">Камера 360 (заводская)</string>
+    <string name="adv_360_note">Задержка включения, аппаратная стрелка, вид сверху, изображение и монитор парковки остаются в приложении 360, пока не подтвердим, что Garagem может сохранять их настройки.</string>
+    <string name="adv_360_app_settings">Настройки приложения 360</string>
+    <string name="adv_calibration">Калибровка</string>
+    <string name="adv_calibration_sub">Пароль приложения: 0000. Процесс идёт в их приложении.</string>
+
+    <string name="adv_sec_car_on">При запуске авто (проверить)</string>
+    <string name="adv_car_on_note">Экспериментально. Проверьте перед переносом в настройки.</string>
+    <string name="adv_wake_wifi">Включить Wi‑Fi</string>
+    <string name="adv_wake_hotspot">Включить точку доступа</string>
+    <string name="adv_touch_wake">Касание включает экран</string>
+    <string name="adv_multi_window">Разрешить малое окно</string>
+
+    <!-- Developer menu (system props) -->
+    <string name="adv_dev_title">Меню разработчика</string>
+    <string name="adv_back">Назад</string>
+    <string name="adv_refresh">Обновить</string>
+    <string name="adv_export">Экспорт .txt</string>
+    <string name="adv_filter_hint">Фильтр по имени или значению</string>
+    <string name="adv_props_count">Props: %1$d</string>
+    <string name="adv_props_count_filtered">Props: %1$d из %2$d</string>
+    <string name="adv_props_read_failed">Не удалось прочитать props (getprop ничего не вернул).</string>
+    <string name="adv_prop_dialog_msg">Текущее значение: %1$s\nИзменение запрашивается у системы NWD; не все props его принимают.</string>
+    <string name="adv_prop_empty_paren">(пусто)</string>
+    <string name="adv_prop_empty">пусто</string>
+    <string name="adv_prop_save">Сохранить</string>
+    <string name="adv_prop_applying">Применение %1$s = %2$s…</string>
+    <string name="adv_prop_not_applied">Система не применила %1$s (текущее значение: %2$s). Через adb: setprop %1$s %3$s</string>
+    <string name="adv_exporting">Экспорт…</string>
+    <string name="adv_export_failed">Не удалось записать файл.</string>
+    <string name="adv_export_done">Экспортировано props: %1$d в %2$s</string>
+
+    <!-- External apps -->
+    <string name="adv_toast_opened_launcher">Этот экран нельзя открыть напрямую; открыт начальный экран приложения.</string>
+    <string name="adv_toast_app_missing">Приложение не найдено на магнитоле (%1$s)</string>
+
+    <!-- Platform compatibility -->
+    <string name="adv_compat_untested">Платформа NWD ещё не проверена с Garagem (%1$s). Возможны сбои.</string>
+    <string name="adv_compat_incompatible">Это устройство не похоже на совместимую магнитолу NWD. Garagem может не управлять звуком, радио и Bluetooth.</string>
+    <string name="adv_compat_ok">OK</string>
+    <string name="adv_compat_untested_label">NWD не проверена</string>
+    <string name="adv_compat_incompatible_label">Несовместимо</string>
+</resources>

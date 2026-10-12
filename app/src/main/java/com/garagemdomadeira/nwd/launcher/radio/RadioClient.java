@@ -75,6 +75,20 @@ public final class RadioClient {
      */
     private volatile boolean playOnSync = true;
 
+    /** Waits for the station to settle (seek, dial drag) before saving it as the last one. */
+    private static final long SAVE_LAST_DELAY_MS = 2000;
+    /**
+     * First frequency seen on this connection: only a baseline. At power-on it is the service's
+     * default (it forgets the last station), so it must not overwrite the saved one.
+     */
+    private volatile boolean baselineSeen;
+    /** Radio screen: the last saved station was already resumed on this connection. */
+    private volatile boolean resumed;
+    /** Checks the resume once the stale-notification window is over (the MCU may still be starting). */
+    private static final long RESUME_CHECK_MS = TUNE_GRACE_MS + 100;
+    /** User commands sent so far: a resume retry must not undo what the user just did. */
+    private volatile int commandCount;
+
     /** Pause between commands when reapplying memories: the MCU needs to tune before saving. */
     private static final long RESTORE_STEP_MS = 200;
     /** Gives up waiting for AMS to finish after this (the mirror is written along the way). */
@@ -209,7 +223,7 @@ public final class RadioClient {
                     }
                 }
                 bound = false;
-                connect();
+                connect(playOnSync);
             }
         }, 3000);
     }
@@ -220,6 +234,8 @@ public final class RadioClient {
             final RadioFeature f = RadioFeature.Stub.asInterface(service);
             feature = f;
             Arrays.fill(reconciled, false); // the service may have restarted and forgotten the memories
+            baselineSeen = false;
+            resumed = false;
             log("Connected to the radio service");
             mutate(s -> s.connection = RadioState.Connection.CONNECTED);
             worker.execute(() -> initialSync(f));
@@ -275,6 +291,8 @@ public final class RadioClient {
         // Ask the service to resend the whole state through the callback.
         safe("sendRadioCommand(-1,-1)", () -> f.sendRadioCommand((byte) -1, (byte) -1));
         if (playOnSync && state.radioType > 0) sendMediaPlay();
+        // After the radio is the active source, so the MCU accepts the tune.
+        if (playOnSync) resumeLast(f);
     }
 
     private void refreshRds(RadioFeature f) {
@@ -391,6 +409,8 @@ public final class RadioClient {
 
     private void applyFrequency(Frequency f, int presetIndex) {
         if (restoring || isStaleFrequency(f.frequency)) return;
+        RadioState before = state;
+        boolean changed = f.frequency != before.frequency || f.bandType != before.band;
         String ps = cleanPs(f.psName);
         mutate(s -> {
             // When the station changes, the old RadioText is no longer valid.
@@ -400,6 +420,79 @@ public final class RadioClient {
             s.psName = ps;
             if (presetIndex >= 0) s.presetIndex = presetIndex;
         });
+        if (!baselineSeen) {
+            baselineSeen = true;
+        } else if (changed) {
+            scheduleSaveLast();
+        }
+    }
+
+    // ------------------------------------------------------------------ last station
+
+    private final Runnable saveLast = this::saveLastNow;
+
+    private void saveLastNow() {
+        RadioState s = state;
+        if (restoring || amsBand >= 0 || s.isBusy()) return; // the final station triggers a new save
+        PresetStore.writeLast(context, s.band, s.frequency);
+    }
+
+    /** Saves the current station as the last one once it settles. */
+    private void scheduleSaveLast() {
+        // Radio screen: only after resuming, or the default frequency would overwrite the saved one.
+        if (released || (playOnSync && !resumed)) return;
+        main.removeCallbacks(saveLast);
+        main.postDelayed(saveLast, SAVE_LAST_DELAY_MS);
+    }
+
+    /**
+     * Radio screen: tunes the last station saved in the props. The service forgets it when the
+     * head unit powers off and starts on a default frequency. Runs on the worker thread.
+     */
+    private void resumeLast(RadioFeature f) {
+        int[] last = PresetStore.readLast();
+        RadioState s = state;
+        if (last != null && (last[0] != s.band || last[1] != s.frequency)) {
+            final int band = last[0];
+            final int freq = last[1];
+            Frequency[] svc = serviceLists[band];
+            int[] stored = PresetStore.read(band);
+            int slot = NO_PRESET;
+            for (int i = 0; i < stored.length; i++) {
+                // With the memory number, the service tunes what it has in that slot: only use it if it matches.
+                boolean known = svc != null && i < svc.length && svc[i] != null && svc[i].frequency == freq;
+                if (stored[i] == freq && known) {
+                    slot = i + 1;
+                    break;
+                }
+            }
+            final int presetSlot = slot;
+            log("Resuming last station " + Band.label(band) + " " + freq);
+            pendingTune = freq;
+            pendingTuneAt = System.currentTimeMillis();
+            mutate(st -> {
+                st.band = band;
+                st.frequency = freq;
+                st.psName = null;
+                st.radioText = "";
+                st.presetIndex = presetSlot;
+            });
+            safe("setCurrentFrequency(" + freq + ", " + band + ", " + presetSlot + ")",
+                () -> f.setCurrentFrequency(freq, (byte) band, presetSlot));
+            // At power-on the MCU may ignore the first tune: check once and send it again.
+            final int commandsBefore = commandCount;
+            main.postDelayed(() -> {
+                RadioState now = state;
+                if (released || commandCount != commandsBefore) return;
+                if (now.band == band && now.frequency == freq) return;
+                log("Last station not applied yet, sending again");
+                pendingTune = freq;
+                pendingTuneAt = System.currentTimeMillis();
+                command("setCurrentFrequency(" + freq + ", " + band + ", " + presetSlot + ")",
+                    cur -> cur.setCurrentFrequency(freq, (byte) band, presetSlot));
+            }, RESUME_CHECK_MS);
+        }
+        resumed = true;
     }
 
     private synchronized void applyPresets(Frequency[] list) {
@@ -741,6 +834,7 @@ public final class RadioClient {
 
     private void command(String name, Command c) {
         if (released) return;
+        commandCount++;
         worker.execute(() -> {
             RadioFeature f = feature;
             if (f == null) {

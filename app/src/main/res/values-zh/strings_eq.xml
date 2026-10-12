@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 布局 -->
+    <string name="eq_back">返回</string>
+    <string name="eq_tab_eq">均衡器</string>
+    <string name="eq_tab_site">声场</string>
+    <string name="eq_tab_channels">声道</string>
+    <string name="eq_tab_diag">诊断</string>
+    <string name="eq_site_title">声场</string>
+    <string name="eq_site_hint">点按或拖动车辆图示，选择声音的中心位置。</string>
+
+    <!-- 预设 -->
+    <string name="eq_preset_standard">标准</string>
+    <string name="eq_preset_pop">流行</string>
+    <string name="eq_preset_rock">摇滚</string>
+    <string name="eq_preset_classic">古典</string>
+    <string name="eq_preset_jazz">爵士</string>
+    <string name="eq_preset_custom">自定义</string>
+    <string name="eq_loudness">响度</string>
+    <string name="eq_reset">重置</string>
+
+    <!-- 座位 -->
+    <string name="eq_seat_driver">驾驶员</string>
+    <string name="eq_seat_passenger">副驾驶</string>
+    <string name="eq_seat_rear">后排</string>
+    <string name="eq_seat_center">中央</string>
+
+    <!-- 声场 -->
+    <string name="eq_site_pad_front">前</string>
+    <string name="eq_site_pad_rear">后</string>
+    <string name="eq_site_fader">前 ↔ 后：%1$s</string>
+    <string name="eq_site_balance">左 ↔ 右：%1$s</string>
+    <string name="eq_site_center_value">居中（%1$d/%2$d）</string>
+    <!-- 例如 "偏前 3（4/14）" -->
+    <string name="eq_site_toward">偏%2$s %1$d（%3$d/%4$d）</string>
+    <string name="eq_dir_front">前</string>
+    <string name="eq_dir_rear">后</string>
+    <string name="eq_dir_left">左</string>
+    <string name="eq_dir_right">右</string>
+
+    <!-- 声道 -->
+    <string name="eq_reset_channels">重置声道</string>
+    <string name="eq_mute">静音</string>
+    <string name="eq_phase">相位</string>
+    <string name="eq_muted">已静音</string>
+    <string name="eq_speaker_fl">左前</string>
+    <string name="eq_speaker_fr">右前</string>
+    <string name="eq_speaker_rl">左后</string>
+    <string name="eq_speaker_rr">右后</string>
+    <string name="eq_speaker_c">中置</string>
+    <string name="eq_speaker_sub">低音</string>
+
+    <!-- 诊断 -->
+    <string name="eq_hardware">硬件</string>
+    <string name="eq_audio_path">音频通路</string>
+    <string name="eq_mode_auto">自动</string>
+    <string name="eq_mode_force_mcu">强制 MCU</string>
+    <string name="eq_mode_force_arm">强制 ARM DSP</string>
+    <string name="eq_tests">测试</string>
+    <string name="eq_read_mcu">读取 MCU</string>
+    <string name="eq_test_dsp">测试 DSP</string>
+    <string name="eq_reapply">重新应用</string>
+    <string name="eq_reconnect">重新连接</string>
+    <string name="eq_apply_on_boot">开机时应用（DSP）</string>
+    <string name="eq_no_connection">无连接</string>
+    <string name="eq_chip_none">无</string>
+    <string name="eq_yes">是</string>
+    <string name="eq_no">否</string>
+    <string name="eq_info_path">通路：%1$s</string>
+    <string name="eq_info_chip">芯片：%1$s · DTS %2$s</string>
+    <string name="eq_info_method">方式：%1$s · 最大 %2$d/%3$d</string>
+</resources>

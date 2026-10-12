@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Advanced screen, developer props menu and system helpers (prefix adv_). -->
+<resources>
+    <!-- Advanced -->
+    <string name="adv_title">詳細設定</string>
+    <string name="adv_alert">工場出荷時のオプションです。変更する前に現在の値を控えてください。</string>
+    <string name="adv_open">開く ›</string>
+
+    <string name="adv_sec_shortcuts">ヘッドユニットのメニュー</string>
+    <string name="adv_car_settings">車両設定</string>
+    <string name="adv_car_settings_sub">NWD 車両設定</string>
+    <string name="adv_factory_menu">工場メニュー</string>
+    <string name="adv_factory_menu_sub">NWD パスワード: %1$s</string>
+    <string name="adv_android_settings">Android 設定</string>
+    <string name="adv_camera_360">360 カメラ</string>
+    <string name="adv_360_settings">360 設定</string>
+    <string name="adv_360_settings_sub">360 アプリの全設定画面</string>
+
+    <string name="adv_sec_development">開発</string>
+    <string name="adv_adb_wifi">Wi‑Fi 経由の ADB</string>
+    <string name="adv_adb_wifi_sub">ポート 5555、承認確認なし。使用後はオフにしてください。</string>
+    <string name="adv_log_logcat">システムログをファイルに保存 (logcat)</string>
+    <string name="adv_log_kernel">カーネルログをファイルに保存</string>
+    <string name="adv_log_sub">NWD が内部ストレージに保存</string>
+    <string name="adv_system_props">システム prop</string>
+    <string name="adv_system_props_sub">すべての prop の表示・変更・エクスポート</string>
+
+    <string name="adv_sec_factory_audio">工場オーディオ設定</string>
+    <string name="adv_phase">位相を反転</string>
+    <string name="adv_phase_sub">工場メニューの「Phase exchange」。誤っていると音がこもって聞こえます。</string>
+    <string name="adv_dual_mic">デュアルマイク (エコー)</string>
+    <string name="adv_dual_mic_sub">2 本のマイクでエコーを除去します。再起動が必要な場合があります。</string>
+    <string name="adv_music_max">音楽の最大音量</string>
+    <string name="adv_music_max_sub">5〜15</string>
+    <string name="adv_bt_unmute">Bluetooth ミュート解除の遅延</string>
+    <string name="adv_bt_unmute_sub">ms 単位。再生開始時のポップ音や音切れ対策</string>
+
+    <string name="adv_sec_carplay">CarPlay</string>
+    <string name="adv_carplay_note">CarPlay の通話にのみ適用されます。</string>
+    <string name="adv_mic_gain">マイクゲイン</string>
+    <string name="adv_speaker_gain">スピーカーゲイン</string>
+    <string name="adv_noise">ノイズ低減</string>
+    <string name="adv_noise_sub">ニューラルネットワークによるノイズ低減</string>
+    <string name="adv_aec_type">エコーキャンセルの種類</string>
+    <string name="adv_aec_delay">エコーキャンセルの遅延</string>
+    <string name="adv_in_ms">ms 単位</string>
+
+    <string name="adv_sec_car">車両</string>
+    <string name="adv_radio_region">ラジオ地域</string>
+    <string name="adv_radio_region_sub">ラジオのバンドとステップを変更します。地域が違うと局がずれます。</string>
+    <string-array name="adv_radio_regions">
+        <item>ヨーロッパ</item>
+        <item>アメリカ</item>
+        <item>中国</item>
+        <item>日本</item>
+        <item>OIRT</item>
+        <item>ラテンアメリカ</item>
+        <item>台湾</item>
+        <item>オーストラリア</item>
+        <item>南米</item>
+        <item>イラン</item>
+        <item>中東</item>
+        <item>ワールド</item>
+    </string-array>
+    <string name="adv_hand_brake">動画再生にサイドブレーキを必須にする</string>
+    <string name="adv_hand_brake_sub">オフにするかどうかは運転者の安全上の判断です</string>
+    <string name="adv_any_key_power">任意のキーで電源オン</string>
+    <string name="adv_auto_wakeup">自動起動</string>
+    <string name="adv_auto_wakeup_sub">状態は persist.nwd.autowakeup に保存</string>
+    <string name="adv_backcar_track">バックガイド線</string>
+    <string name="adv_backcar_assist">バック補助線</string>
+    <string name="adv_backcar_sub">工場メニューの設定。カメラが再読み込みするか確認してください</string>
+    <string name="adv_autorun">アプリの自動起動</string>
+    <string name="adv_autorun_none">なし</string>
+    <string name="adv_autorun_sub">NWD ホワイトリスト (whitelist_packagename / appautorun_packagename)。変更するには車両設定を使用してください。</string>
+
+    <string name="adv_sec_360">360 カメラ (工場設定)</string>
+    <string name="adv_360_note">電源オン遅延、ハードウェア矢印、バードビューの車両、画像、駐車モニターは、Garagem で設定を保存できることを確認するまで 360 アプリで設定します。</string>
+    <string name="adv_360_app_settings">360 アプリの設定</string>
+    <string name="adv_calibration">キャリブレーション</string>
+    <string name="adv_calibration_sub">アプリのパスワード: 0000。操作は 360 アプリ内で行います。</string>
+
+    <string name="adv_sec_car_on">エンジン始動時 (確認中)</string>
+    <string name="adv_car_on_note">実験的機能です。設定画面に移す前にテストしてください。</string>
+    <string name="adv_wake_wifi">Wi‑Fi をオン</string>
+    <string name="adv_wake_hotspot">テザリングをオン</string>
+    <string name="adv_touch_wake">タッチで画面をオン</string>
+    <string name="adv_multi_window">小ウィンドウを許可</string>
+
+    <!-- Developer menu (system props) -->
+    <string name="adv_dev_title">開発者メニュー</string>
+    <string name="adv_back">戻る</string>
+    <string name="adv_refresh">更新</string>
+    <string name="adv_export">.txt にエクスポート</string>
+    <string name="adv_filter_hint">名前または値で絞り込み</string>
+    <string name="adv_props_count">%1$d 件の prop</string>
+    <string name="adv_props_count_filtered">%1$d / %2$d 件の prop</string>
+    <string name="adv_props_read_failed">prop を読み取れませんでした (getprop が何も返しませんでした)。</string>
+    <string name="adv_prop_dialog_msg">現在の値: %1$s\n変更は NWD システムに要求されます。すべての prop が変更を受け付けるとは限りません。</string>
+    <string name="adv_prop_empty_paren">(空)</string>
+    <string name="adv_prop_empty">空</string>
+    <string name="adv_prop_save">保存</string>
+    <string name="adv_prop_applying">%1$s = %2$s を適用中…</string>
+    <string name="adv_prop_not_applied">システムは %1$s を適用しませんでした (現在の値: %2$s)。adb から: setprop %1$s %3$s</string>
+    <string name="adv_exporting">エクスポート中…</string>
+    <string name="adv_export_failed">ファイルを書き込めませんでした。</string>
+    <string name="adv_export_done">%1$d 件の prop を %2$s にエクスポートしました</string>
+
+    <!-- External apps -->
+    <string name="adv_toast_opened_launcher">この画面は直接開けないため、アプリのスタート画面を開きました。</string>
+    <string name="adv_toast_app_missing">このヘッドユニットにアプリが見つかりません (%1$s)</string>
+
+    <!-- Platform compatibility -->
+    <string name="adv_compat_untested">この NWD プラットフォームは Garagem で未検証です (%1$s)。正常に動作しない可能性があります。</string>
+    <string name="adv_compat_incompatible">このデバイスは対応する NWD ヘッドユニットではないようです。Garagem でサウンド、ラジオ、Bluetooth を制御できない可能性があります。</string>
+    <string name="adv_compat_ok">OK</string>
+    <string name="adv_compat_untested_label">NWD 未検証</string>
+    <string name="adv_compat_incompatible_label">非対応</string>
+</resources>

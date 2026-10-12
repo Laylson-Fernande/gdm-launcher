@@ -423,7 +423,7 @@ public class HomeActivity extends Activity {
     /** Weekday and month names follow the app language (applied by Ui.applyDesignDensity). */
     private void createDateFormats() {
         weekFormat = new SimpleDateFormat("EEEE", Locale.getDefault());
-        monthFormat = new SimpleDateFormat("MMMM", Locale.getDefault());
+        monthFormat = new SimpleDateFormat(getString(R.string.home_month_pattern), Locale.getDefault());
     }
 
     @Override
@@ -454,13 +454,15 @@ public class HomeActivity extends Activity {
         Date now = new Date();
         clockTime.setText(timeFormat.format(now));
         // "Friday, October 9, 2026" / "Sexta, 9 de Outubro de 2026": weekday without "-feira"
-        // and capitalized month; the order comes from the home_date resource.
+        // and capitalized month (where the language does that); the order comes from home_date.
         String week = weekFormat.format(now);
         int dash = week.indexOf('-');
         if (dash > 0) week = week.substring(0, dash);
         Calendar cal = Calendar.getInstance();
         cal.setTime(now);
-        clockDate.setText(getString(R.string.home_date, capitalize(week), capitalize(monthFormat.format(now)),
+        String month = monthFormat.format(now);
+        if (getResources().getBoolean(R.bool.home_capitalize_month)) month = capitalize(month);
+        clockDate.setText(getString(R.string.home_date, capitalize(week), month,
             cal.get(Calendar.DAY_OF_MONTH), cal.get(Calendar.YEAR)));
     }
 
