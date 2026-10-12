@@ -1,21 +1,20 @@
 # Security Policy
 
-## Supported Versions
+## Supported versions / Versões suportadas
 
-Use this section to tell people about which versions of your project are
-currently being supported with security updates.
+Security fixes are considered for the latest release on `main`.  
+Correções de segurança são consideradas para a versão mais recente em `main`.
 
-| Version | Supported          |
-| ------- | ------------------ |
-| 5.1.x   | :white_check_mark: |
-| 5.0.x   | :x:                |
-| 4.0.x   | :white_check_mark: |
-| < 4.0   | :x:                |
+## Reporting a vulnerability / Reportar uma vulnerabilidade
 
-## Reporting a Vulnerability
+Please **do not** open a public issue for security problems.  
+Por favor, **não** abra uma issue pública para problemas de segurança.
 
-Use this section to tell people how to report a vulnerability.
+Contact the maintainers privately via GitHub (Security advisories) or [garagemdomadeira.com](https://garagemdomadeira.com).  
+Entre em contato em privado com os mantenedores pelo GitHub (Security advisories) ou por [garagemdomadeira.com](https://garagemdomadeira.com).
 
-Tell them where to go, how often they can expect to get an update on a
-reported vulnerability, what to expect if the vulnerability is accepted or
-declined, etc.
+Include what the issue is, how to reproduce it, and the impact if you can.  
+Inclua o que é o problema, como reproduzir e o impacto, se puder.
+
+We will reply when we can and work on a fix before any public disclosure.  
+Responderemos quando pudermos e trabalharemos numa correção antes de qualquer divulgação pública.

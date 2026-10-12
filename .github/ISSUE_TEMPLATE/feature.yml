@@ -1,0 +1,17 @@
+name: Feature request
+description: Suggest an improvement / Sugerir uma melhoria
+title: "[Feature] "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: idea
+    attributes:
+      label: Idea / Ideia
+      description: What should change and why it helps while driving / O que deve mudar e por que ajuda ao dirigir
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Extra context / Contexto extra
+      description: Screenshots, unit model, related issues / Screenshots, modelo da central, issues relacionadas
