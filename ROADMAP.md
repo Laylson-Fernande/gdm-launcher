@@ -27,6 +27,7 @@
 - [ ] Música Bluetooth (ainda não funciona)
 
 ### Funções futuras
+- [ ] Suporte a multimídias verticais 768×1024 (em breve)
 - [ ] Mostrar imagem na Home (para colocar foto do carro)
 - [ ] Customizar Home
 - [ ] Abrir câmera 360
@@ -65,6 +66,7 @@
 - [ ] Bluetooth music (not working yet)
 
 ### Future features
+- [ ] Support for vertical 768×1024 head units (coming soon)
 - [ ] Show an image on Home (for a car photo)
 - [ ] Customize Home
 - [ ] Open 360° camera
