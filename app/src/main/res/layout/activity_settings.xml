@@ -66,6 +66,11 @@
             android:text="@string/settings_group_assists" />
 
         <TextView
+            android:id="@+id/settings_tab_audio"
+            style="@style/SettingsTab"
+            android:text="@string/settings_group_audio" />
+
+        <TextView
             android:id="@+id/settings_tab_system"
             style="@style/SettingsTab"
             android:text="@string/settings_group_system" />

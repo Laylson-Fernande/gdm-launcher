@@ -26,12 +26,6 @@
                 android:layout_height="56dp"
                 android:layout_weight="1" />
 
-            <com.garagemdomadeira.nwd.launcher.ui.IconView
-                android:id="@+id/btn_power"
-                android:layout_width="64dp"
-                android:layout_height="56dp"
-                android:layout_marginLeft="24dp"
-                android:contentDescription="@string/radio_cd_power" />
 
             <com.garagemdomadeira.nwd.launcher.ui.IconView
                 android:id="@+id/btn_exit"
@@ -41,42 +35,41 @@
                 android:contentDescription="@string/radio_cd_exit" />
         </LinearLayout>
 
-        <!-- Status labels -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="32dp"
-            android:layout_marginTop="6dp"
-            android:gravity="center"
-            android:orientation="horizontal">
 
-            <TextView android:id="@+id/chip_preset" style="@style/Chip" />
-            <TextView android:id="@+id/chip_stereo" style="@style/Chip" android:text="@string/radio_chip_stereo" />
-            <TextView android:id="@+id/chip_tp" style="@style/Chip" android:text="TP" />
-            <TextView android:id="@+id/chip_ta" style="@style/Chip" android:text="@string/radio_chip_traffic" />
-            <TextView android:id="@+id/chip_pty" style="@style/Chip" />
-            <TextView android:id="@+id/chip_busy" style="@style/Chip" android:text="@string/radio_chip_seeking" />
-        </LinearLayout>
-
-        <!-- Station art (Garagem/radio/FM_104.5.jpg) + frequency and name. Without art, just the centered text. -->
+        <!-- Station art (Garagem/radio/FM_104.5.jpg, placeholder without it) + frequency and name, left-aligned. -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center"
+            android:gravity="left|center_vertical"
             android:orientation="horizontal">
 
-        <ImageView
-            android:id="@+id/station_art"
-            android:layout_width="132dp"
-            android:layout_height="132dp"
-            android:layout_marginRight="28dp"
-            android:contentDescription="@string/radio_cd_station_art"
-            android:scaleType="centerCrop"
-            android:visibility="gone" />
+        <FrameLayout
+            android:id="@+id/station_art_frame"
+            android:layout_width="180dp"
+            android:layout_height="180dp"
+            android:layout_marginRight="32dp"
+            android:background="@drawable/art_frame">
+
+            <!-- Placeholder while there is no Garagem/radio/<FM|AM>_<freq>.jpg -->
+            <com.garagemdomadeira.nwd.launcher.ui.IconView
+                android:id="@+id/station_art_placeholder"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clickable="false"
+                android:focusable="false" />
+
+            <ImageView
+                android:id="@+id/station_art"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:contentDescription="@string/radio_cd_station_art"
+                android:scaleType="centerCrop" />
+        </FrameLayout>
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="center_horizontal"
+            android:gravity="left"
             android:orientation="vertical">
 
         <!-- Frequency -->
@@ -85,7 +78,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="-6dp"
             android:baselineAligned="true"
-            android:gravity="center"
+            android:gravity="left"
             android:orientation="horizontal">
 
             <TextView
@@ -115,7 +108,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="-4dp"
             android:ellipsize="end"
-            android:gravity="center"
+            android:gravity="left"
             android:includeFontPadding="false"
             android:maxWidth="620dp"
             android:singleLine="true"
@@ -129,9 +122,9 @@
             android:layout_width="match_parent"
             android:layout_height="34dp"
             android:layout_marginTop="2dp"
-            android:gravity="center"
+            android:gravity="left|center_vertical"
             android:orientation="horizontal"
-            android:paddingLeft="40dp"
+            android:paddingLeft="0dp"
             android:paddingRight="40dp">
 
             <TextView
@@ -183,10 +176,32 @@
                 android:gravity="center_vertical"
                 android:orientation="horizontal">
 
-                <TextView android:id="@+id/toggle_st" style="@style/Toggle" android:text="[ST]" />
-                <TextView android:id="@+id/toggle_loc" style="@style/Toggle" android:text="[LOC/DX]" />
-                <TextView android:id="@+id/toggle_af" style="@style/Toggle" android:text="[AF]" />
-                <TextView android:id="@+id/toggle_ta" style="@style/Toggle" android:text="[TA]" />
+                <LinearLayout android:id="@+id/toggle_st" style="@style/ToggleBox">
+                    <com.garagemdomadeira.nwd.launcher.ui.IconView
+                        android:id="@+id/toggle_st_icon"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp" />
+                    <TextView android:id="@+id/toggle_st_text" style="@style/ToggleBoxText" />
+                    <View
+                        android:id="@+id/toggle_st_dot"
+                        android:layout_width="12dp"
+                        android:layout_height="12dp"
+                        android:layout_marginLeft="14dp"
+                        android:background="@drawable/status_dot" />
+                </LinearLayout>
+                <LinearLayout android:id="@+id/toggle_loc" style="@style/ToggleBox">
+                    <com.garagemdomadeira.nwd.launcher.ui.IconView
+                        android:id="@+id/toggle_loc_icon"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp" />
+                    <TextView android:id="@+id/toggle_loc_text" style="@style/ToggleBoxText" />
+                    <View
+                        android:id="@+id/toggle_loc_dot"
+                        android:layout_width="12dp"
+                        android:layout_height="12dp"
+                        android:layout_marginLeft="14dp"
+                        android:background="@drawable/status_dot" />
+                </LinearLayout>
             </LinearLayout>
 
             <com.garagemdomadeira.nwd.launcher.ui.IconView
@@ -205,43 +220,43 @@
         <!-- Tuning controls -->
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="86dp"
+            android:layout_height="88dp"
             android:layout_marginTop="8dp"
             android:gravity="center"
             android:orientation="horizontal">
 
             <com.garagemdomadeira.nwd.launcher.ui.IconView
                 android:id="@+id/btn_seek_prev"
-                android:layout_width="64dp"
-                android:layout_height="64dp"
+                android:layout_width="72dp"
+                android:layout_height="72dp"
                 android:contentDescription="@string/radio_cd_prev_saved" />
 
             <com.garagemdomadeira.nwd.launcher.ui.IconView
                 android:id="@+id/btn_step_prev"
-                android:layout_width="64dp"
-                android:layout_height="64dp"
-                android:layout_marginLeft="44dp"
+                android:layout_width="72dp"
+                android:layout_height="72dp"
+                android:layout_marginLeft="20dp"
                 android:contentDescription="@string/radio_cd_step_down" />
 
-            <com.garagemdomadeira.nwd.launcher.ui.AmsButton
-                android:id="@+id/btn_ams"
-                android:layout_width="86dp"
-                android:layout_height="86dp"
-                android:layout_marginLeft="30dp"
-                android:layout_marginRight="30dp"
-                android:contentDescription="@string/radio_cd_ams" />
+            <com.garagemdomadeira.nwd.launcher.ui.IconView
+                android:id="@+id/btn_power"
+                android:layout_width="88dp"
+                android:layout_height="88dp"
+                android:layout_marginLeft="40dp"
+                android:layout_marginRight="40dp"
+                android:contentDescription="@string/radio_cd_power" />
 
             <com.garagemdomadeira.nwd.launcher.ui.IconView
                 android:id="@+id/btn_step_next"
-                android:layout_width="64dp"
-                android:layout_height="64dp"
-                android:layout_marginRight="44dp"
+                android:layout_width="72dp"
+                android:layout_height="72dp"
+                android:layout_marginRight="20dp"
                 android:contentDescription="@string/radio_cd_step_up" />
 
             <com.garagemdomadeira.nwd.launcher.ui.IconView
                 android:id="@+id/btn_seek_next"
-                android:layout_width="64dp"
-                android:layout_height="64dp"
+                android:layout_width="72dp"
+                android:layout_height="72dp"
                 android:contentDescription="@string/radio_cd_next_saved" />
         </LinearLayout>
 
@@ -254,16 +269,13 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/panel"
             android:orientation="vertical"
             android:paddingBottom="12dp"
-            android:paddingLeft="18dp"
-            android:paddingRight="18dp"
             android:paddingTop="12dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="64dp"
+                android:layout_height="52dp"
                 android:gravity="center_vertical"
                 android:orientation="horizontal">
 
@@ -273,21 +285,9 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:singleLine="true"
+                    android:text="@string/radio_favorites"
                     android:textColor="@color/text"
-                    android:textSize="30sp" />
-
-                <com.garagemdomadeira.nwd.launcher.ui.IconView
-                    android:id="@+id/btn_preset_prev"
-                    android:layout_width="64dp"
-                    android:layout_height="64dp"
-                    android:contentDescription="@string/radio_cd_prev_preset" />
-
-                <com.garagemdomadeira.nwd.launcher.ui.IconView
-                    android:id="@+id/btn_preset_next"
-                    android:layout_width="64dp"
-                    android:layout_height="64dp"
-                    android:layout_marginLeft="8dp"
-                    android:contentDescription="@string/radio_cd_next_preset" />
+                    android:textSize="28sp" />
             </LinearLayout>
 
             <HorizontalScrollView

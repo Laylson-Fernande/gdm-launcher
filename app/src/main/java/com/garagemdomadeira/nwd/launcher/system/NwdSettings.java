@@ -179,6 +179,15 @@ public final class NwdSettings {
 
     // ------------------------------------------------------------------ Settings.System
 
+    /** MCU inputs; bit 2 = ILL (headlights on). */
+    public static final String KEY_NO_SOURCE_DEVICE = "mcu_no_source_device_state";
+    private static final int ILL_BIT = 2;
+
+    /** true while the headlights are on (the MCU's ILL signal). */
+    public static boolean headlightsOn(Context c) {
+        return (getInt(c, KEY_NO_SOURCE_DEVICE, 0) & ILL_BIT) != 0;
+    }
+
     /** Value of the key, or {@code def} if it doesn't exist. */
     public static int getInt(Context c, String key, int def) {
         try {

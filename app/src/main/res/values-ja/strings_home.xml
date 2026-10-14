@@ -112,4 +112,7 @@
     <string name="home_gps_dir_sw">南西</string>
     <string name="home_gps_dir_w">西</string>
     <string name="home_gps_dir_nw">北西</string>
+    <string name="screen_opening">起動中</string>
+    <string name="home_day">昼</string>
+    <string name="home_night">夜（ヘッドライト点灯）</string>
 </resources>

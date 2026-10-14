@@ -112,4 +112,7 @@
     <string name="home_gps_dir_sw">दप</string>
     <string name="home_gps_dir_w">प</string>
     <string name="home_gps_dir_nw">उप</string>
+    <string name="screen_opening">खुल रहा है</string>
+    <string name="home_day">दिन</string>
+    <string name="home_night">रात (हेडलाइट चालू)</string>
 </resources>

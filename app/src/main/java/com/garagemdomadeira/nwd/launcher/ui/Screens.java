@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
 import com.garagemdomadeira.nwd.launcher.AppsActivity;
@@ -14,6 +15,7 @@ import com.garagemdomadeira.nwd.launcher.MusicActivity;
 import com.garagemdomadeira.nwd.launcher.PhoneActivity;
 import com.garagemdomadeira.nwd.launcher.R;
 import com.garagemdomadeira.nwd.launcher.RadioActivity;
+import com.garagemdomadeira.nwd.launcher.home.PlayerHandoff;
 import com.garagemdomadeira.nwd.launcher.system.ExternalApps;
 
 /**
@@ -53,10 +55,16 @@ public final class Screens {
         View content = root.getChildAt(0);
         root.removeView(content);
 
+        // The content sits in a "stage" so a Splash can cover it while the dock stays visible.
+        FrameLayout stage = new FrameLayout(activity);
+        stage.setId(R.id.screen_stage);
+        stage.addView(content, new FrameLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+
         LinearLayout column = new LinearLayout(activity);
         column.setOrientation(LinearLayout.VERTICAL);
         column.setBackgroundColor(Ui.BG);
-        column.addView(content, new LinearLayout.LayoutParams(
+        column.addView(stage, new LinearLayout.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
 
         DockView dock = new DockView(activity);
@@ -72,6 +80,31 @@ public final class Screens {
 
     public static void navigate(Activity from, DockView.Item current, DockView.Item target) {
         if (target == current) return;
+        Splash.cancel(); // another item tapped while a splash was up: this one wins
+        if (hasSplash(target)) {
+            // Radio: the players stop now, so the source change happens only after the splash.
+            if (target == DockView.Item.RADIO) PlayerHandoff.beforeRadio(from);
+            Splash.show(from, target, () -> open(from, target));
+            return;
+        }
+        open(from, target);
+    }
+
+    /** Media/phone/EQ screens open after a short splash with the service icon. */
+    private static boolean hasSplash(DockView.Item item) {
+        switch (item) {
+            case RADIO:
+            case MUSIC:
+            case PHONE:
+            case BT_MUSIC:
+            case EQ:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    private static void open(Activity from, DockView.Item target) {
         if (target.isExternal()) {
             // Head-unit app: opens on top, the current screen stays where it is.
             if (target == DockView.Item.AUX) ExternalApps.openAux(from);

@@ -12,6 +12,7 @@ import android.view.WindowManager;
 import android.widget.TextView;
 
 import com.garagemdomadeira.nwd.launcher.bt.BtClient;
+import com.garagemdomadeira.nwd.launcher.home.PlayerHandoff;
 import com.garagemdomadeira.nwd.launcher.radio.NwdConstants;
 import com.garagemdomadeira.nwd.launcher.ui.IconView;
 import com.garagemdomadeira.nwd.launcher.ui.DockView;
@@ -139,6 +140,7 @@ public class BtMusicActivity extends Activity {
             if (pinCode != null) pin = pinCode;
             // On A2DP connect, send a forced play once so audio starts.
             if (connected && !wasConnected && !musicPlaying) {
+                PlayerHandoff.beforeBt(this);
                 bt.playControl(BT_FORCE_PLAY);
             }
             render();
@@ -146,6 +148,7 @@ public class BtMusicActivity extends Activity {
     }
 
     private void transport(int cmd) {
+        if (cmd != BT_PAUSE) PlayerHandoff.beforeBt(this);
         claimSource();
         bt.setMusicMute(false);
         if (cmd == BT_PLAY) playing = true;
@@ -222,6 +225,7 @@ public class BtMusicActivity extends Activity {
             if ("com.bt.ACTION_A2DP_ESTABLISHED".equals(action)) {
                 a2dp = true;
                 known = true;
+                PlayerHandoff.beforeBt(context);
                 bt.playControl(BT_FORCE_PLAY);
                 bt.queryId3();
                 refresh();

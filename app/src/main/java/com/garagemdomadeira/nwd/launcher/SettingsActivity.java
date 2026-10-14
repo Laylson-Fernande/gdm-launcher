@@ -17,6 +17,8 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.garagemdomadeira.nwd.launcher.audio.AudioGains;
+import com.garagemdomadeira.nwd.launcher.audio.AudioPanel;
 import com.garagemdomadeira.nwd.launcher.home.AppCatalog;
 import com.garagemdomadeira.nwd.launcher.home.LauncherPrefs;
 import com.garagemdomadeira.nwd.launcher.system.BottomBar;
@@ -62,7 +64,6 @@ public class SettingsActivity extends Activity {
     private static final String KEY_BACKLIGHT_DAY = "mcu_back_light_day";
     private static final String KEY_BACKLIGHT_NIGHT = "mcu_back_light_night";
     private static final String KEY_BACKLIGHT_MAX = "mcu_back_light_max";
-    private static final String KEY_NO_SOURCE_DEVICE = "mcu_no_source_device_state";
     private static final String KEY_BEEP = "arm_bee_switch";
     private static final String ACTION_BEEP_CHANGED = "com.nwd.action.ACTION_BEEP_SWITCH_CHANGE";
     private static final String KEY_SCREENSAVER = "show_screensaver_time";
@@ -80,9 +81,11 @@ public class SettingsActivity extends Activity {
     private static final int PANEL_CUSTOMIZE = 1;
     private static final int PANEL_ASSISTS = 2;
     private static final int PANEL_SYSTEM = 3;
+    private static final int PANEL_AUDIO = 4;
 
-    private final LinearLayout[] panels = new LinearLayout[4];
-    private final TextView[] tabs = new TextView[4];
+    private final LinearLayout[] panels = new LinearLayout[5];
+    private AudioPanel audio;
+    private final TextView[] tabs = new TextView[5];
     private OptionList list;
     private OptionList.Row launcherRow;
     private TextView useGaragem;
@@ -121,6 +124,7 @@ public class SettingsActivity extends Activity {
         list = new OptionList(this, panels[PANEL_MAIN]);
         showCompatAlert();
         buildLanguage();
+        buildMainHome();
         list.into(panels[PANEL_CUSTOMIZE]);
         buildAppearance();
         buildHomeScreen();
@@ -132,6 +136,11 @@ public class SettingsActivity extends Activity {
         buildScreen();
         buildAbout();
         showLastCrash();
+        if (AudioGains.ENABLED) {
+            list.into(panels[PANEL_AUDIO]);
+            audio = new AudioPanel(this, list);
+            audio.build();
+        }
         list.setAfterRender(this::renderExtras);
         renderAll();
         setUpTabs();
@@ -153,17 +162,18 @@ public class SettingsActivity extends Activity {
 
     // ------------------------------------------------------------------ side tabs
 
-    /** Side column with the four groups (Main, Customize, Assists, System), one panel visible at a time, plus Advanced. */
+    /** Side column with the five groups (Main, Customize, Assists, Audio, System), one panel visible at a time, plus Advanced. */
     private void setUpTabs() {
         findViewById(R.id.settings_sidebar).setVisibility(View.VISIBLE);
         int[] ids = {R.id.settings_tab_main, R.id.settings_tab_customize, R.id.settings_tab_assists,
-            R.id.settings_tab_system};
+            R.id.settings_tab_system, R.id.settings_tab_audio};
         for (int i = 0; i < tabs.length; i++) {
             int panel = i;
             tabs[i] = (TextView) findViewById(ids[i]);
             tabs[i].setTypeface(Ui.medium(this));
             tabs[i].setOnClickListener(v -> showPanel(panel));
         }
+        tabs[PANEL_AUDIO].setVisibility(AudioGains.ENABLED ? View.VISIBLE : View.GONE);
         // Advanced isn't a panel: in dev mode it's one more tab that asks for the password.
         TextView advanced = (TextView) findViewById(R.id.settings_tab_advanced);
         advanced.setVisibility(DevMode.enabled() ? View.VISIBLE : View.GONE);
@@ -265,10 +275,28 @@ public class SettingsActivity extends Activity {
             getString(R.string.settings_open), () -> startActivity(new Intent(this, HomeSettingsActivity.class)));
         list.action(getString(R.string.settings_customize_dock), getString(R.string.settings_customize_dock_hint),
             getString(R.string.settings_open), () -> startActivity(new Intent(this, DockSettingsActivity.class)));
+    }
+
+    /** Main tab › Home screen: top bar indicators and turning the screen off by inactivity. */
+    private void buildMainHome() {
+        list.section(getString(R.string.settings_home_section));
+        list.toggle(getString(R.string.settings_show_day_night),
+            getString(R.string.settings_show_day_night_hint),
+            () -> LauncherPrefs.showDayNight(this),
+            on -> LauncherPrefs.setShowDayNight(this, on)).local();
         list.toggle(getString(R.string.settings_show_voltmeter),
             getString(R.string.settings_show_voltmeter_hint),
             () -> LauncherPrefs.showVoltmeter(this),
             on -> LauncherPrefs.setShowVoltmeter(this, on)).local();
+        int[] values = LauncherPrefs.SCREEN_OFF_AFTER;
+        String[] labels = new String[values.length];
+        for (int i = 0; i < values.length; i++) {
+            labels[i] = values[i] == 0 ? getString(R.string.settings_screen_off_never) : values[i] + " s";
+        }
+        list.choice(getString(R.string.settings_screen_off_after), getString(R.string.settings_screen_off_after_hint),
+            labels, values,
+            () -> LauncherPrefs.screenOffAfter(this),
+            seconds -> LauncherPrefs.setScreenOffAfter(this, seconds)).local();
     }
 
     // ------------------------------------------------------------------ device (default launcher, beep, volume)
@@ -372,7 +400,7 @@ public class SettingsActivity extends Activity {
 
     private boolean isNight() {
         Boolean dimmer = NwdSettings.systemBit(this, NwdSettings.BIT_ILL_DIMMER);
-        return dimmer != null && dimmer && (NwdSettings.getInt(this, KEY_NO_SOURCE_DEVICE, 0) & 2) != 0;
+        return dimmer != null && dimmer && NwdSettings.headlightsOn(this);
     }
 
     private void buildScreen() {
@@ -576,6 +604,7 @@ public class SettingsActivity extends Activity {
         getContentResolver().unregisterContentObserver(observer);
         handler.removeCallbacksAndMessages(null);
         list.release();
+        if (audio != null) audio.release();
         if (dialog != null) dialog.dismiss();
         super.onDestroy();
     }

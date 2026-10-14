@@ -123,4 +123,22 @@
     <string name="settings_hide_bottom_bar_hint">La barre flottante de l\'autoradio (Accueil, Retour, volume) disparaît tant que GDM Launcher est à l\'écran et revient dans les autres apps</string>
     <string name="settings_zlink_name">Nom de Z-Link dans le dock</string>
     <string name="settings_zlink_name_hint">Nom et icône de Z-Link dans le dock : Z-Link, CarPlay ou Auto</string>
+    <string name="settings_group_audio">Audio</string>
+    <string name="audio_sources_section">Volume par source</string>
+    <string name="audio_connecting">Lecture des volumes actuels de l\'autoradio…</string>
+    <string name="audio_sources_hint">Chaque source a son propre volume, indépendant des autres. Appliqué en levant le doigt.</string>
+    <string name="audio_unavailable">Service audio de l\'autoradio introuvable : impossible de modifier les volumes.</string>
+    <string name="audio_apply_failed">Impossible d\'appliquer : %1$s</string>
+    <string name="audio_gain_radio">Radio</string>
+    <string name="audio_gain_bt">Bluetooth</string>
+    <string name="audio_gain_media">Média (USB / lecteur)</string>
+    <string name="audio_gain_navi">Navigation</string>
+    <string name="audio_gain_aux">AUX</string>
+    <string name="audio_music_section">Musique Android</string>
+    <string name="audio_music_max">Volume maximal de la musique</string>
+    <string name="audio_music_max_hint">Plafond pour le MP3 et les apps (5 à 15)</string>
+    <string name="settings_show_day_night">Afficher jour/nuit</string>
+    <string name="settings_show_day_night_hint">Soleil le jour, lune phares allumés (à gauche du voltmètre)</string>
+    <string name="settings_screen_off_after">Éteindre l\'écran après</string>
+    <string name="settings_screen_off_after_hint">Sans toucher l\'écran d\'accueil pendant ce temps, il s\'éteint comme avec le bouton d\'extinction</string>
 </resources>

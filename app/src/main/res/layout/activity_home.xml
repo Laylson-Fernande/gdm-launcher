@@ -66,33 +66,80 @@
             android:textSize="30sp" />
     </LinearLayout>
 
-    <!-- ===== Battery voltage (CAN): only shown if the head unit responds ===== -->
+    <!-- ===== Top left: day/night · battery voltage · what is playing ===== -->
     <LinearLayout
-        android:id="@+id/voltage"
         android:layout_width="wrap_content"
         android:layout_height="72dp"
         android:layout_marginLeft="44dp"
         android:layout_marginTop="14dp"
-        android:contentDescription="@string/home_battery_voltage"
         android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:visibility="gone">
+        android:orientation="horizontal">
 
+        <!-- Day (sun) or night (moon = headlights on) -->
         <com.garagemdomadeira.nwd.launcher.ui.IconView
-            android:id="@+id/voltage_icon"
+            android:id="@+id/day_night"
             android:layout_width="44dp"
             android:layout_height="44dp"
+            android:layout_marginRight="24dp"
             android:clickable="false"
-            android:focusable="false" />
+            android:focusable="false"
+            android:visibility="gone" />
 
-        <TextView
-            android:id="@+id/voltage_text"
+        <!-- Battery voltage (CAN): only shown if the head unit responds -->
+        <LinearLayout
+            android:id="@+id/voltage"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="14dp"
-            android:includeFontPadding="false"
-            android:textColor="@color/text"
-            android:textSize="28sp" />
+            android:layout_height="match_parent"
+            android:layout_marginRight="32dp"
+            android:contentDescription="@string/home_battery_voltage"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:visibility="gone">
+
+            <com.garagemdomadeira.nwd.launcher.ui.IconView
+                android:id="@+id/voltage_icon"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:clickable="false"
+                android:focusable="false" />
+
+            <TextView
+                android:id="@+id/voltage_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="14dp"
+                android:includeFontPadding="false"
+                android:textColor="@color/text"
+                android:textSize="28sp" />
+        </LinearLayout>
+
+        <!-- What is playing (Radio / MP3 / BT); hidden when nothing is -->
+        <LinearLayout
+            android:id="@+id/source_badge"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:background="@drawable/pill"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingLeft="16dp"
+            android:paddingRight="18dp"
+            android:visibility="gone">
+
+            <View
+                android:layout_width="14dp"
+                android:layout_height="14dp"
+                android:background="@drawable/status_dot"
+                android:duplicateParentState="true" />
+
+            <TextView
+                android:id="@+id/source_badge_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="12dp"
+                android:includeFontPadding="false"
+                android:textColor="@color/text"
+                android:textSize="24sp" />
+        </LinearLayout>
     </LinearLayout>
 
     <!-- ===== Volume module: − mute + ===== -->

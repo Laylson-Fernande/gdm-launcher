@@ -119,4 +119,7 @@
     <string name="home_gps_dir_sw">SW</string>
     <string name="home_gps_dir_w">W</string>
     <string name="home_gps_dir_nw">NW</string>
+    <string name="screen_opening">Opening</string>
+    <string name="home_day">Day</string>
+    <string name="home_night">Night (headlights on)</string>
 </resources>

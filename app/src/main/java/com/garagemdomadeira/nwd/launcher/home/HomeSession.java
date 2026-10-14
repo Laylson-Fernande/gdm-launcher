@@ -256,6 +256,7 @@ public final class HomeSession {
     }
 
     public void btTransport(int cmd) {
+        if (cmd != BT_PAUSE) PlayerHandoff.beforeBt(context);
         bringBtToFront();
         sawBt = true;
         usbOverrides = false;

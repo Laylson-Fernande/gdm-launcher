@@ -40,6 +40,4 @@ public final class Band {
     public static final int RDS_TA = 2;
     public static final int RDS_PTY = 4;
     public static final int RDS_TP = 8;
-
-    // PTY names (0..31) live in R.array.radio_pty_names.
 }

@@ -123,4 +123,22 @@
     <string name="settings_hide_bottom_bar_hint">本体のフローティングバー（ホーム、戻る、音量）は GDM Launcher の表示中は隠れ、ほかのアプリでは再び表示されます</string>
     <string name="settings_zlink_name">ドックでの Z-Link の名前</string>
     <string name="settings_zlink_name_hint">ドックでの Z-Link の名前とアイコン：Z-Link、CarPlay、Auto</string>
+    <string name="settings_group_audio">オーディオ</string>
+    <string name="audio_sources_section">ソースごとの音量</string>
+    <string name="audio_connecting">ヘッドユニットから現在の音量を読み込み中…</string>
+    <string name="audio_sources_hint">ソースごとに独立した音量です。指を離すと適用されます。</string>
+    <string name="audio_unavailable">ヘッドユニットのオーディオサービスが見つかりません。音量を変更できません。</string>
+    <string name="audio_apply_failed">適用できませんでした: %1$s</string>
+    <string name="audio_gain_radio">ラジオ</string>
+    <string name="audio_gain_bt">Bluetooth</string>
+    <string name="audio_gain_media">メディア（USB / プレーヤー）</string>
+    <string name="audio_gain_navi">ナビ</string>
+    <string name="audio_gain_aux">AUX</string>
+    <string name="audio_music_section">Android の音楽</string>
+    <string name="audio_music_max">音楽の最大音量</string>
+    <string name="audio_music_max_hint">MP3 とアプリの上限（5〜15）</string>
+    <string name="settings_show_day_night">昼/夜を表示</string>
+    <string name="settings_show_day_night_hint">昼は太陽、ヘッドライト点灯中は月（電圧計の左）</string>
+    <string name="settings_screen_off_after">画面オフまでの時間</string>
+    <string name="settings_screen_off_after_hint">この時間ホーム画面に触れないと、画面オフボタンと同じように消灯します</string>
 </resources>

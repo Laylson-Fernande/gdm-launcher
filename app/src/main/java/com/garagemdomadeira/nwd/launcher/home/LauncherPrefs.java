@@ -23,6 +23,8 @@ public final class LauncherPrefs {
 
     private static final String FILE = "launcher_prefs";
     private static final String KEY_VOLTMETER = "show_voltmeter";
+    private static final String KEY_DAY_NIGHT = "show_day_night";
+    private static final String KEY_SCREEN_OFF_AFTER = "screen_off_after";
     /** Old "show volume controls" switch; only read to pick the initial home layout. */
     private static final String KEY_VOLUME = "show_volume_controls";
     private static final String KEY_HOME_LAYOUT = "home_layout";
@@ -71,6 +73,26 @@ public final class LauncherPrefs {
 
     public static void setShowVoltmeter(Context c, boolean on) {
         prefs(c).edit().putBoolean(KEY_VOLTMETER, on).apply();
+    }
+
+    /** Sun/moon next to the voltmeter (moon = headlights on). */
+    public static boolean showDayNight(Context c) {
+        return prefs(c).getBoolean(KEY_DAY_NIGHT, true);
+    }
+
+    public static void setShowDayNight(Context c, boolean on) {
+        prefs(c).edit().putBoolean(KEY_DAY_NIGHT, on).apply();
+    }
+
+    /** Choices for "Turn screen off after" (seconds without touching the home screen); 0 = never. */
+    public static final int[] SCREEN_OFF_AFTER = {0, 5, 10, 30};
+
+    public static int screenOffAfter(Context c) {
+        return prefs(c).getInt(KEY_SCREEN_OFF_AFTER, 0);
+    }
+
+    public static void setScreenOffAfter(Context c, int seconds) {
+        prefs(c).edit().putInt(KEY_SCREEN_OFF_AFTER, seconds).apply();
     }
 
     /**

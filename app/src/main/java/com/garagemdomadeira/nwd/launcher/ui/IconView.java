@@ -19,7 +19,8 @@ public class IconView extends View {
     public enum Icon {
         MENU, DIAG, POWER, EXIT, RADIO, CHEVRON_LEFT, CHEVRON_RIGHT, SKIP_PREV, SKIP_NEXT, KEYBOARD,
         MUSIC, BLUETOOTH, EQUALIZER, PLAY, PAUSE, PHONE, APPS, FAN, SETTINGS, HOME, BATTERY, VOLUME, VOLUME_MUTE, SCREEN_OFF, PLUS, MINUS,
-        AUX, CAMERA_360, VIDEO, PHONE_LINK, CARPLAY, ANDROID_AUTO
+        AUX, CAMERA_360, VIDEO, PHONE_LINK, CARPLAY, ANDROID_AUTO,
+        STEREO, TOWER_FAR, SUN, MOON
     }
 
     public enum Style { NONE, CIRCLE, SQUARE, FLAT_CIRCLE, OUTLINE_CIRCLE }
@@ -164,6 +165,44 @@ public class IconView extends View {
                 c.drawRect(rect, fill);
                 c.drawCircle(14.5f, 17.5f, 0.9f, fill);
                 c.drawCircle(17.5f, 17.5f, 0.9f, fill);
+                break;
+            case SUN:
+                c.drawCircle(12, 12, 4, stroke);
+                for (int k = 0; k < 8; k++) {
+                    double a = Math.toRadians(k * 45);
+                    float cos = (float) Math.cos(a);
+                    float sin = (float) Math.sin(a);
+                    c.drawLine(12 + 7 * cos, 12 + 7 * sin, 12 + 9.5f * cos, 12 + 9.5f * sin, stroke);
+                }
+                break;
+            case MOON:
+                // Crescent: arc of the full moon (r 9) closed by the "bite" (r 7, top right).
+                path.reset();
+                path.moveTo(21, 12.79f);
+                rect.set(3, 3, 21, 21);
+                path.arcTo(rect, 5, 260);
+                rect.set(9.84f, 0.16f, 23.84f, 14.16f);
+                path.arcTo(rect, 216.5f, -163);
+                path.close();
+                c.drawPath(path, stroke);
+                break;
+            case STEREO:
+                // Two channels: the classic pair of overlapping rings.
+                c.drawCircle(8.5f, 12, 5.5f, stroke);
+                c.drawCircle(15.5f, 12, 5.5f, stroke);
+                break;
+            case TOWER_FAR:
+                // Radio mast sending short and long waves.
+                c.drawCircle(12, 8.5f, 1.4f, fill);
+                c.drawLine(12, 10.5f, 8, 21.5f, stroke);
+                c.drawLine(12, 10.5f, 16, 21.5f, stroke);
+                c.drawLine(9.3f, 17.5f, 14.7f, 17.5f, stroke);
+                rect.set(8, 4.5f, 16, 12.5f);
+                c.drawArc(rect, 140, 80, false, stroke);
+                c.drawArc(rect, -40, 80, false, stroke);
+                rect.set(4, 0.5f, 20, 16.5f);
+                c.drawArc(rect, 145, 70, false, stroke);
+                c.drawArc(rect, -35, 70, false, stroke);
                 break;
             case EXIT:
                 // Open door frame on the left + arrow exiting to the right.
