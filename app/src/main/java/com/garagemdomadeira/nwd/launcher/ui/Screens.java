@@ -76,6 +76,7 @@ public final class Screens {
             // Head-unit app: opens on top, the current screen stays where it is.
             if (target == DockView.Item.AUX) ExternalApps.openAux(from);
             else if (target == DockView.Item.VIDEO) ExternalApps.openVideo(from);
+            else if (target == DockView.Item.ZLINK) ExternalApps.openZlink(from);
             else ExternalApps.open360(from);
             return;
         }

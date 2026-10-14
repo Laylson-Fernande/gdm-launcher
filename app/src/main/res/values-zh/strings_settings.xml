@@ -121,4 +121,6 @@
     <string name="settings_home_module_gps">GPS 数据</string>
     <string name="settings_hide_bottom_bar">隐藏 NWD 底部栏</string>
     <string name="settings_hide_bottom_bar_hint">主机的悬浮栏（主页、返回、音量）在 GDM Launcher 显示时隐藏，在其他应用中重新出现</string>
+    <string name="settings_zlink_name">Dock 中 Z-Link 的名称</string>
+    <string name="settings_zlink_name_hint">Dock 中 Z-Link 的名称和图标：Z-Link、CarPlay 或 Auto</string>
 </resources>

@@ -14,7 +14,7 @@ import com.garagemdomadeira.nwd.launcher.R;
 
 /**
  * Head-unit apps that Garagem only launches (they don't become our own screens): AUX, video,
- * 360 camera and the NWD settings menus.
+ * 360 camera, Z-Link (CarPlay / Android Auto) and the NWD settings menus.
  */
 public final class ExternalApps {
     private ExternalApps() {
@@ -26,8 +26,11 @@ public final class ExternalApps {
     public static final String PKG_CARKIT_360 = "com.nwd.carkit360camera";
     public static final String PKG_CAR_SETTING = "com.android.car.setting";
     public static final String PKG_FACTORY = "com.nwd.factory.setting";
+    /** Z-Link: wired/wireless CarPlay and Android Auto on NWD units. */
+    public static final String PKG_ZLINK = "com.zjinnova.zlink";
 
     private static final String HOME_HORIZONTAL = ".home_horizontalActivity";
+    private static final String ZLINK_MAIN = "com.zjinnova.android.zlink.features.main.MainActivity";
     private static final String AVM_MAIN = "com.ivicar.modules.main.view.MainNowadaActivity";
     private static final String AVM_SETTINGS = "com.ivicar.modules.setting.view.SettingActivity";
     private static final String AVM_CALIBRATE = "com.ivicar.modules.calibrate.view.CalibrateActivity";
@@ -58,6 +61,10 @@ public final class ExternalApps {
         return installed(c, PKG_VIDEO);
     }
 
+    public static boolean hasZlink(Context c) {
+        return installed(c, PKG_ZLINK);
+    }
+
     public static boolean hasAvm(Context c) {
         return installed(c, PKG_AVM);
     }
@@ -72,6 +79,10 @@ public final class ExternalApps {
 
     public static void openVideo(Context c) {
         open(c, PKG_VIDEO, PKG_VIDEO + HOME_HORIZONTAL);
+    }
+
+    public static void openZlink(Context c) {
+        open(c, PKG_ZLINK, ZLINK_MAIN);
     }
 
     /**

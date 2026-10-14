@@ -19,7 +19,7 @@ public class IconView extends View {
     public enum Icon {
         MENU, DIAG, POWER, EXIT, RADIO, CHEVRON_LEFT, CHEVRON_RIGHT, SKIP_PREV, SKIP_NEXT, KEYBOARD,
         MUSIC, BLUETOOTH, EQUALIZER, PLAY, PAUSE, PHONE, APPS, FAN, SETTINGS, HOME, BATTERY, VOLUME, VOLUME_MUTE, SCREEN_OFF, PLUS, MINUS,
-        AUX, CAMERA_360, VIDEO
+        AUX, CAMERA_360, VIDEO, PHONE_LINK, CARPLAY, ANDROID_AUTO
     }
 
     public enum Style { NONE, CIRCLE, SQUARE, FLAT_CIRCLE, OUTLINE_CIRCLE }
@@ -316,6 +316,33 @@ public class IconView extends View {
                 rect.set(2.5f, 2.5f, 21.5f, 21.5f);
                 c.drawArc(rect, -60, 120, false, stroke);
                 c.drawArc(rect, 120, 120, false, stroke);
+                break;
+            case PHONE_LINK:
+                // Phone mirrored on the car screen (Z-Link: CarPlay / Android Auto).
+                rect.set(2.5f, 5.5f, 8.5f, 18.5f);
+                c.drawRoundRect(rect, 1.5f, 1.5f, stroke);
+                c.drawLine(4.8f, 16, 6.2f, 16, stroke);
+                rect.set(11.5f, 7, 21.5f, 15);
+                c.drawRoundRect(rect, 1.5f, 1.5f, stroke);
+                c.drawLine(16.5f, 15, 16.5f, 18.5f, stroke);
+                c.drawLine(14, 18.5f, 19, 18.5f, stroke);
+                c.drawLine(8.5f, 11, 11.5f, 11, stroke);
+                break;
+            case CARPLAY:
+                // Rounded square with a play triangle (in the spirit of CarPlay, not its logo).
+                rect.set(3, 3, 21, 21);
+                c.drawRoundRect(rect, 5.5f, 5.5f, stroke);
+                triangle(c, 9.5f, 7.8f, 9.5f, 16.2f, 16.5f, 12);
+                break;
+            case ANDROID_AUTO:
+                // Navigation arrow shaped like an "A" (in the spirit of Android Auto, not its logo).
+                path.reset();
+                path.moveTo(12, 3);
+                path.lineTo(20.5f, 20.5f);
+                path.lineTo(12, 16);
+                path.lineTo(3.5f, 20.5f);
+                path.close();
+                c.drawPath(path, stroke);
                 break;
             case VIDEO:
                 rect.set(2.5f, 5, 21.5f, 19);

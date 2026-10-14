@@ -121,4 +121,6 @@
     <string name="settings_home_module_gps">Данные GPS</string>
     <string name="settings_hide_bottom_bar">Скрывать нижнюю панель NWD</string>
     <string name="settings_hide_bottom_bar_hint">Плавающая панель устройства (Домой, Назад, громкость) скрыта, пока открыт GDM Launcher, и возвращается в других приложениях</string>
+    <string name="settings_zlink_name">Название Z-Link в доке</string>
+    <string name="settings_zlink_name_hint">Название и значок Z-Link в доке: Z-Link, CarPlay или Auto</string>
 </resources>

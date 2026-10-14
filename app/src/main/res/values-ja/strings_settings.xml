@@ -121,4 +121,6 @@
     <string name="settings_home_module_gps">GPS データ</string>
     <string name="settings_hide_bottom_bar">NWD の下部バーを隠す</string>
     <string name="settings_hide_bottom_bar_hint">本体のフローティングバー（ホーム、戻る、音量）は GDM Launcher の表示中は隠れ、ほかのアプリでは再び表示されます</string>
+    <string name="settings_zlink_name">ドックでの Z-Link の名前</string>
+    <string name="settings_zlink_name_hint">ドックでの Z-Link の名前とアイコン：Z-Link、CarPlay、Auto</string>
 </resources>

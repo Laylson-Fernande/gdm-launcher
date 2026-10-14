@@ -39,6 +39,8 @@ public class DockView extends LinearLayout {
         CAMERA_360("cam360", R.string.home_dock_cam360, R.string.home_dock_cam360_title,
             IconView.Icon.CAMERA_360, true),
         VIDEO("video", R.string.home_dock_video, R.string.home_dock_video_title, IconView.Icon.VIDEO, true),
+        /** Z-Link (CarPlay / Android Auto); its dock label is chosen in Settings (see LauncherPrefs.ZLINK_NAMES). */
+        ZLINK("zlink", R.string.home_dock_zlink, R.string.home_dock_zlink_title, IconView.Icon.PHONE_LINK, true),
         APPS("apps", R.string.home_dock_apps, R.string.home_dock_apps_title, IconView.Icon.APPS, false);
 
         /** Id stored in launcher_prefs (dock_toggles). */
@@ -61,7 +63,21 @@ public class DockView extends LinearLayout {
 
         /** Short label shown in the dock. */
         public String label(Context c) {
+            if (this == ZLINK) return LauncherPrefs.ZLINK_NAMES[LauncherPrefs.zlinkName(c)].toUpperCase();
             return c.getString(labelRes);
+        }
+
+        /** Icon in the dock: Z-Link's follows its chosen name (Z-Link, CarPlay or Auto). */
+        public IconView.Icon icon(Context c) {
+            if (this != ZLINK) return icon;
+            switch (LauncherPrefs.zlinkName(c)) {
+                case 1:
+                    return IconView.Icon.CARPLAY;
+                case 2:
+                    return IconView.Icon.ANDROID_AUTO;
+                default:
+                    return IconView.Icon.PHONE_LINK;
+            }
         }
 
         /** Full name, for the Settings list. */
@@ -71,7 +87,7 @@ public class DockView extends LinearLayout {
 
         /** Item that opens a head-unit app instead of one of our screens. */
         public boolean isExternal() {
-            return this == AUX || this == CAMERA_360 || this == VIDEO;
+            return this == AUX || this == CAMERA_360 || this == VIDEO || this == ZLINK;
         }
 
         /** false if the item's app or hardware doesn't exist on this head unit (hidden from dock and Settings). */
@@ -83,6 +99,8 @@ public class DockView extends LinearLayout {
                     return ExternalApps.has360(c);
                 case VIDEO:
                     return ExternalApps.hasVideo(c);
+                case ZLINK:
+                    return ExternalApps.hasZlink(c);
                 default:
                     return true;
             }
@@ -105,7 +123,7 @@ public class DockView extends LinearLayout {
     private final TextView[] labels = new TextView[Item.values().length];
     private Item active;
     private Listener listener;
-    /** Signature of the shown items, so we only rebuild when the selection changes. */
+    /** Signature of the shown items (and the Z-Link name and icon), so we only rebuild when they change. */
     private String shownKey;
 
     public DockView(Context c) {
@@ -139,6 +157,7 @@ public class DockView extends LinearLayout {
             shown.add(item);
             key.append(item.id).append(',');
         }
+        key.append(LauncherPrefs.zlinkName(c)); // Z-Link's label and icon are a setting too
         if (key.toString().equals(shownKey)) return;
         shownKey = key.toString();
 
@@ -157,7 +176,7 @@ public class DockView extends LinearLayout {
             ThemeDrawables.setBackground(slot, com.garagemdomadeira.nwd.launcher.R.drawable.dock_item);
 
             IconView icon = new IconView(c);
-            icon.set(item.icon, IconView.Style.NONE);
+            icon.set(item.icon(c), IconView.Style.NONE);
             icon.setClickable(false);
             icon.setDuplicateParentStateEnabled(true);
             icon.color(Ui.TEXT_MUTED);

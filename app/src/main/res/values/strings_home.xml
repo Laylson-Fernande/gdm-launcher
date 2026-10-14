@@ -94,6 +94,8 @@
     <string name="home_dock_cam360_title">360 camera</string>
     <string name="home_dock_video">VIDEO</string>
     <string name="home_dock_video_title">Video</string>
+    <string name="home_dock_zlink" translatable="false">Z-LINK</string>
+    <string name="home_dock_zlink_title" translatable="false">Z-Link</string>
     <string name="home_dock_apps">APPS</string>
     <string name="home_dock_apps_title">Apps</string>
     <string name="home_image">Chosen image</string>
