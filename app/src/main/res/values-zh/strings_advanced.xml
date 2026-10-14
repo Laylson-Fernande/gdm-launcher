@@ -75,7 +75,7 @@
     <string name="adv_autorun_sub">NWD 白名单（whitelist_packagename / appautorun_packagename）。如需修改，请使用车辆设置。</string>
 
     <string name="adv_sec_360">360 全景（工厂）</string>
-    <string name="adv_360_note">开机延迟、硬件箭头、鸟瞰图中的车辆、图像和泊车监控仍保留在 360 应用中，直到确认 Garagem 能保存其偏好设置。</string>
+    <string name="adv_360_note">开机延迟、硬件箭头、鸟瞰图中的车辆、图像和泊车监控仍保留在 360 应用中，直到确认 GDM Launcher 能保存其偏好设置。</string>
     <string name="adv_360_app_settings">360 应用设置</string>
     <string name="adv_calibration">校准</string>
     <string name="adv_calibration_sub">应用密码：0000。流程在其应用内完成。</string>
@@ -111,8 +111,8 @@
     <string name="adv_toast_app_missing">此主机上未找到该应用（%1$s）</string>
 
     <!-- 平台兼容性 -->
-    <string name="adv_compat_untested">该 NWD 平台尚未在 Garagem 上测试（%1$s），可能无法正常工作。</string>
-    <string name="adv_compat_incompatible">此设备似乎不是兼容的 NWD 主机。Garagem 可能无法控制声音、收音机或蓝牙。</string>
+    <string name="adv_compat_untested">该 NWD 平台尚未在 GDM Launcher 上测试（%1$s），可能无法正常工作。</string>
+    <string name="adv_compat_incompatible">此设备似乎不是兼容的 NWD 主机。GDM Launcher 可能无法控制声音、收音机或蓝牙。</string>
     <string name="adv_compat_ok">确定</string>
     <string name="adv_compat_untested_label">NWD 未测试</string>
     <string name="adv_compat_incompatible_label">不兼容</string>

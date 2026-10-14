@@ -75,7 +75,7 @@
     <string name="adv_autorun_sub">Lista blanca de NWD (whitelist_packagename / appautorun_packagename). Para cambiarla, usa Ajustes del vehículo.</string>
 
     <string name="adv_sec_360">Cámara 360 (fábrica)</string>
-    <string name="adv_360_note">Retardo de encendido, flecha de hardware, auto en vista aérea, imagen y monitor de estacionamiento quedan en la app 360 hasta confirmar que Garagem puede guardar sus preferencias.</string>
+    <string name="adv_360_note">Retardo de encendido, flecha de hardware, auto en vista aérea, imagen y monitor de estacionamiento quedan en la app 360 hasta confirmar que GDM Launcher puede guardar sus preferencias.</string>
     <string name="adv_360_app_settings">Ajustes de la app 360</string>
     <string name="adv_calibration">Calibración</string>
     <string name="adv_calibration_sub">Contraseña de la app: 0000. El proceso sigue en su app.</string>
@@ -111,8 +111,8 @@
     <string name="adv_toast_app_missing">App no encontrada en esta central (%1$s)</string>
 
     <!-- Compatibilidad de plataforma -->
-    <string name="adv_compat_untested">Plataforma NWD aún no probada con Garagem (%1$s). Puede fallar.</string>
-    <string name="adv_compat_incompatible">Este dispositivo no parece una central NWD compatible. Garagem puede no controlar el sonido, la radio ni el Bluetooth.</string>
+    <string name="adv_compat_untested">Plataforma NWD aún no probada con GDM Launcher (%1$s). Puede fallar.</string>
+    <string name="adv_compat_incompatible">Este dispositivo no parece una central NWD compatible. GDM Launcher puede no controlar el sonido, la radio ni el Bluetooth.</string>
     <string name="adv_compat_ok">OK</string>
     <string name="adv_compat_untested_label">NWD no probada</string>
     <string name="adv_compat_incompatible_label">Incompatible</string>

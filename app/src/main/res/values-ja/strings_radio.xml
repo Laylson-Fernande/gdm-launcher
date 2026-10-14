@@ -71,4 +71,5 @@
         <item>テスト</item>
         <item>警報</item>
     </string-array>
+    <string name="radio_config_invalid">%1$s が無効です。ファイルを修正してください。それまでメモリーの変更は保存されません。</string>
 </resources>

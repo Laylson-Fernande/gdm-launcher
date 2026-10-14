@@ -71,4 +71,5 @@
         <item>टेस्ट</item>
         <item>अलार्म</item>
     </string-array>
+    <string name="radio_config_invalid">%1$s अमान्य है: फ़ाइल ठीक करें। तब तक मेमोरी में बदलाव सहेजे नहीं जाएँगे।</string>
 </resources>

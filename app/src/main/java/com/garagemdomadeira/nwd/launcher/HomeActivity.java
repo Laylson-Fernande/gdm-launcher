@@ -21,6 +21,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.garagemdomadeira.nwd.launcher.bt.BtClient;
+import com.garagemdomadeira.nwd.launcher.home.GpsClient;
+import com.garagemdomadeira.nwd.launcher.home.HomeGrid;
+import com.garagemdomadeira.nwd.launcher.home.HomeImage;
+import com.garagemdomadeira.nwd.launcher.home.HomeModuleViews;
 import com.garagemdomadeira.nwd.launcher.home.HomeSession;
 import com.garagemdomadeira.nwd.launcher.home.LauncherPrefs;
 import com.garagemdomadeira.nwd.launcher.home.MuteClient;
@@ -30,6 +34,7 @@ import com.garagemdomadeira.nwd.launcher.music.AlbumArt;
 import com.garagemdomadeira.nwd.launcher.radio.Band;
 import com.garagemdomadeira.nwd.launcher.radio.RadioClient;
 import com.garagemdomadeira.nwd.launcher.radio.RadioState;
+import com.garagemdomadeira.nwd.launcher.radio.StationArt;
 import com.garagemdomadeira.nwd.launcher.system.SystemProps;
 import com.garagemdomadeira.nwd.launcher.ui.IconView;
 import com.garagemdomadeira.nwd.launcher.ui.Touch;
@@ -37,6 +42,7 @@ import com.garagemdomadeira.nwd.launcher.ui.Ui;
 import com.garagemdomadeira.nwd.launcher.ui.DockView;
 import com.garagemdomadeira.nwd.launcher.ui.Screens;
 
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -45,9 +51,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * Home screen: volume and mute, gear (settings), fan, clock, "now playing" (radio, USB/SD
- * or Bluetooth music), Bluetooth status and the dock.
- * A call covers only the "now playing" area. Opening this screen neither turns the radio on nor
+ * Home screen: top bar (voltmeter, screen off, settings), the modules the driver placed in the
+ * grid (clock, volume and mute, "now playing" for radio, USB/SD or Bluetooth music, fan and
+ * Bluetooth status, a picture, GPS speed and GPS data; see {@link HomeModuleViews}) and the dock.
+ * A call covers only the "now playing" slot. Opening this screen neither turns the radio on nor
  * cuts what is playing.
  */
 public class HomeActivity extends Activity {
@@ -99,6 +106,14 @@ public class HomeActivity extends Activity {
 
     private View screenOffOverlay;
     private DockView dock;
+    private HomeModuleViews modules;
+    private GpsClient gps;
+    private TextView speedValue;
+    private TextView speedUnit;
+    private TextView gpsLat;
+    private TextView gpsLon;
+    private TextView gpsAlt;
+    private TextView gpsDir;
     private IconView muteButton;
     private TextView clockTime;
     private TextView clockDate;
@@ -121,6 +136,9 @@ public class HomeActivity extends Activity {
     private View voltageView;
     private TextView voltageText;
     private final ExecutorService artLoader = Executors.newSingleThreadExecutor();
+    /** Image module: picture version (path, date and size) and slot on screen, to reload only on change. */
+    private long imageStamp = -1;
+    private HomeGrid.Slot imageSlot;
     private View cardCall;
     private TextView callState;
     private TextView callName;
@@ -202,6 +220,19 @@ public class HomeActivity extends Activity {
         Ui.applyFont(findViewById(R.id.home_root));
         dock = Screens.attachDock(this, null);
         bindViews();
+        modules = new HomeModuleViews(this);
+        modules.apply(LauncherPrefs.homeLayout(this));
+        gps = new GpsClient(this);
+        gps.setListener(this::renderGps);
+        // Portrait grid: sized to the area the home screen really got (and if it changes).
+        findViewById(android.R.id.content).addOnLayoutChangeListener(
+            (v, l, t, r, b, ol, ot, or, ob) -> {
+                if (r - l == or - ol && b - t == ob - ot) return;
+                v.post(() -> {
+                    modules.relayout();
+                    if (snap != null) render(snap);
+                });
+            });
         // The "screen off" layer must cover the dock too.
         ViewGroup content = (ViewGroup) findViewById(android.R.id.content);
         ((ViewGroup) screenOffOverlay.getParent()).removeView(screenOffOverlay);
@@ -284,8 +315,6 @@ public class HomeActivity extends Activity {
         fanDot = findViewById(R.id.fan_status_dot);
         fanText = text(R.id.fan_status_text);
         text(R.id.fan_status_title).setTypeface(Ui.medium(this));
-        // Status column: 290 wide − 12 padding − 52 icon − 18 gap.
-        Ui.autoFit(text(R.id.fan_status_title), 208);
         fanText.setTypeface(Ui.medium(this));
         IconView fanIcon = icon(R.id.fan_status_icon, IconView.Icon.FAN, IconView.Style.NONE);
         fanIcon.setClickable(false);
@@ -332,8 +361,19 @@ public class HomeActivity extends Activity {
         btText = text(R.id.bt_status_text);
         btDeviceView = text(R.id.bt_status_device);
         btText.setTypeface(Ui.medium(this));
-        Ui.autoFit(btText, 208);
         btDeviceView.setTypeface(Ui.regular(this));
+
+        speedValue = text(R.id.speed_value);
+        speedUnit = text(R.id.speed_unit);
+        speedValue.setTypeface(Ui.semiBold(this));
+        speedUnit.setTypeface(Ui.regular(this));
+        gpsLat = text(R.id.gps_lat_value);
+        gpsLon = text(R.id.gps_lon_value);
+        gpsAlt = text(R.id.gps_alt_value);
+        gpsDir = text(R.id.gps_dir_value);
+        for (int id : new int[]{R.id.gps_lat_value, R.id.gps_lon_value, R.id.gps_alt_value, R.id.gps_dir_value}) {
+            text(id).setTypeface(Ui.medium(this));
+        }
         findViewById(R.id.bt_status).setOnClickListener(v -> open(PhoneActivity.class));
 
         renderVolume();
@@ -356,10 +396,12 @@ public class HomeActivity extends Activity {
         applyPrefs();
     }
 
-    /** Settings screen options: voltmeter and volume controls. */
+    /** Settings screen options: home modules and voltmeter. */
     private void applyPrefs() {
-        findViewById(R.id.volume_row).setVisibility(
-            LauncherPrefs.showVolumeControls(this) ? View.VISIBLE : View.GONE);
+        modules.apply(LauncherPrefs.homeLayout(this));
+        if (snap != null) render(snap);
+        renderImage();
+        updateGps();
         handler.removeCallbacks(voltageTick);
         if (LauncherPrefs.showVoltmeter(this)) {
             handler.post(voltageTick);
@@ -374,12 +416,15 @@ public class HomeActivity extends Activity {
         if (screenOffOverlay != null && screenOffOverlay.getVisibility() == View.VISIBLE) setScreenOn(true);
         handler.removeCallbacks(clockTick);
         handler.removeCallbacks(voltageTick);
+        gps.stop();
         super.onPause();
     }
 
     @Override
     protected void onDestroy() {
         handler.removeCallbacksAndMessages(null);
+        gps.stop();
+        gps.setListener(null);
         try {
             unregisterReceiver(btReceiver);
         } catch (Exception ignored) {
@@ -443,7 +488,9 @@ public class HomeActivity extends Activity {
         snap = s;
         boolean calling = s.call != HomeSession.CallPhase.NONE;
         show(cardCall, calling);
-        findViewById(R.id.now_playing).setVisibility(calling ? View.INVISIBLE : View.VISIBLE);
+        if (modules.slotOf(HomeGrid.Module.NOW_PLAYING) != null) {
+            findViewById(R.id.now_playing).setVisibility(calling ? View.INVISIBLE : View.VISIBLE);
+        }
         renderNowPlaying();
         renderCall(s);
         renderDock();
@@ -534,16 +581,19 @@ public class HomeActivity extends Activity {
         }
         renderArt(s);
         npLine2.setText(sub);
-        npLine2.setVisibility(sub.isEmpty() ? View.GONE : View.VISIBLE);
+        npLine2.setVisibility(sub.isEmpty() || !modules.nowPlayingLine2() ? View.GONE : View.VISIBLE);
         npControls.setVisibility(controls ? View.VISIBLE : View.GONE);
-        npProgressTrack.setVisibility(progress < 0 ? View.GONE : View.VISIBLE);
+        npProgressTrack.setVisibility(progress < 0 || !modules.nowPlayingProgress() ? View.GONE : View.VISIBLE);
         if (progress >= 0) {
             npProgress.setPivotX(0f);
             npProgress.setScaleX(progress);
         }
     }
 
-    /** Track cover for MP3; for other sources (or no cover), the source icon in the frame. */
+    /**
+     * Track cover for MP3, station art for the radio (Garagem/radio/FM_104.5.jpg, as on the radio
+     * screen); otherwise, or without a picture, the source icon in the frame.
+     */
     private void renderArt(HomeSession.Snapshot s) {
         IconView.Icon icon = s.kind == HomeSession.Kind.RADIO ? IconView.Icon.RADIO
             : s.kind == HomeSession.Kind.BT ? IconView.Icon.BLUETOOTH : IconView.Icon.MUSIC;
@@ -558,7 +608,11 @@ public class HomeActivity extends Activity {
             }
         }
         String path = s.kind == HomeSession.Kind.USB ? s.path : null;
-        String key = id > 0 ? "id:" + id : path != null ? "path:" + path : null;
+        boolean station = s.kind == HomeSession.Kind.RADIO && radioReady && radioState.frequency > 0;
+        int band = radioState.band;
+        int frequency = radioState.frequency;
+        String key = station ? "radio:" + StationArt.baseName(band, frequency)
+            : id > 0 ? "id:" + id : path != null ? "path:" + path : null;
         if (key == null) {
             clearArt();
             return;
@@ -568,15 +622,54 @@ public class HomeActivity extends Activity {
         artKey = key;
         int gen = ++artGen;
         long mediaId = id;
+        int size = npArt.getWidth() > 0 ? npArt.getWidth() : Math.round(Ui.dp(this, 216));
         try {
             artLoader.execute(() -> {
-                Bitmap bmp = AlbumArt.decode(getApplicationContext(), mediaId, path);
+                Bitmap bmp = station ? StationArt.load(band, frequency, size)
+                    : AlbumArt.decode(getApplicationContext(), mediaId, path);
                 handler.post(() -> {
                     if (isFinishing() || gen != artGen || bmp == null) return;
                     npArt.setImageBitmap(bmp);
                     npArt.setVisibility(View.VISIBLE);
                     npArtIcon.setVisibility(View.GONE);
                     Touch.fadeIn(npArt);
+                });
+            });
+        } catch (Exception ignored) {
+            // Executor already shut down (screen leaving).
+        }
+    }
+
+    /** Image module: (re)loads the chosen picture when it changed or the module moved to another slot. */
+    private void renderImage() {
+        HomeGrid.Slot slot = modules.slotOf(HomeGrid.Module.IMAGE);
+        if (slot == null) return;
+        File f = HomeImage.file(this);
+        long stamp = f != null && f.isFile()
+            ? (f.getPath().hashCode() * 31L + f.lastModified()) * 31 + f.length() : 0;
+        if (stamp == imageStamp && slot == imageSlot) return;
+        imageStamp = stamp;
+        imageSlot = slot;
+        ImageView view = (ImageView) findViewById(R.id.image_view);
+        View empty = findViewById(R.id.image_empty);
+        if (stamp == 0) {
+            view.setImageDrawable(null);
+            view.setVisibility(View.GONE);
+            empty.setVisibility(View.VISIBLE);
+            return;
+        }
+        HomeGrid.Frame frame = modules.frame(slot);
+        int width = Math.round(Ui.dp(this, frame.width));
+        int height = Math.round(Ui.dp(this, frame.height));
+        try {
+            artLoader.execute(() -> {
+                Bitmap bmp = HomeImage.load(f, width, height);
+                handler.post(() -> {
+                    if (isFinishing() || stamp != imageStamp) return;
+                    view.setImageBitmap(bmp);
+                    view.setVisibility(bmp != null ? View.VISIBLE : View.GONE);
+                    empty.setVisibility(bmp != null ? View.GONE : View.VISIBLE);
+                    if (bmp != null) Touch.fadeIn(view);
                 });
             });
         } catch (Exception ignored) {
@@ -629,6 +722,62 @@ public class HomeActivity extends Activity {
             else if (s.source == SOURCE_ANDROID && s.kind == HomeSession.Kind.BT) active = DockView.Item.BT_MUSIC;
         }
         if (dock.getActive() != active) dock.setActive(active);
+    }
+
+    // ------------------------------------------------------------------ GPS
+
+    /** GPS only runs while the home screen is visible and a GPS module is on the grid. */
+    private void updateGps() {
+        boolean needed = modules.slotOf(HomeGrid.Module.SPEED) != null || modules.slotOf(HomeGrid.Module.GPS) != null;
+        if (!needed) {
+            gps.stop();
+            return;
+        }
+        renderGps(null); // until the first fix (start() delivers a recent one at once)
+        gps.start();
+        if (!gps.available()) renderGps(null);
+    }
+
+    /** Speed and GPS data modules. {@code fix} null = no recent position (searching, tunnel, no GPS). */
+    private void renderGps(GpsClient.Fix fix) {
+        String state = getString(gps.available() ? R.string.home_gps_waiting : R.string.home_gps_unavailable);
+        String none = getString(R.string.home_gps_none);
+        if (fix == null || Float.isNaN(fix.speedKmh)) {
+            speedValue.setText(none);
+            speedUnit.setText(fix == null ? state : getString(R.string.home_speed_unit));
+        } else {
+            // Below walking pace it's GPS jitter: show 0.
+            speedValue.setText(String.valueOf(fix.moving() ? Math.round(fix.speedKmh) : 0));
+            speedUnit.setText(R.string.home_speed_unit);
+        }
+        if (fix == null) {
+            gpsLat.setText(none);
+            gpsLon.setText(none);
+            gpsAlt.setText(none);
+            gpsDir.setText(state);
+            return;
+        }
+        gpsLat.setText(coordinate(fix.latitude, R.string.home_gps_dir_n, R.string.home_gps_dir_s));
+        gpsLon.setText(coordinate(fix.longitude, R.string.home_gps_dir_e, R.string.home_gps_dir_w));
+        gpsAlt.setText(Double.isNaN(fix.altitude) ? none
+            : getString(R.string.home_gps_altitude_value, Math.round(fix.altitude)));
+        gpsDir.setText(Float.isNaN(fix.bearing) ? getString(R.string.home_gps_stopped)
+            : getString(R.string.home_gps_heading_value, compass(fix.bearing), Math.round(fix.bearing) % 360));
+    }
+
+    /** "23.55052° S": degrees with 5 decimals (about 1 m) and the hemisphere. */
+    private String coordinate(double value, int positive, int negative) {
+        return String.format(Locale.US, "%.5f° %s", Math.abs(value), getString(value >= 0 ? positive : negative));
+    }
+
+    private static final int[] COMPASS = {
+        R.string.home_gps_dir_n, R.string.home_gps_dir_ne, R.string.home_gps_dir_e, R.string.home_gps_dir_se,
+        R.string.home_gps_dir_s, R.string.home_gps_dir_sw, R.string.home_gps_dir_w, R.string.home_gps_dir_nw,
+    };
+
+    /** One of the 8 compass points (45° each, centered on N, NE, E…). */
+    private String compass(float bearing) {
+        return getString(COMPASS[Math.round(bearing / 45f) % 8]);
     }
 
     // ------------------------------------------------------------------ fan and Bluetooth

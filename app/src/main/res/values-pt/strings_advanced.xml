@@ -74,7 +74,7 @@
     <string name="adv_autorun_sub">Lista branca da NWD (whitelist_packagename / appautorun_packagename). Para mudar, use o Config. Veículo.</string>
 
     <string name="adv_sec_360">Câmera 360 (fábrica)</string>
-    <string name="adv_360_note">Atraso ao ligar, seta pelo hardware, carro na bird view, imagem e monitor de estacionamento ficam no app 360 até confirmarmos que o Garagem consegue gravar as preferências dele.</string>
+    <string name="adv_360_note">Atraso ao ligar, seta pelo hardware, carro na bird view, imagem e monitor de estacionamento ficam no app 360 até confirmarmos que o GDM Launcher consegue gravar as preferências dele.</string>
     <string name="adv_360_app_settings">Configurações do app 360</string>
     <string name="adv_calibration">Calibração</string>
     <string name="adv_calibration_sub">Senha do app: 0000. O fluxo fica no app deles.</string>
@@ -110,8 +110,8 @@
     <string name="adv_toast_app_missing">App não encontrado nesta central (%1$s)</string>
 
     <!-- Compatibilidade da plataforma -->
-    <string name="adv_compat_untested">Plataforma NWD ainda não testada com o Garagem (%1$s). Pode falhar.</string>
-    <string name="adv_compat_incompatible">Este aparelho não parece uma central NWD compatível. O Garagem pode não controlar som, rádio nem Bluetooth.</string>
+    <string name="adv_compat_untested">Plataforma NWD ainda não testada com o GDM Launcher (%1$s). Pode falhar.</string>
+    <string name="adv_compat_incompatible">Este aparelho não parece uma central NWD compatível. O GDM Launcher pode não controlar som, rádio nem Bluetooth.</string>
     <string name="adv_compat_ok">Ok</string>
     <string name="adv_compat_untested_label">NWD não testada</string>
     <string name="adv_compat_incompatible_label">Incompatível</string>

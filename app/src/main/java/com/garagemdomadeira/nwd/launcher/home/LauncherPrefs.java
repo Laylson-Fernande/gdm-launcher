@@ -7,8 +7,10 @@ import com.garagemdomadeira.nwd.launcher.ui.DockView;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /** Launcher preferences (Settings screen), read by the home screen in onResume. */
@@ -21,7 +23,12 @@ public final class LauncherPrefs {
 
     private static final String FILE = "launcher_prefs";
     private static final String KEY_VOLTMETER = "show_voltmeter";
+    /** Old "show volume controls" switch; only read to pick the initial home layout. */
     private static final String KEY_VOLUME = "show_volume_controls";
+    private static final String KEY_HOME_LAYOUT = "home_layout";
+    private static final String KEY_HOME_IMAGE = "home_image";
+    private static final String KEY_HIDE_BOTTOM_BAR = "hide_bottom_bar";
+    private static final String KEY_MUSIC_FOLDER = "music_folder";
     private static final String KEY_ASK_DEFAULT = "ask_default_launcher";
     private static final String KEY_DOCK_TOGGLES = "dock_toggles";
     private static final String KEY_LANGUAGE = "language";
@@ -62,12 +69,86 @@ public final class LauncherPrefs {
         prefs(c).edit().putBoolean(KEY_VOLTMETER, on).apply();
     }
 
-    public static boolean showVolumeControls(Context c) {
-        return prefs(c).getBoolean(KEY_VOLUME, true);
+    /**
+     * Slot of each home module; modules missing from the map are hidden. With nothing saved, the
+     * original home: now playing on the left, clock and volume in the center, fan and Bluetooth
+     * on the right (volume only if the old "show volume controls" switch was on).
+     */
+    public static Map<HomeGrid.Module, HomeGrid.Slot> homeLayout(Context c) {
+        Map<HomeGrid.Module, HomeGrid.Slot> out = new EnumMap<>(HomeGrid.Module.class);
+        String raw = prefs(c).getString(KEY_HOME_LAYOUT, null);
+        if (raw == null) {
+            out.put(HomeGrid.Module.NOW_PLAYING, HomeGrid.Slot.LEFT);
+            out.put(HomeGrid.Module.CLOCK, HomeGrid.Slot.CENTER_TOP);
+            if (prefs(c).getBoolean(KEY_VOLUME, true)) out.put(HomeGrid.Module.VOLUME, HomeGrid.Slot.CENTER_BOTTOM);
+            out.put(HomeGrid.Module.FAN, HomeGrid.Slot.RIGHT_TOP);
+            out.put(HomeGrid.Module.BLUETOOTH, HomeGrid.Slot.RIGHT_MIDDLE);
+            return out;
+        }
+        for (String pair : raw.split(",")) {
+            String[] kv = pair.split(":");
+            if (kv.length != 2) continue;
+            HomeGrid.Module m = HomeGrid.Module.byId(kv[0].trim());
+            HomeGrid.Slot s = HomeGrid.Slot.byId(kv[1].trim());
+            if (m != null && s != null && !out.containsValue(s)) out.put(m, s);
+        }
+        return out;
     }
 
-    public static void setShowVolumeControls(Context c, boolean on) {
-        prefs(c).edit().putBoolean(KEY_VOLUME, on).apply();
+    /** Folder the MP3 player lists music from (subfolders too); null until the driver picks one. */
+    public static String musicFolder(Context c) {
+        return prefs(c).getString(KEY_MUSIC_FOLDER, null);
+    }
+
+    public static void setMusicFolder(Context c, String path) {
+        prefs(c).edit().putString(KEY_MUSIC_FOLDER, path).apply();
+    }
+
+    /** Hide the NWD bottom bar while Garagem is in front (see BottomBar). Off by default. */
+    public static boolean hideBottomBar(Context c) {
+        return prefs(c).getBoolean(KEY_HIDE_BOTTOM_BAR, false);
+    }
+
+    public static void setHideBottomBar(Context c, boolean on) {
+        prefs(c).edit().putBoolean(KEY_HIDE_BOTTOM_BAR, on).apply();
+    }
+
+    /** Path of the picture shown by the Image module (see HomeImage); null if none was chosen. */
+    public static String homeImage(Context c) {
+        return prefs(c).getString(KEY_HOME_IMAGE, null);
+    }
+
+    public static void setHomeImage(Context c, String path) {
+        prefs(c).edit().putString(KEY_HOME_IMAGE, path).apply();
+    }
+
+    /** Back to the original home, volume included. */
+    public static void resetHomeLayout(Context c) {
+        prefs(c).edit().putString(KEY_HOME_LAYOUT,
+            "now_playing:left,clock:center_top,volume:center_bottom,fan:right_top,bluetooth:right_middle").apply();
+    }
+
+    /**
+     * Puts {@code module} in {@code slot} (null = hidden). If another module is already there, the
+     * two swap places (the other one is hidden if {@code module} had no slot).
+     */
+    public static void setHomeSlot(Context c, HomeGrid.Module module, HomeGrid.Slot slot) {
+        Map<HomeGrid.Module, HomeGrid.Slot> layout = homeLayout(c);
+        HomeGrid.Slot old = layout.remove(module);
+        if (slot != null) {
+            for (HomeGrid.Module other : HomeGrid.Module.values()) {
+                if (layout.get(other) != slot) continue;
+                if (old != null) layout.put(other, old);
+                else layout.remove(other);
+            }
+            layout.put(module, slot);
+        }
+        StringBuilder sb = new StringBuilder();
+        for (Map.Entry<HomeGrid.Module, HomeGrid.Slot> e : layout.entrySet()) {
+            if (sb.length() > 0) sb.append(',');
+            sb.append(e.getKey().id).append(':').append(e.getValue().id);
+        }
+        prefs(c).edit().putString(KEY_HOME_LAYOUT, sb.toString()).apply();
     }
 
     /**

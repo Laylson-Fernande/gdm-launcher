@@ -50,12 +50,12 @@
 
     <!-- Default launcher dialogs -->
     <string name="home_default_launcher_title">Лаунчер по умолчанию</string>
-    <string name="home_default_launcher_message">На магнитоле по умолчанию другой лаунчер:\n%1$s\n\nСделать Garagem лаунчером по умолчанию?</string>
+    <string name="home_default_launcher_message">На магнитоле по умолчанию другой лаунчер:\n%1$s\n\nСделать GDM Launcher лаунчером по умолчанию?</string>
     <string name="home_not_set_paren">(не задан)</string>
     <string name="home_not_set">не задан</string>
     <string name="home_not_now">Не сейчас</string>
     <string name="home_set">Задать</string>
-    <string name="home_default_launcher_done">Garagem теперь лаунчер по умолчанию</string>
+    <string name="home_default_launcher_done">GDM Launcher теперь лаунчер по умолчанию</string>
     <string name="home_default_launcher_failed_title">Не удалось изменить</string>
     <string name="home_default_launcher_failed_message">Система не применила изменение (текущее значение: %1$s).\n\nЧтобы задать вручную, подключите adb и выполните:</string>
 
@@ -93,4 +93,24 @@
     <string name="home_dock_video_title">Видео</string>
     <string name="home_dock_apps">ПРИЛОЖЕНИЯ</string>
     <string name="home_dock_apps_title">Приложения</string>
+    <string name="home_image">Выбранное изображение</string>
+    <string name="home_image_empty">Выберите изображение в Настройки › Персонализация</string>
+    <string name="home_speed_unit">км/ч</string>
+    <string name="home_gps_waiting">Ожидание GPS</string>
+    <string name="home_gps_unavailable">Нет GPS</string>
+    <string name="home_gps_lat">Широта</string>
+    <string name="home_gps_lon">Долгота</string>
+    <string name="home_gps_alt">Высота</string>
+    <string name="home_gps_dir">Направление</string>
+    <string name="home_gps_stopped">Стоит</string>
+    <string name="home_gps_altitude_value">%1$d м</string>
+    <string name="home_gps_heading_value">%1$s (%2$d°)</string>
+    <string name="home_gps_dir_n">С</string>
+    <string name="home_gps_dir_ne">СВ</string>
+    <string name="home_gps_dir_e">В</string>
+    <string name="home_gps_dir_se">ЮВ</string>
+    <string name="home_gps_dir_s">Ю</string>
+    <string name="home_gps_dir_sw">ЮЗ</string>
+    <string name="home_gps_dir_w">З</string>
+    <string name="home_gps_dir_nw">СЗ</string>
 </resources>

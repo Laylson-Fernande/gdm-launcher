@@ -90,4 +90,18 @@
         <item quantity="one">Liste · %1$d titre</item>
         <item quantity="other">Liste · %1$d titres</item>
     </plurals>
+    <string name="media_music_folder">Dossier</string>
+    <string name="media_music_choose_folder">Touchez Dossier pour choisir où se trouve votre musique</string>
+    <string name="media_folder_title">Dossier de musique</string>
+    <string name="media_folder_storages">Stockages</string>
+    <string name="media_folder_internal">Mémoire interne</string>
+    <string name="media_folder_up">Retour</string>
+    <string name="media_folder_use">Utiliser ce dossier</string>
+    <string name="media_folder_cancel">Annuler</string>
+    <string name="media_folder_no_storage">Aucun stockage trouvé</string>
+    <string name="media_folder_no_subfolders">Aucun sous-dossier</string>
+    <plurals name="media_folder_path">
+        <item quantity="one">%1$s · %2$d morceau</item>
+        <item quantity="other">%1$s · %2$d morceaux</item>
+    </plurals>
 </resources>

@@ -71,4 +71,5 @@
         <item>Test</item>
         <item>Alarme</item>
     </string-array>
+    <string name="radio_config_invalid">%1$s invalide : corrigez le fichier. D\'ici là, les changements de mémoires ne seront pas enregistrés.</string>
 </resources>

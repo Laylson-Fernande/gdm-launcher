@@ -51,12 +51,12 @@
 
     <!-- 默认启动器对话框 -->
     <string name="home_default_launcher_title">默认启动器</string>
-    <string name="home_default_launcher_message">主机已将其他启动器设为默认：\n%1$s\n\n是否将 Garagem 设为默认启动器？</string>
+    <string name="home_default_launcher_message">主机已将其他启动器设为默认：\n%1$s\n\n是否将 GDM Launcher 设为默认启动器？</string>
     <string name="home_not_set_paren">（未设置）</string>
     <string name="home_not_set">未设置</string>
     <string name="home_not_now">暂不</string>
     <string name="home_set">设置</string>
-    <string name="home_default_launcher_done">已将 Garagem 设为默认启动器</string>
+    <string name="home_default_launcher_done">已将 GDM Launcher 设为默认启动器</string>
     <string name="home_default_launcher_failed_title">无法更改</string>
     <string name="home_default_launcher_failed_message">系统未应用此更改（当前值：%1$s）。\n\n如需手动设置，请连接 adb 并运行：</string>
 
@@ -94,4 +94,24 @@
     <string name="home_dock_video_title">视频</string>
     <string name="home_dock_apps">应用</string>
     <string name="home_dock_apps_title">应用</string>
+    <string name="home_image">已选图片</string>
+    <string name="home_image_empty">请在 设置 › 自定义 中选择图片</string>
+    <string name="home_speed_unit">km/h</string>
+    <string name="home_gps_waiting">正在等待 GPS</string>
+    <string name="home_gps_unavailable">无 GPS</string>
+    <string name="home_gps_lat">纬度</string>
+    <string name="home_gps_lon">经度</string>
+    <string name="home_gps_alt">海拔</string>
+    <string name="home_gps_dir">方向</string>
+    <string name="home_gps_stopped">已停止</string>
+    <string name="home_gps_altitude_value">%1$d 米</string>
+    <string name="home_gps_heading_value">%1$s (%2$d°)</string>
+    <string name="home_gps_dir_n">北</string>
+    <string name="home_gps_dir_ne">东北</string>
+    <string name="home_gps_dir_e">东</string>
+    <string name="home_gps_dir_se">东南</string>
+    <string name="home_gps_dir_s">南</string>
+    <string name="home_gps_dir_sw">西南</string>
+    <string name="home_gps_dir_w">西</string>
+    <string name="home_gps_dir_nw">西北</string>
 </resources>

@@ -2,4 +2,6 @@
 <resources>
     <!-- Marks a view already fitted with touch feedback (Touch.install). -->
     <item name="touch_installed" type="id" />
+    <!-- Ui.autoFit: full text size and maximum width of a TextView. -->
+    <item name="auto_fit" type="id" />
 </resources>

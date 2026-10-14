@@ -71,4 +71,5 @@
         <item>Тест</item>
         <item>Тревога</item>
     </string-array>
+    <string name="radio_config_invalid">Файл %1$s повреждён: исправьте его. До этого изменения памяти не сохраняются.</string>
 </resources>

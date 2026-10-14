@@ -16,6 +16,8 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <!-- Export the props (developer menu) to Download/. With targetSdk < 23 it is granted at install time. -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <!-- Home speed and GPS data modules. With targetSdk < 23 it is granted at install time. -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
     <application
         android:name=".GaragemApp"
@@ -30,14 +32,16 @@
             android:name="android.max_aspect"
             android:value="2.4" />
 
-        <!-- Home screen (launcher). -->
+        <!-- Home screen (launcher). nosensor = the head unit's own orientation: landscape units or
+             768×1024 portrait ones (the home grid turns its columns into rows). Settings screens
+             too, the radio and MP3; the other screens are still designed for landscape only. -->
         <activity
             android:name=".HomeActivity"
             android:clearTaskOnLaunch="true"
             android:configChanges="fontScale|keyboard|keyboardHidden|locale|mcc|mnc|navigation|orientation|screenLayout|screenSize|smallestScreenSize|uiMode|density"
             android:exported="true"
             android:launchMode="singleTask"
-            android:screenOrientation="sensorLandscape"
+            android:screenOrientation="nosensor"
             android:stateNotNeeded="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -47,13 +51,14 @@
             </intent-filter>
         </activity>
 
-        <!-- Radio: opened by the "Rádio" button on the home screen. -->
+        <!-- Radio: opened by the "Rádio" button on the home screen. nosensor: layout-port has a
+             one-column version for portrait head units. -->
         <activity
             android:name=".RadioActivity"
             android:configChanges="fontScale|keyboard|keyboardHidden|locale|mcc|mnc|navigation|orientation|screenLayout|screenSize|smallestScreenSize|uiMode|density"
             android:exported="true"
             android:launchMode="singleTop"
-            android:screenOrientation="sensorLandscape" />
+            android:screenOrientation="nosensor" />
 
         <!-- Drawer: opened by the dock's Apps item. -->
         <activity
@@ -63,13 +68,14 @@
             android:launchMode="singleTop"
             android:screenOrientation="sensorLandscape" />
 
-        <!-- USB/SD music: our own player. -->
+        <!-- USB/SD music: our own player. nosensor: layout-port puts the song on top and the list
+             below on portrait head units. -->
         <activity
             android:name=".MusicActivity"
             android:configChanges="fontScale|keyboard|keyboardHidden|locale|mcc|mnc|navigation|orientation|screenLayout|screenSize|smallestScreenSize|uiMode|density"
             android:exported="false"
             android:launchMode="singleTop"
-            android:screenOrientation="sensorLandscape" />
+            android:screenOrientation="nosensor" />
 
         <!-- Bluetooth music: phone track via A2DP. -->
         <activity
@@ -109,7 +115,23 @@
             android:configChanges="fontScale|keyboard|keyboardHidden|locale|mcc|mnc|navigation|orientation|screenLayout|screenSize|smallestScreenSize|uiMode|density"
             android:exported="false"
             android:launchMode="singleTop"
-            android:screenOrientation="sensorLandscape" />
+            android:screenOrientation="nosensor" />
+
+        <!-- Home screen modules (Settings › Customize › Customize home screen). -->
+        <activity
+            android:name=".HomeSettingsActivity"
+            android:configChanges="fontScale|keyboard|keyboardHidden|locale|mcc|mnc|navigation|orientation|screenLayout|screenSize|smallestScreenSize|uiMode|density"
+            android:exported="false"
+            android:launchMode="singleTop"
+            android:screenOrientation="nosensor" />
+
+        <!-- Dock icons (Settings › Customize › Customize dock). -->
+        <activity
+            android:name=".DockSettingsActivity"
+            android:configChanges="fontScale|keyboard|keyboardHidden|locale|mcc|mnc|navigation|orientation|screenLayout|screenSize|smallestScreenSize|uiMode|density"
+            android:exported="false"
+            android:launchMode="singleTop"
+            android:screenOrientation="nosensor" />
 
         <!-- Advanced (Settings, password-protected): factory, development and NWD menus. -->
         <activity
@@ -117,7 +139,7 @@
             android:configChanges="fontScale|keyboard|keyboardHidden|locale|mcc|mnc|navigation|orientation|screenLayout|screenSize|smallestScreenSize|uiMode|density"
             android:exported="false"
             android:launchMode="singleTop"
-            android:screenOrientation="sensorLandscape" />
+            android:screenOrientation="nosensor" />
 
         <!-- System props (inside Advanced). -->
         <activity
@@ -125,7 +147,7 @@
             android:configChanges="fontScale|keyboard|keyboardHidden|locale|mcc|mnc|navigation|orientation|screenLayout|screenSize|smallestScreenSize|uiMode|density"
             android:exported="false"
             android:launchMode="singleTop"
-            android:screenOrientation="sensorLandscape" />
+            android:screenOrientation="nosensor" />
 
         <service
             android:name=".music.MusicPlaybackService"

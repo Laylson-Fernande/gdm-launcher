@@ -232,40 +232,65 @@ public final class Ui {
      * Keeps a single-line TextView within {@code maxWidthDp}: shrinks the text size (down to 60% of
      * the original) whenever the text doesn't fit, e.g. long translations or wider fonts.
      */
-    public static void autoFit(final TextView tv, int maxWidthDp) {
-        final float max = tv.getTextSize();
-        final float width = dp(tv.getContext(), maxWidthDp);
+    public static void autoFit(TextView tv, int maxWidthDp) {
+        autoFit(tv, tv.getTextSize(), maxWidthDp);
+    }
+
+    /**
+     * Same, with the full text size given in px. Calling it again on the same view replaces the size
+     * and width (the home screen does it when a module moves to a slot of another size).
+     */
+    public static void autoFit(final TextView tv, float maxPx, int maxWidthDp) {
+        float[] spec = (float[]) tv.getTag(com.garagemdomadeira.nwd.launcher.R.id.auto_fit);
+        boolean installed = spec != null;
+        if (!installed) {
+            spec = new float[2];
+            tv.setTag(com.garagemdomadeira.nwd.launcher.R.id.auto_fit, spec);
+        }
+        spec[0] = maxPx;
+        spec[1] = dp(tv.getContext(), maxWidthDp);
         tv.setSingleLine(true);
-        Runnable fit = () -> {
-            String text = tv.getText().toString();
-            if (tv.getTransformationMethod() != null) {
-                CharSequence shown = tv.getTransformationMethod().getTransformation(text, tv);
-                if (shown != null) text = shown.toString();
-            }
-            android.text.TextPaint paint = new android.text.TextPaint(tv.getPaint());
-            float size = max;
+        if (!installed) {
+            tv.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                }
+
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                }
+
+                @Override
+                public void afterTextChanged(Editable s) {
+                    fit(tv);
+                }
+            });
+        }
+        fit(tv);
+    }
+
+    private static void fit(TextView tv) {
+        float[] spec = (float[]) tv.getTag(com.garagemdomadeira.nwd.launcher.R.id.auto_fit);
+        String text = tv.getText().toString();
+        if (tv.getTransformationMethod() != null) {
+            CharSequence shown = tv.getTransformationMethod().getTransformation(text, tv);
+            if (shown != null) text = shown.toString();
+        }
+        android.text.TextPaint paint = new android.text.TextPaint(tv.getPaint());
+        float max = spec[0];
+        float size = max;
+        paint.setTextSize(size);
+        while (size > max * 0.6f && paint.measureText(text) > spec[1]) {
+            size -= 1f;
             paint.setTextSize(size);
-            while (size > max * 0.6f && paint.measureText(text) > width) {
-                size -= 1f;
-                paint.setTextSize(size);
-            }
-            if (size != tv.getTextSize()) tv.setTextSize(TypedValue.COMPLEX_UNIT_PX, size);
-        };
-        tv.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
+        }
+        if (size != tv.getTextSize()) tv.setTextSize(TypedValue.COMPLEX_UNIT_PX, size);
+    }
 
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                fit.run();
-            }
-        });
-        fit.run();
+    /** Screen taller than wide (768×1024 head units). */
+    public static boolean isPortrait(Context c) {
+        android.util.DisplayMetrics m = c.getResources().getDisplayMetrics();
+        return m.heightPixels > m.widthPixels;
     }
 
     public static float dp(Context c, float v) {

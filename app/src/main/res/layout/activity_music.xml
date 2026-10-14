@@ -47,6 +47,11 @@
             android:text="@string/media_music_repeat" />
 
         <TextView
+            android:id="@+id/music_folder"
+            style="@style/LineButton"
+            android:text="@string/media_music_folder" />
+
+        <TextView
             android:id="@+id/music_reload"
             style="@style/LineButton"
             android:text="@string/media_music_refresh" />

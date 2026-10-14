@@ -36,17 +36,35 @@ El proyecto forma parte de **Garagem do Madeira**, un espacio sobre coches, hazl
 
 | | Screen | What it does |
 |---|---|---|
-| 🏠 | **Home** | Clock and date, volume and mute, "now playing" (radio, USB/SD or Bluetooth), fan and Bluetooth status, and a customizable dock |
+| 🏠 | **Home** | Modules placed on a 6-slot grid (clock and date, volume and mute, "now playing" for radio, USB/SD or Bluetooth, fan and Bluetooth status, a picture of your choice, GPS speed and GPS data), each resizing to its slot, and a customizable dock |
 | 📻 | **Radio** | FM/AM with RDS (station name, RadioText, PTY, TA/AF), 12 presets per band, tuning dial and numeric keypad |
-| 🎵 | **Music** | USB/SD music player with album art and track list |
+| 🎵 | **Music** | Music player with album art and track list, playing from a folder you choose (internal memory, USB or SD) |
 | 🎧 | **Bluetooth music** | A2DP/AVRCP playback controls and track info from your phone |
 | 📞 | **Phone** | Bluetooth dialer, contacts, call history and in-call screen |
 | 🎚️ | **Equalizer** | 10-band EQ with presets, loudness and sound field (fader/balance) |
 | 🌀 | **Fan** | Cooling fan preferences |
 | 📱 | **Apps** | Paged grid of installed apps |
-| ⚙️ | **Settings** | Language, font, theme color, default launcher, dock, sound, display, reverse camera, 360° camera, navigation app and "About the unit" |
+| ⚙️ | **Settings** | Four panels in a side column: **Main** (language), **Customize** (theme color, font, home modules, dock and voltmeter), **Assists** (reverse camera, navigation) and **System** (default launcher, beep and volume, display, "About the unit") |
 
 🔇 Opening the home screen **never** turns the radio on or interrupts what's playing.
+
+📻 **Radio files** live in `Garagem/radio/` on the head unit's internal storage (never USB or SD):
+
+- Station art, 1:1: `FM_104.5.jpg`, `AM_1040.png`…
+- `radio.config.json`: the 12 memories of each band and the last station, which come back at power-on. The app writes it, and you can also edit it by hand (FM in MHz, AM in kHz, a missing memory is empty):
+
+```json
+{
+  "version": 1,
+  "last": { "band": "FM1", "frequency": 99.1 },
+  "bands": {
+    "FM1": { "M1": 104.5, "M2": 99.1, "M7": 87.55 },
+    "AM1": { "M1": 1040 }
+  }
+}
+```
+
+If the file has a mistake, the radio screen warns about it and saves nothing until it's fixed.
 
 ## 🌍 Languages
 

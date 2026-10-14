@@ -75,7 +75,7 @@
     <string name="adv_autorun_sub">NWD व्हाइटलिस्ट (whitelist_packagename / appautorun_packagename)। बदलने के लिए वाहन सेटिंग्स इस्तेमाल करें।</string>
 
     <string name="adv_sec_360">360 कैमरा (फ़ैक्टरी)</string>
-    <string name="adv_360_note">चालू होने की देरी, हार्डवेयर एरो, बर्ड व्यू में कार, इमेज और पार्किंग मॉनिटर 360 ऐप में ही रहेंगे, जब तक हम पुष्टि न कर लें कि Garagem इनकी प्राथमिकताएँ सेव कर सकता है।</string>
+    <string name="adv_360_note">चालू होने की देरी, हार्डवेयर एरो, बर्ड व्यू में कार, इमेज और पार्किंग मॉनिटर 360 ऐप में ही रहेंगे, जब तक हम पुष्टि न कर लें कि GDM Launcher इनकी प्राथमिकताएँ सेव कर सकता है।</string>
     <string name="adv_360_app_settings">360 ऐप सेटिंग्स</string>
     <string name="adv_calibration">कैलिब्रेशन</string>
     <string name="adv_calibration_sub">ऐप पासवर्ड: 0000। यह प्रक्रिया उन्हीं के ऐप में होती है।</string>
@@ -111,8 +111,8 @@
     <string name="adv_toast_app_missing">इस हेड यूनिट पर ऐप नहीं मिला (%1$s)</string>
 
     <!-- Platform compatibility -->
-    <string name="adv_compat_untested">यह NWD प्लेटफ़ॉर्म अभी Garagem के साथ टेस्ट नहीं हुआ है (%1$s)। गड़बड़ी हो सकती है।</string>
-    <string name="adv_compat_incompatible">यह डिवाइस संगत NWD हेड यूनिट नहीं लगता। Garagem शायद साउंड, रेडियो या ब्लूटूथ नियंत्रित न कर पाए।</string>
+    <string name="adv_compat_untested">यह NWD प्लेटफ़ॉर्म अभी GDM Launcher के साथ टेस्ट नहीं हुआ है (%1$s)। गड़बड़ी हो सकती है।</string>
+    <string name="adv_compat_incompatible">यह डिवाइस संगत NWD हेड यूनिट नहीं लगता। GDM Launcher शायद साउंड, रेडियो या ब्लूटूथ नियंत्रित न कर पाए।</string>
     <string name="adv_compat_ok">ठीक है</string>
     <string name="adv_compat_untested_label">NWD टेस्ट नहीं हुआ</string>
     <string name="adv_compat_incompatible_label">असंगत</string>

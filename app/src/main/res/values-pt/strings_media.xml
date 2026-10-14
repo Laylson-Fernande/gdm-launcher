@@ -90,4 +90,18 @@
         <item quantity="one">Lista · %1$d faixa</item>
         <item quantity="other">Lista · %1$d faixas</item>
     </plurals>
+    <string name="media_music_folder">Pasta</string>
+    <string name="media_music_choose_folder">Toque em Pasta para escolher onde estão suas músicas</string>
+    <string name="media_folder_title">Pasta das músicas</string>
+    <string name="media_folder_storages">Armazenamentos</string>
+    <string name="media_folder_internal">Memória interna</string>
+    <string name="media_folder_up">Voltar</string>
+    <string name="media_folder_use">Usar esta pasta</string>
+    <string name="media_folder_cancel">Cancelar</string>
+    <string name="media_folder_no_storage">Nenhum armazenamento encontrado</string>
+    <string name="media_folder_no_subfolders">Nenhuma subpasta</string>
+    <plurals name="media_folder_path">
+        <item quantity="one">%1$s · %2$d música</item>
+        <item quantity="other">%1$s · %2$d músicas</item>
+    </plurals>
 </resources>
