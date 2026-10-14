@@ -36,7 +36,6 @@ public class AdvancedActivity extends Activity {
     private static final String ACTION_HAND_BRAKE = "com.nwd.action.ACTION_HAND_BREAK_STATE_CHANGE";
     private static final String ACTION_BACKCAR_SETUP = "com.android.action_update_backcar_setup";
     private static final String PROP_ADB_PORT = "service.adb.tcp.port";
-    private static final String PKG_ZLINK = "com.zjinnova.zlink";
 
     private final Handler handler = new Handler(Looper.getMainLooper());
     private OptionList list;
@@ -150,7 +149,7 @@ public class AdvancedActivity extends Activity {
 
     private void buildCarPlay() {
         list.section(getString(R.string.adv_sec_carplay));
-        OptionList.Check zlink = () -> ExternalApps.installed(this, PKG_ZLINK);
+        OptionList.Check zlink = () -> ExternalApps.hasZlink(this);
         list.note(getString(R.string.adv_carplay_note), Ui.TEXT_MUTED);
         PropRows.edit(this, list, getString(R.string.adv_mic_gain), null, "persist.zj.apm.micgain",
             PropRows.range(this, 0, 100))

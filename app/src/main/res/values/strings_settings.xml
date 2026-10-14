@@ -121,4 +121,6 @@
     <string name="settings_home_module_gps">GPS data</string>
     <string name="settings_hide_bottom_bar">Hide the NWD bottom bar</string>
     <string name="settings_hide_bottom_bar_hint">The head unit\'s floating bar (Home, Back, volume) goes away while GDM Launcher is on screen and comes back in other apps</string>
+    <string name="settings_zlink_name">Z-Link name in the dock</string>
+    <string name="settings_zlink_name_hint">How the Z-Link icon is named and drawn: Z-Link, CarPlay or Auto</string>
 </resources>

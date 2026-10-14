@@ -121,4 +121,6 @@
     <string name="settings_home_module_gps">Datos del GPS</string>
     <string name="settings_hide_bottom_bar">Ocultar la barra inferior de NWD</string>
     <string name="settings_hide_bottom_bar_hint">La barra flotante del equipo (Inicio, Atrás, volumen) desaparece mientras GDM Launcher está en pantalla y vuelve en las demás apps</string>
+    <string name="settings_zlink_name">Nombre de Z-Link en el dock</string>
+    <string name="settings_zlink_name_hint">Nombre e ícono de Z-Link en el dock: Z-Link, CarPlay o Auto</string>
 </resources>

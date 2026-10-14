@@ -121,4 +121,6 @@
     <string name="settings_home_module_gps">GPS डेटा</string>
     <string name="settings_hide_bottom_bar">NWD नीचे की बार छिपाएँ</string>
     <string name="settings_hide_bottom_bar_hint">हेड यूनिट की तैरती बार (होम, वापस, वॉल्यूम) GDM Launcher खुला रहने तक छिपी रहती है और दूसरे ऐप्स में वापस आती है</string>
+    <string name="settings_zlink_name">डॉक में Z-Link का नाम</string>
+    <string name="settings_zlink_name_hint">डॉक में Z-Link का नाम और आइकन: Z-Link, CarPlay या Auto</string>
 </resources>

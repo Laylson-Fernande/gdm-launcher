@@ -29,6 +29,10 @@ public final class LauncherPrefs {
     private static final String KEY_HOME_IMAGE = "home_image";
     private static final String KEY_HIDE_BOTTOM_BAR = "hide_bottom_bar";
     private static final String KEY_MUSIC_FOLDER = "music_folder";
+    private static final String KEY_ZLINK_NAME = "zlink_name";
+
+    /** Names the Z-Link dock item can take: the app's own, or what the driver plugs in. */
+    public static final String[] ZLINK_NAMES = {"Z-Link", "CarPlay", "Auto"};
     private static final String KEY_ASK_DEFAULT = "ask_default_launcher";
     private static final String KEY_DOCK_TOGGLES = "dock_toggles";
     private static final String KEY_LANGUAGE = "language";
@@ -93,6 +97,16 @@ public final class LauncherPrefs {
             if (m != null && s != null && !out.containsValue(s)) out.put(m, s);
         }
         return out;
+    }
+
+    /** Index in {@link #ZLINK_NAMES} of the Z-Link dock label; Z-Link by default. */
+    public static int zlinkName(Context c) {
+        int i = prefs(c).getInt(KEY_ZLINK_NAME, 0);
+        return i >= 0 && i < ZLINK_NAMES.length ? i : 0;
+    }
+
+    public static void setZlinkName(Context c, int index) {
+        prefs(c).edit().putInt(KEY_ZLINK_NAME, index).apply();
     }
 
     /** Folder the MP3 player lists music from (subfolders too); null until the driver picks one. */
