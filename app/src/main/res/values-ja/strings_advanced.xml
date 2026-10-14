@@ -75,7 +75,7 @@
     <string name="adv_autorun_sub">NWD ホワイトリスト (whitelist_packagename / appautorun_packagename)。変更するには車両設定を使用してください。</string>
 
     <string name="adv_sec_360">360 カメラ (工場設定)</string>
-    <string name="adv_360_note">電源オン遅延、ハードウェア矢印、バードビューの車両、画像、駐車モニターは、Garagem で設定を保存できることを確認するまで 360 アプリで設定します。</string>
+    <string name="adv_360_note">電源オン遅延、ハードウェア矢印、バードビューの車両、画像、駐車モニターは、GDM Launcher で設定を保存できることを確認するまで 360 アプリで設定します。</string>
     <string name="adv_360_app_settings">360 アプリの設定</string>
     <string name="adv_calibration">キャリブレーション</string>
     <string name="adv_calibration_sub">アプリのパスワード: 0000。操作は 360 アプリ内で行います。</string>
@@ -111,8 +111,8 @@
     <string name="adv_toast_app_missing">このヘッドユニットにアプリが見つかりません (%1$s)</string>
 
     <!-- Platform compatibility -->
-    <string name="adv_compat_untested">この NWD プラットフォームは Garagem で未検証です (%1$s)。正常に動作しない可能性があります。</string>
-    <string name="adv_compat_incompatible">このデバイスは対応する NWD ヘッドユニットではないようです。Garagem でサウンド、ラジオ、Bluetooth を制御できない可能性があります。</string>
+    <string name="adv_compat_untested">この NWD プラットフォームは GDM Launcher で未検証です (%1$s)。正常に動作しない可能性があります。</string>
+    <string name="adv_compat_incompatible">このデバイスは対応する NWD ヘッドユニットではないようです。GDM Launcher でサウンド、ラジオ、Bluetooth を制御できない可能性があります。</string>
     <string name="adv_compat_ok">OK</string>
     <string name="adv_compat_untested_label">NWD 未検証</string>
     <string name="adv_compat_incompatible_label">非対応</string>

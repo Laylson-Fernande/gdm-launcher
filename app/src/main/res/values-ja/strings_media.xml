@@ -88,4 +88,17 @@
     <plurals name="media_music_list_title">
         <item quantity="other">リスト · %1$d 曲</item>
     </plurals>
+    <string name="media_music_folder">フォルダー</string>
+    <string name="media_music_choose_folder">「フォルダー」をタップして音楽の場所を選んでください</string>
+    <string name="media_folder_title">音楽フォルダー</string>
+    <string name="media_folder_storages">ストレージ</string>
+    <string name="media_folder_internal">内部ストレージ</string>
+    <string name="media_folder_up">戻る</string>
+    <string name="media_folder_use">このフォルダーを使う</string>
+    <string name="media_folder_cancel">キャンセル</string>
+    <string name="media_folder_no_storage">ストレージが見つかりません</string>
+    <string name="media_folder_no_subfolders">サブフォルダーはありません</string>
+    <plurals name="media_folder_path">
+        <item quantity="other">%1$s · %2$d 曲</item>
+    </plurals>
 </resources>

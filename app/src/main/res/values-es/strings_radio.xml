@@ -71,4 +71,5 @@
         <item>Prueba</item>
         <item>Alarma</item>
     </string-array>
+    <string name="radio_config_invalid">%1$s no es válido: corrige el archivo. Hasta entonces, los cambios en las memorias no se guardarán.</string>
 </resources>

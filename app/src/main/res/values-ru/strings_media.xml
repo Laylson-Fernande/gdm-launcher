@@ -94,4 +94,20 @@
         <item quantity="many">Список · %1$d треков</item>
         <item quantity="other">Список · %1$d трека</item>
     </plurals>
+    <string name="media_music_folder">Папка</string>
+    <string name="media_music_choose_folder">Нажмите «Папка», чтобы выбрать, где лежит музыка</string>
+    <string name="media_folder_title">Папка с музыкой</string>
+    <string name="media_folder_storages">Хранилища</string>
+    <string name="media_folder_internal">Внутренняя память</string>
+    <string name="media_folder_up">Назад</string>
+    <string name="media_folder_use">Использовать эту папку</string>
+    <string name="media_folder_cancel">Отмена</string>
+    <string name="media_folder_no_storage">Хранилища не найдены</string>
+    <string name="media_folder_no_subfolders">Нет вложенных папок</string>
+    <plurals name="media_folder_path">
+        <item quantity="one">%1$s · %2$d трек</item>
+        <item quantity="few">%1$s · %2$d трека</item>
+        <item quantity="many">%1$s · %2$d треков</item>
+        <item quantity="other">%1$s · %2$d трека</item>
+    </plurals>
 </resources>

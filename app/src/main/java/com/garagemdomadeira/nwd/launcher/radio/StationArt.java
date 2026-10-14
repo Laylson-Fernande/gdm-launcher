@@ -12,7 +12,8 @@ import java.util.Set;
 
 /**
  * 1:1 station art, read from internal storage at {@code Garagem/radio/<FM|AM>_<frequency>.jpg}
- * (e.g. {@code FM_104.5.jpg}, {@code AM_1040.jpg}). Never from a USB drive or SD card.
+ * (e.g. {@code FM_104.5.jpg}, {@code AM_1040.jpg}). Never from a USB drive or SD card. The same
+ * folder holds the station memories ({@link PresetStore}).
  * The app only reads; the operator copies the files. Does I/O: call off the main thread.
  */
 public final class StationArt {
@@ -46,7 +47,7 @@ public final class StationArt {
     }
 
     /** NWD internal storage and, as a fallback, Android internal storage (also not USB). */
-    private static Set<File> dirs() {
+    static Set<File> dirs() {
         Set<File> dirs = new LinkedHashSet<>();
         String internal = SystemProps.get(PROP_INTERNAL_PATH, "");
         dirs.add(new File(internal.isEmpty() ? DEFAULT_INTERNAL_PATH : internal, FOLDER));

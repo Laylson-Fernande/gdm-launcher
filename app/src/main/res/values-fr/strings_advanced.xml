@@ -75,7 +75,7 @@
     <string name="adv_autorun_sub">Liste blanche NWD (whitelist_packagename / appautorun_packagename). Pour la modifier, utilisez Réglages du véhicule.</string>
 
     <string name="adv_sec_360">Caméra 360 (usine)</string>
-    <string name="adv_360_note">Délai d\'allumage, flèche matérielle, voiture en vue aérienne, image et moniteur de stationnement restent dans l\'app 360 tant que Garagem ne peut pas enregistrer ses préférences.</string>
+    <string name="adv_360_note">Délai d\'allumage, flèche matérielle, voiture en vue aérienne, image et moniteur de stationnement restent dans l\'app 360 tant que GDM Launcher ne peut pas enregistrer ses préférences.</string>
     <string name="adv_360_app_settings">Réglages de l\'app 360</string>
     <string name="adv_calibration">Calibrage</string>
     <string name="adv_calibration_sub">Mot de passe de l\'app : 0000. Le processus reste dans leur app.</string>
@@ -111,8 +111,8 @@
     <string name="adv_toast_app_missing">App introuvable sur cet autoradio (%1$s)</string>
 
     <!-- Platform compatibility -->
-    <string name="adv_compat_untested">Plateforme NWD pas encore testée avec Garagem (%1$s). Des erreurs sont possibles.</string>
-    <string name="adv_compat_incompatible">Cet appareil ne semble pas être un autoradio NWD compatible. Garagem risque de ne pas contrôler le son, la radio ou le Bluetooth.</string>
+    <string name="adv_compat_untested">Plateforme NWD pas encore testée avec GDM Launcher (%1$s). Des erreurs sont possibles.</string>
+    <string name="adv_compat_incompatible">Cet appareil ne semble pas être un autoradio NWD compatible. GDM Launcher risque de ne pas contrôler le son, la radio ou le Bluetooth.</string>
     <string name="adv_compat_ok">OK</string>
     <string name="adv_compat_untested_label">NWD non testé</string>
     <string name="adv_compat_incompatible_label">Incompatible</string>

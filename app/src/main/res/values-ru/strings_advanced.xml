@@ -75,7 +75,7 @@
     <string name="adv_autorun_sub">Белый список NWD (whitelist_packagename / appautorun_packagename). Для изменения откройте Настройки авто.</string>
 
     <string name="adv_sec_360">Камера 360 (заводская)</string>
-    <string name="adv_360_note">Задержка включения, аппаратная стрелка, вид сверху, изображение и монитор парковки остаются в приложении 360, пока не подтвердим, что Garagem может сохранять их настройки.</string>
+    <string name="adv_360_note">Задержка включения, аппаратная стрелка, вид сверху, изображение и монитор парковки остаются в приложении 360, пока не подтвердим, что GDM Launcher может сохранять их настройки.</string>
     <string name="adv_360_app_settings">Настройки приложения 360</string>
     <string name="adv_calibration">Калибровка</string>
     <string name="adv_calibration_sub">Пароль приложения: 0000. Процесс идёт в их приложении.</string>
@@ -111,8 +111,8 @@
     <string name="adv_toast_app_missing">Приложение не найдено на магнитоле (%1$s)</string>
 
     <!-- Platform compatibility -->
-    <string name="adv_compat_untested">Платформа NWD ещё не проверена с Garagem (%1$s). Возможны сбои.</string>
-    <string name="adv_compat_incompatible">Это устройство не похоже на совместимую магнитолу NWD. Garagem может не управлять звуком, радио и Bluetooth.</string>
+    <string name="adv_compat_untested">Платформа NWD ещё не проверена с GDM Launcher (%1$s). Возможны сбои.</string>
+    <string name="adv_compat_incompatible">Это устройство не похоже на совместимую магнитолу NWD. GDM Launcher может не управлять звуком, радио и Bluetooth.</string>
     <string name="adv_compat_ok">OK</string>
     <string name="adv_compat_untested_label">NWD не проверена</string>
     <string name="adv_compat_incompatible_label">Несовместимо</string>

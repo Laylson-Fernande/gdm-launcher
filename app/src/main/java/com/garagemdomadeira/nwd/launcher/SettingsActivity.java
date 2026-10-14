@@ -19,13 +19,13 @@ import android.widget.TextView;
 
 import com.garagemdomadeira.nwd.launcher.home.AppCatalog;
 import com.garagemdomadeira.nwd.launcher.home.LauncherPrefs;
+import com.garagemdomadeira.nwd.launcher.system.BottomBar;
 import com.garagemdomadeira.nwd.launcher.system.CrashLog;
 import com.garagemdomadeira.nwd.launcher.system.DevMode;
 import com.garagemdomadeira.nwd.launcher.system.ExternalApps;
 import com.garagemdomadeira.nwd.launcher.system.NwdSettings;
 import com.garagemdomadeira.nwd.launcher.system.PlatformCompat;
 import com.garagemdomadeira.nwd.launcher.system.SystemProps;
-import com.garagemdomadeira.nwd.launcher.ui.DockView;
 import com.garagemdomadeira.nwd.launcher.ui.IconView;
 import com.garagemdomadeira.nwd.launcher.ui.InputDialog;
 import com.garagemdomadeira.nwd.launcher.ui.OptionList;
@@ -36,13 +36,15 @@ import com.garagemdomadeira.nwd.launcher.ui.Ui;
 
 import java.util.List;
 import java.util.Locale;
-import java.util.Set;
 import java.util.TimeZone;
 
 /**
  * Launcher settings, opened from the gear on the home screen. Options the driver can change
- * safely: launcher, dock, sound, display, reverse, 360 camera, navigation and "About the unit".
- * Factory options live in {@link AdvancedActivity}, behind a password.
+ * safely, split into four panels picked in a side column: Main (language), Customize (theme
+ * color, font, home screen and dock), Assists (reverse camera, navigation) and System (the unit,
+ * display, "About the unit").
+ * The home modules ({@link HomeSettingsActivity}) and the dock ({@link DockSettingsActivity}) have
+ * their own screens; factory options live in {@link AdvancedActivity}, behind a password.
  * Each option reads the real system state; nothing the system stores is copied here.
  */
 public class SettingsActivity extends Activity {
@@ -74,11 +76,17 @@ public class SettingsActivity extends Activity {
     private static final String PROP_MEMORY_VOLUME = "persist.sys.nwd.memory.vol";
 
     private final Handler handler = new Handler(Looper.getMainLooper());
+    private static final int PANEL_MAIN = 0;
+    private static final int PANEL_CUSTOMIZE = 1;
+    private static final int PANEL_ASSISTS = 2;
+    private static final int PANEL_SYSTEM = 3;
+
+    private final LinearLayout[] panels = new LinearLayout[4];
+    private final TextView[] tabs = new TextView[4];
     private OptionList list;
     private OptionList.Row launcherRow;
     private TextView useGaragem;
     private TextView useOriginal;
-    private OptionList.Row dockCounter;
     private OptionList.Row brightness;
     private TextView naviButton;
     private Dialog dialog;
@@ -104,22 +112,29 @@ public class SettingsActivity extends Activity {
         back.set(IconView.Icon.CHEVRON_LEFT, IconView.Style.NONE);
         back.setOnClickListener(v -> finish());
 
-        list = new OptionList(this, (LinearLayout) findViewById(R.id.settings_content));
+        LinearLayout content = (LinearLayout) findViewById(R.id.settings_content);
+        for (int i = 0; i < panels.length; i++) {
+            panels[i] = new LinearLayout(this);
+            panels[i].setOrientation(LinearLayout.VERTICAL);
+            content.addView(panels[i]);
+        }
+        list = new OptionList(this, panels[PANEL_MAIN]);
         showCompatAlert();
         buildLanguage();
+        list.into(panels[PANEL_CUSTOMIZE]);
         buildAppearance();
-        buildLauncher();
-        buildDock();
-        buildSound();
-        buildScreen();
+        buildHomeScreen();
+        list.into(panels[PANEL_ASSISTS]);
         buildReverse();
-        build360();
         buildNavigation();
+        list.into(panels[PANEL_SYSTEM]);
+        buildDevice();
+        buildScreen();
         buildAbout();
-        buildAdvancedEntry();
         showLastCrash();
         list.setAfterRender(this::renderExtras);
         renderAll();
+        setUpTabs();
 
         getContentResolver().registerContentObserver(Settings.System.CONTENT_URI, true, observer);
         Touch.install(findViewById(android.R.id.content));
@@ -129,12 +144,41 @@ public class SettingsActivity extends Activity {
         if (!isFinishing()) list.renderAll();
     }
 
-    /** What isn't a regular row: launcher state, dock counter, day/night, navigation app. */
+    /** What isn't a regular row: launcher state, day/night, navigation app. */
     private void renderExtras() {
         renderLauncherState();
-        renderDockCounter();
         renderBrightnessMode();
         renderNavigation();
+    }
+
+    // ------------------------------------------------------------------ side tabs
+
+    /** Side column with the four groups (Main, Customize, Assists, System), one panel visible at a time, plus Advanced. */
+    private void setUpTabs() {
+        findViewById(R.id.settings_sidebar).setVisibility(View.VISIBLE);
+        int[] ids = {R.id.settings_tab_main, R.id.settings_tab_customize, R.id.settings_tab_assists,
+            R.id.settings_tab_system};
+        for (int i = 0; i < tabs.length; i++) {
+            int panel = i;
+            tabs[i] = (TextView) findViewById(ids[i]);
+            tabs[i].setTypeface(Ui.medium(this));
+            tabs[i].setOnClickListener(v -> showPanel(panel));
+        }
+        // Advanced isn't a panel: in dev mode it's one more tab that asks for the password.
+        TextView advanced = (TextView) findViewById(R.id.settings_tab_advanced);
+        advanced.setVisibility(DevMode.enabled() ? View.VISIBLE : View.GONE);
+        advanced.setTypeface(Ui.medium(this));
+        advanced.setOnClickListener(v -> askAdvancedPassword());
+        showPanel(PANEL_MAIN);
+    }
+
+    private void showPanel(int panel) {
+        for (int i = 0; i < panels.length; i++) {
+            panels[i].setVisibility(i == panel ? View.VISIBLE : View.GONE);
+            tabs[i].setActivated(i == panel);
+        }
+        findViewById(R.id.settings_scroll).scrollTo(0, 0);
+        Touch.fadeIn(panels[panel]);
     }
 
     // ------------------------------------------------------------------ compatibility
@@ -175,6 +219,9 @@ public class SettingsActivity extends Activity {
 
     private void buildAppearance() {
         list.section(getString(R.string.settings_appearance_section));
+        int theme = LauncherPrefs.theme(this);
+        list.custom(getString(R.string.settings_theme_color), getString(R.string.settings_theme_color_hint),
+            new ThemeSwatches(this, theme, this::pickTheme));
         int[] values = new int[LauncherPrefs.FONTS.length];
         for (int i = 0; i < values.length; i++) values[i] = i;
         list.choice(getString(R.string.settings_font), getString(R.string.settings_font_hint),
@@ -191,10 +238,6 @@ public class SettingsActivity extends Activity {
                 LauncherPrefs.setFont(this, LauncherPrefs.FONTS[i]);
                 restartScreens();
             }).local();
-
-        int theme = LauncherPrefs.theme(this);
-        list.custom(getString(R.string.settings_theme_color), getString(R.string.settings_theme_color_hint),
-            new ThemeSwatches(this, theme, this::pickTheme));
     }
 
     private void pickTheme(int theme) {
@@ -214,23 +257,21 @@ public class SettingsActivity extends Activity {
         finish();
     }
 
-    // ------------------------------------------------------------------ launcher
+    // ------------------------------------------------------------------ home screen
 
-    private void buildLauncher() {
-        list.section(getString(R.string.settings_launcher_section));
-        launcherRow = list.plain(getString(R.string.settings_default_launcher), null);
-        OptionList.Row row = launcherRow;
-        useGaragem = row.addButton(getString(R.string.settings_use_garagem), () -> setDefaultLauncher(getPackageName()));
-        useOriginal = row.addButton(getString(R.string.settings_use_original), () -> setDefaultLauncher(LauncherPrefs.ORIGINAL_LAUNCHER));
-
+    private void buildHomeScreen() {
+        list.section(getString(R.string.settings_home_section));
+        list.action(getString(R.string.settings_customize_home), getString(R.string.settings_customize_home_hint),
+            getString(R.string.settings_open), () -> startActivity(new Intent(this, HomeSettingsActivity.class)));
+        list.action(getString(R.string.settings_customize_dock), getString(R.string.settings_customize_dock_hint),
+            getString(R.string.settings_open), () -> startActivity(new Intent(this, DockSettingsActivity.class)));
         list.toggle(getString(R.string.settings_show_voltmeter),
             getString(R.string.settings_show_voltmeter_hint),
             () -> LauncherPrefs.showVoltmeter(this),
             on -> LauncherPrefs.setShowVoltmeter(this, on)).local();
-        list.toggle(getString(R.string.settings_show_volume), getString(R.string.settings_show_volume_hint),
-            () -> LauncherPrefs.showVolumeControls(this),
-            on -> LauncherPrefs.setShowVolumeControls(this, on)).local();
     }
+
+    // ------------------------------------------------------------------ device (default launcher, beep, volume)
 
     /** Shows which launcher the unit uses. {@code note} (optional) goes after, e.g. failed to apply. */
     private void renderLauncher(String note) {
@@ -243,7 +284,7 @@ public class SettingsActivity extends Activity {
         String current = SystemProps.get(SystemProps.PROP_DEFAULT_LAUNCHER, "");
         boolean garagem = getPackageName().equals(current);
         boolean original = LauncherPrefs.ORIGINAL_LAUNCHER.equals(current);
-        String who = garagem ? "Garagem"
+        String who = garagem ? getString(R.string.app_name)
             : original ? getString(R.string.settings_launcher_original)
             : current.isEmpty() ? getString(R.string.settings_launcher_unset) : current;
         launcherRow.setSubtitle(getString(R.string.settings_launcher_current, who));
@@ -288,49 +329,6 @@ public class SettingsActivity extends Activity {
         }
     }
 
-    // ------------------------------------------------------------------ dock icons
-
-    private void buildDock() {
-        list.section(getString(R.string.settings_dock_section));
-        dockCounter = list.info(getString(R.string.settings_dock_items), () -> LauncherPrefs.dockToggles(this).size()
-            + " / " + LauncherPrefs.MAX_DOCK_TOGGLES);
-        dockCounter.setSubtitle(getString(R.string.settings_dock_hint, LauncherPrefs.MAX_DOCK_TOGGLES));
-        for (DockView.Item item : DockView.Item.values()) {
-            if (!item.toggleable) {
-                list.info(item.title(this), () -> getString(R.string.settings_always_visible));
-                continue;
-            }
-            list.toggle(item.title(this), null,
-                () -> LauncherPrefs.dockToggles(this).contains(item),
-                on -> {
-                    Set<DockView.Item> set = LauncherPrefs.dockToggles(this);
-                    if (on) set.add(item);
-                    else set.remove(item);
-                    LauncherPrefs.setDockToggles(this, set);
-                })
-                .local()
-                .visibleWhen(() -> item.isAvailable(this))
-                // With 5 enabled, the disabled ones stay greyed out until a slot frees up.
-                .enabledWhen(() -> {
-                    Set<DockView.Item> set = LauncherPrefs.dockToggles(this);
-                    return set.contains(item) || set.size() < LauncherPrefs.MAX_DOCK_TOGGLES;
-                });
-        }
-        list.action(getString(R.string.settings_dock_reset), getString(R.string.settings_dock_reset_hint),
-            getString(R.string.settings_reset), () -> {
-            LauncherPrefs.resetDockToggles(this);
-            renderAll();
-        });
-    }
-
-    private void renderDockCounter() {
-        int n = LauncherPrefs.dockToggles(this).size();
-        dockCounter.setNote(n >= LauncherPrefs.MAX_DOCK_TOGGLES
-            ? getString(R.string.settings_dock_full, LauncherPrefs.MAX_DOCK_TOGGLES) : null, false);
-    }
-
-    // ------------------------------------------------------------------ sound
-
     private boolean nwd() {
         return NwdSettings.isInstalled(this);
     }
@@ -343,8 +341,23 @@ public class SettingsActivity extends Activity {
         return "1".equals(SystemProps.get(PROP_MEMORY_VOLUME, "").trim());
     }
 
-    private void buildSound() {
-        list.section(getString(R.string.settings_sound_section));
+    private void buildDevice() {
+        list.section(getString(R.string.settings_device_section));
+        launcherRow = list.plain(getString(R.string.settings_default_launcher), null);
+        useGaragem = launcherRow.addButton(getString(R.string.settings_use_garagem), () -> setDefaultLauncher(getPackageName()));
+        useOriginal = launcherRow.addButton(getString(R.string.settings_use_original), () -> setDefaultLauncher(LauncherPrefs.ORIGINAL_LAUNCHER));
+        list.toggle(getString(R.string.settings_hide_bottom_bar), getString(R.string.settings_hide_bottom_bar_hint),
+            () -> LauncherPrefs.hideBottomBar(this),
+            on -> BottomBar.setEnabled(this, on))
+            .local()
+            .visibleWhen(() -> BottomBar.available(this));
+        list.toggle(getString(R.string.settings_beep), getString(R.string.settings_beep_hint),
+            () -> NwdSettings.systemBit(this, NwdSettings.BIT_BEEP),
+            on -> {
+                NwdSettings.setSystemFeature(NwdSettings.FEATURE_BEEP, on ? 1 : 0);
+                NwdSettings.putInt(this, KEY_BEEP, on ? 1 : 0);
+                sendBroadcast(new Intent(ACTION_BEEP_CHANGED));
+            }).visibleWhen(this::nwd);
         list.stepper(getString(R.string.settings_startup_volume), getString(R.string.settings_startup_volume_hint),
             () -> 0, () -> NwdSettings.getInt(this, KEY_MAX_VOLUME, 40),
             () -> mcu(KEY_DEFAULT_VOLUME), NwdSettings::setDefaultVolume, String::valueOf)
@@ -353,28 +366,6 @@ public class SettingsActivity extends Activity {
         PropRows.toggle(this, list, getString(R.string.settings_remember_volume),
             getString(R.string.settings_remember_volume_hint),
             PROP_MEMORY_VOLUME, "1", "0", false);
-        list.toggle(getString(R.string.settings_beep), getString(R.string.settings_beep_hint),
-            () -> NwdSettings.systemBit(this, NwdSettings.BIT_BEEP),
-            on -> {
-                NwdSettings.setSystemFeature(NwdSettings.FEATURE_BEEP, on ? 1 : 0);
-                NwdSettings.putInt(this, KEY_BEEP, on ? 1 : 0);
-                sendBroadcast(new Intent(ACTION_BEEP_CHANGED));
-            }).visibleWhen(this::nwd);
-        list.toggle(getString(R.string.settings_nav_ducking), getString(R.string.settings_nav_ducking_hint),
-            () -> {
-                Integer way = mcu(KEY_GPS_WAY);
-                return way == null ? null : way == 1;
-            },
-            on -> NwdSettings.setGpsPromptVolumeWay(on ? 1 : 2)).visibleWhen(this::nwd);
-        list.stepper(getString(R.string.settings_duck_amount), getString(R.string.settings_duck_amount_hint), () -> 0, () -> 10,
-            () -> mcu(KEY_VOLUME_MIX), NwdSettings::setMixedRatio, String::valueOf)
-            .visibleWhen(this::nwd)
-            .enabledWhen(() -> {
-                Integer way = mcu(KEY_GPS_WAY);
-                return way != null && way == 1;
-            });
-        list.action(getString(R.string.settings_eq), getString(R.string.settings_eq_hint), getString(R.string.settings_open),
-            () -> startActivity(new Intent(this, EqActivity.class)));
     }
 
     // ------------------------------------------------------------------ display
@@ -431,20 +422,6 @@ public class SettingsActivity extends Activity {
             .visibleWhen(this::nwd);
     }
 
-    // ------------------------------------------------------------------ 360 camera
-
-    private void build360() {
-        list.section(getString(R.string.settings_360_section));
-        OptionList.Row open = list.action(getString(R.string.settings_360_open), getString(R.string.settings_360_open_hint),
-            getString(R.string.settings_open),
-            () -> ExternalApps.open360(this));
-        open.visibleWhen(() -> ExternalApps.hasAvm(this));
-        OptionList.Row settings = list.action(getString(R.string.settings_360_options),
-            getString(R.string.settings_360_options_hint),
-            getString(R.string.settings_open), () -> ExternalApps.open360Settings(this));
-        settings.visibleWhen(() -> ExternalApps.hasAvm(this));
-    }
-
     // ------------------------------------------------------------------ navigation
 
     private void buildNavigation() {
@@ -454,6 +431,19 @@ public class SettingsActivity extends Activity {
         list.toggle(getString(R.string.settings_nav_autostart), null,
             () -> NwdSettings.getInt(this, KEY_NAVI_AUTOSTART, 0) == 1,
             on -> NwdSettings.putInt(this, KEY_NAVI_AUTOSTART, on ? 1 : 0));
+        list.toggle(getString(R.string.settings_nav_ducking), getString(R.string.settings_nav_ducking_hint),
+            () -> {
+                Integer way = mcu(KEY_GPS_WAY);
+                return way == null ? null : way == 1;
+            },
+            on -> NwdSettings.setGpsPromptVolumeWay(on ? 1 : 2)).visibleWhen(this::nwd);
+        list.stepper(getString(R.string.settings_duck_amount), getString(R.string.settings_duck_amount_hint), () -> 0, () -> 10,
+            () -> mcu(KEY_VOLUME_MIX), NwdSettings::setMixedRatio, String::valueOf)
+            .visibleWhen(this::nwd)
+            .enabledWhen(() -> {
+                Integer way = mcu(KEY_GPS_WAY);
+                return way != null && way == 1;
+            });
     }
 
     private void renderNavigation() {
@@ -523,7 +513,7 @@ public class SettingsActivity extends Activity {
                 ? R.string.settings_installed : R.string.settings_not_installed));
         }
         list.info(getString(R.string.settings_locale_tz), () -> Locale.getDefault().toString() + " · " + TimeZone.getDefault().getID());
-        list.info("Garagem", this::appVersion);
+        list.info(getString(R.string.app_name), this::appVersion);
     }
 
     private String factoryFeatures() {
@@ -547,14 +537,6 @@ public class SettingsActivity extends Activity {
     }
 
     // ------------------------------------------------------------------ advanced
-
-    private void buildAdvancedEntry() {
-        if (!DevMode.enabled()) return;
-        list.section(getString(R.string.settings_advanced));
-        list.action(getString(R.string.settings_advanced), getString(R.string.settings_advanced_hint),
-            getString(R.string.settings_open),
-            this::askAdvancedPassword);
-    }
 
     private void askAdvancedPassword() {
         if (dialog != null) dialog.dismiss();

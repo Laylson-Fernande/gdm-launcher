@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- English is the default language (values/). Translations live in values-<tag>/. -->
 <resources>
-    <string name="app_name" translatable="false">Garagem</string>
+    <string name="app_name" translatable="false">GDM Launcher</string>
     <string name="settings_language_section">Language</string>
     <string name="settings_language">Language</string>
     <string name="settings_language_hint">App language</string>

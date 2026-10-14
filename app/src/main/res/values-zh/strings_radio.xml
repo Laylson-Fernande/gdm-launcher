@@ -71,4 +71,5 @@
         <item>测试</item>
         <item>警报</item>
     </string-array>
+    <string name="radio_config_invalid">%1$s 无效：请修复该文件。在此之前，对预设的更改不会保存。</string>
 </resources>

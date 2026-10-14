@@ -1,6 +1,7 @@
 package com.garagemdomadeira.nwd.launcher;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 
@@ -19,10 +20,13 @@ import android.widget.ListView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import com.garagemdomadeira.nwd.launcher.home.LauncherPrefs;
 import com.garagemdomadeira.nwd.launcher.music.AlbumArt;
 import com.garagemdomadeira.nwd.launcher.music.MusicClient;
+import com.garagemdomadeira.nwd.launcher.music.MusicLibrary;
 import com.garagemdomadeira.nwd.launcher.music.MusicState;
 import com.garagemdomadeira.nwd.launcher.music.MusicTrack;
+import com.garagemdomadeira.nwd.launcher.ui.FolderPicker;
 import com.garagemdomadeira.nwd.launcher.ui.IconView;
 import com.garagemdomadeira.nwd.launcher.ui.DockView;
 import com.garagemdomadeira.nwd.launcher.ui.Screens;
@@ -31,6 +35,7 @@ import com.garagemdomadeira.nwd.launcher.ui.Ui;
 
 
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -43,6 +48,10 @@ public class MusicActivity extends Activity {
     private final Handler handler = new Handler(Looper.getMainLooper());
     private final ExecutorService artLoader = Executors.newSingleThreadExecutor();
     private final List<MusicTrack> tracks = new ArrayList<>();
+    /** What the list shows: folder headings and tracks, indented by depth (see buildRows). */
+    private final List<Row> rows = new ArrayList<>();
+    /** List position of each track. */
+    private int[] rowOfTrack = new int[0];
 
     private MusicClient music;
     private MusicState state = new MusicState();
@@ -60,6 +69,8 @@ public class MusicActivity extends Activity {
     private TextView statusView;
     private TextView listTitle;
     private TextView shuffleBtn;
+    private TextView folderBtn;
+    private Dialog dialog;
     private TextView repeatBtn;
     private SeekBar seek;
     private IconView playBtn;
@@ -92,9 +103,11 @@ public class MusicActivity extends Activity {
         shuffleBtn = (TextView) findViewById(R.id.music_shuffle);
         repeatBtn = (TextView) findViewById(R.id.music_repeat);
         TextView reload = (TextView) findViewById(R.id.music_reload);
+        folderBtn = (TextView) findViewById(R.id.music_folder);
         shuffleBtn.setOnClickListener(v -> music.setShuffle(!state.shuffle));
         repeatBtn.setOnClickListener(v -> music.cycleRepeat());
         reload.setOnClickListener(v -> music.reload());
+        folderBtn.setOnClickListener(v -> pickFolder());
 
         trackView = (TextView) findViewById(R.id.music_track);
         artistView = (TextView) findViewById(R.id.music_artist);
@@ -145,7 +158,10 @@ public class MusicActivity extends Activity {
         list = (ListView) findViewById(R.id.music_list);
         adapter = new TrackAdapter();
         list.setAdapter(adapter);
-        list.setOnItemClickListener((parent, view, position, id) -> music.playIndex(position));
+        list.setOnItemClickListener((parent, view, position, id) -> {
+            int track = rows.get(position).track;
+            if (track >= 0) music.playIndex(track);
+        });
     }
 
     @Override
@@ -172,6 +188,7 @@ public class MusicActivity extends Activity {
         alive = false;
         artGen++;
         artLoader.shutdownNow();
+        if (dialog != null) dialog.dismiss();
         if (music != null) {
             music.setListener(null);
             music.release();
@@ -211,7 +228,10 @@ public class MusicActivity extends Activity {
         else if (s.repeat == MusicState.Repeat.ALL) repeatBtn.setText(R.string.media_music_repeat_all);
         else repeatBtn.setText(R.string.media_music_repeat);
 
-        if (s.loading) statusView.setText(R.string.media_music_reading);
+        boolean noFolder = LauncherPrefs.musicFolder(this) == null;
+        folderBtn.setActivated(noFolder); // highlights where to start
+        if (noFolder) statusView.setText(R.string.media_music_choose_folder);
+        else if (s.loading) statusView.setText(R.string.media_music_reading);
         else if (s.error != 0) statusView.setText(s.error);
         else if (s.tracks.isEmpty()) statusView.setText(R.string.media_music_empty_hint);
         else statusView.setText(getResources().getQuantityString(R.plurals.media_music_track_count, s.tracks.size(), s.tracks.size()));
@@ -223,15 +243,28 @@ public class MusicActivity extends Activity {
         if (!sameList) {
             tracks.clear();
             tracks.addAll(s.tracks);
+            buildRows();
         }
         adapter.notifyDataSetChanged();
-        if (s.index >= 0 && s.index < tracks.size()) {
+        if (s.index >= 0 && s.index < rowOfTrack.length) {
+            int row = rowOfTrack[s.index];
             int first = list.getFirstVisiblePosition();
             int last = list.getLastVisiblePosition();
-            if (s.index < first || s.index > last) {
-                list.setSelection(Math.max(0, s.index - 2));
+            if (row < first || row > last) {
+                list.setSelection(Math.max(0, row - 2));
             }
         }
+    }
+
+    /** The folder browser; the list then has only the music inside the chosen folder. */
+    private void pickFolder() {
+        if (dialog != null) dialog.dismiss();
+        String folder = LauncherPrefs.musicFolder(this);
+        dialog = FolderPicker.show(this, folder == null ? null : new File(folder), f -> {
+            LauncherPrefs.setMusicFolder(this, f.getAbsolutePath());
+            music.reload();
+            render(state);
+        });
     }
 
     private void bindArt(MusicTrack track) {
@@ -266,15 +299,50 @@ public class MusicActivity extends Activity {
         return String.format(Locale.US, "%d:%02d", s / 60, s % 60);
     }
 
+    /** A list line: a folder heading ({@code track} −1) or a track, at some depth. */
+    private static final class Row {
+        final int track;
+        final String folder;
+        final int depth;
+
+        Row(int track, String folder, int depth) {
+            this.track = track;
+            this.folder = folder;
+            this.depth = depth;
+        }
+    }
+
+    /**
+     * Tracks come sorted by folder (MusicLibrary): a heading for each folder the first time it
+     * shows up (parents too, even without tracks of their own), and each track one level inside
+     * its folder. Tracks right in the chosen folder go first, without a heading.
+     */
+    private void buildRows() {
+        rows.clear();
+        rowOfTrack = new int[tracks.size()];
+        String folder = LauncherPrefs.musicFolder(this);
+        File root = folder == null ? null : new File(folder);
+        String[] previous = new String[0];
+        for (int i = 0; i < tracks.size(); i++) {
+            String[] path = root == null ? new String[0] : MusicLibrary.folders(tracks.get(i), root);
+            int same = 0;
+            while (same < path.length && same < previous.length && path[same].equals(previous[same])) same++;
+            for (int level = same; level < path.length; level++) rows.add(new Row(-1, path[level], level));
+            rowOfTrack[i] = rows.size();
+            rows.add(new Row(i, null, path.length));
+            previous = path;
+        }
+    }
+
     private final class TrackAdapter extends BaseAdapter {
         @Override
         public int getCount() {
-            return tracks.size();
+            return rows.size();
         }
 
         @Override
-        public MusicTrack getItem(int position) {
-            return tracks.get(position);
+        public Row getItem(int position) {
+            return rows.get(position);
         }
 
         @Override
@@ -283,14 +351,32 @@ public class MusicActivity extends Activity {
         }
 
         @Override
+        public int getViewTypeCount() {
+            return 2;
+        }
+
+        @Override
+        public int getItemViewType(int position) {
+            return rows.get(position).track < 0 ? 1 : 0;
+        }
+
+        @Override
+        public boolean isEnabled(int position) {
+            return rows.get(position).track >= 0;
+        }
+
+        @Override
         public View getView(int position, View convertView, ViewGroup parent) {
+            Row item = rows.get(position);
+            if (item.track < 0) return folderView(item, convertView);
             View row = convertView;
             if (row == null) {
                 row = LayoutInflater.from(MusicActivity.this).inflate(R.layout.music_row, parent, false);
                 Touch.hapticOnly(row);
                 Ui.applyFont(row);
             }
-            MusicTrack t = tracks.get(position);
+            row.setPadding(indent(item.depth), row.getPaddingTop(), row.getPaddingRight(), row.getPaddingBottom());
+            MusicTrack t = tracks.get(item.track);
             TextView title = (TextView) row.findViewById(R.id.row_title);
             TextView sub = (TextView) row.findViewById(R.id.row_sub);
             title.setText(t.displayTitle());
@@ -299,10 +385,34 @@ public class MusicActivity extends Activity {
                 who = who.isEmpty() ? t.album : who + " · " + t.album;
             }
             sub.setText(who);
-            boolean current = position == state.index;
+            boolean current = item.track == state.index;
             title.setTextColor(current ? Ui.TEXT : Ui.TEXT_SOFT);
             row.setActivated(current);
             return row;
+        }
+
+        /** Folder heading: its name, indented by depth. Not tappable. */
+        private View folderView(Row item, View convertView) {
+            TextView v = (TextView) convertView;
+            if (v == null) {
+                v = new TextView(MusicActivity.this);
+                v.setLayoutParams(new ListView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                    Math.round(Ui.dp(MusicActivity.this, 52))));
+                v.setGravity(android.view.Gravity.CENTER_VERTICAL);
+                v.setTextSize(18);
+                v.setTextColor(Ui.TEXT_MUTED);
+                v.setTypeface(Ui.semiBold(MusicActivity.this));
+                v.setSingleLine(true);
+                v.setEllipsize(android.text.TextUtils.TruncateAt.END);
+            }
+            v.setPadding(indent(item.depth), 0, Math.round(Ui.dp(MusicActivity.this, 16)), 0);
+            v.setText("▾  " + item.folder);
+            return v;
+        }
+
+        /** 18 dp plus 28 dp per folder level. */
+        private int indent(int depth) {
+            return Math.round(Ui.dp(MusicActivity.this, 18 + 28 * depth));
         }
     }
 }

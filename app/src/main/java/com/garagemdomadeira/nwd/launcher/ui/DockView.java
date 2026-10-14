@@ -166,7 +166,8 @@ public class DockView extends LinearLayout {
 
             TextView label = new TextView(c);
             label.setText(item.label(c));
-            label.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX, Ui.dp(c, 22));
+            // Portrait units are narrower: about 30% smaller labels so they fit side by side.
+            label.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX, Ui.dp(c, Ui.isPortrait(c) ? 15 : 22));
             label.setTextColor(Ui.TEXT_MUTED);
             label.setSingleLine(true);
             label.setTypeface(Ui.medium(c));

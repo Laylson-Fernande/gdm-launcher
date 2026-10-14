@@ -50,12 +50,12 @@
 
     <!-- Diálogos del launcher predeterminado -->
     <string name="home_default_launcher_title">Launcher predeterminado</string>
-    <string name="home_default_launcher_message">La central tiene otro launcher como predeterminado:\n%1$s\n\n¿Establecer Garagem como launcher predeterminado?</string>
+    <string name="home_default_launcher_message">La central tiene otro launcher como predeterminado:\n%1$s\n\n¿Establecer GDM Launcher como launcher predeterminado?</string>
     <string name="home_not_set_paren">(no definido)</string>
     <string name="home_not_set">no definido</string>
     <string name="home_not_now">Ahora no</string>
     <string name="home_set">Establecer</string>
-    <string name="home_default_launcher_done">Garagem establecido como launcher predeterminado</string>
+    <string name="home_default_launcher_done">GDM Launcher establecido como launcher predeterminado</string>
     <string name="home_default_launcher_failed_title">No se pudo cambiar</string>
     <string name="home_default_launcher_failed_message">El sistema no aplicó el cambio (valor actual: %1$s).\n\nPara establecerlo manualmente, conecta adb y ejecuta:</string>
 
@@ -93,4 +93,24 @@
     <string name="home_dock_video_title">Video</string>
     <string name="home_dock_apps">APPS</string>
     <string name="home_dock_apps_title">Apps</string>
+    <string name="home_image">Imagen elegida</string>
+    <string name="home_image_empty">Elige una imagen en Ajustes › Personalizar</string>
+    <string name="home_speed_unit">km/h</string>
+    <string name="home_gps_waiting">Esperando GPS</string>
+    <string name="home_gps_unavailable">Sin GPS</string>
+    <string name="home_gps_lat">Latitud</string>
+    <string name="home_gps_lon">Longitud</string>
+    <string name="home_gps_alt">Altitud</string>
+    <string name="home_gps_dir">Dirección</string>
+    <string name="home_gps_stopped">Detenido</string>
+    <string name="home_gps_altitude_value">%1$d m</string>
+    <string name="home_gps_heading_value">%1$s (%2$d°)</string>
+    <string name="home_gps_dir_n">N</string>
+    <string name="home_gps_dir_ne">NE</string>
+    <string name="home_gps_dir_e">E</string>
+    <string name="home_gps_dir_se">SE</string>
+    <string name="home_gps_dir_s">S</string>
+    <string name="home_gps_dir_sw">SO</string>
+    <string name="home_gps_dir_w">O</string>
+    <string name="home_gps_dir_nw">NO</string>
 </resources>

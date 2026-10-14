@@ -93,9 +93,9 @@ public final class RadioClient {
     private static final long RESTORE_STEP_MS = 200;
     /** Gives up waiting for AMS to finish after this (the mirror is written along the way). */
     private static final long AMS_TIMEOUT_MS = 120_000;
-    /** Memories as reported by the service, before applying the props (index = band). */
+    /** Memories as reported by the service, before applying the saved ones (index = band). */
     private final Frequency[][] serviceLists = new Frequency[5][];
-    /** Bands already checked against the props on this connection. */
+    /** Bands already checked against the saved memories on this connection. */
     private final boolean[] reconciled = new boolean[5];
     /** true while memories are being reapplied to the service: tuning notifications are ignored. */
     private volatile boolean restoring;
@@ -446,7 +446,7 @@ public final class RadioClient {
     }
 
     /**
-     * Radio screen: tunes the last station saved in the props. The service forgets it when the
+     * Radio screen: tunes the last station saved in radio.config.json. The service forgets it when the
      * head unit powers off and starts on a default frequency. Runs on the worker thread.
      */
     private void resumeLast(RadioFeature f) {
@@ -523,7 +523,7 @@ public final class RadioClient {
             if (playOnSync && differs(stored, service)) restorePresets(band, stored, service);
         }
 
-        // The props are the source of truth; the RDS name comes from the service when the frequency matches.
+        // The saved memories are the source of truth; the RDS name comes from the service when the frequency matches.
         Preset[] presets = new Preset[PresetStore.SLOTS];
         for (int i = 0; i < presets.length; i++) {
             Frequency f = i < list.length ? list[i] : null;
@@ -534,7 +534,7 @@ public final class RadioClient {
         mutate(s -> s.presets[b] = presets);
     }
 
-    /** true if any slot saved in the props differs in the service. Empty slots in the props don't count. */
+    /** true if any saved slot differs in the service. Empty saved slots don't count. */
     private static boolean differs(int[] stored, int[] service) {
         for (int i = 0; i < stored.length; i++) {
             if (stored[i] > 0 && stored[i] != service[i]) return true;
@@ -556,7 +556,7 @@ public final class RadioClient {
             RadioState s = state;
             int origFreq = s.frequency;
             int origBand = s.band;
-            log("Reapplying " + Band.label(band) + " presets from props");
+            log("Reapplying " + Band.label(band) + " presets from radio.config.json");
             restoring = true;
             try {
                 for (int i = 0; i < stored.length; i++) {
@@ -609,7 +609,7 @@ public final class RadioClient {
             worker.execute(() -> {
                 refreshPresets(cur);
                 if (amsBand == band) amsBand = -1;
-                log("AMS finished, " + Band.label(band) + " presets saved to props");
+                log("AMS finished, " + Band.label(band) + " presets saved to radio.config.json");
             });
         }, 800);
     }
@@ -799,7 +799,7 @@ public final class RadioClient {
             f -> f.setCurrentFrequency(p.frequency, (byte) p.band, slot));
     }
 
-    /** Saves the current station to the service slot (0-based) and to the matching prop. */
+    /** Saves the current station to the service slot (0-based) and to radio.config.json. */
     public void savePreset(int index) {
         RadioState s = state;
         PresetStore.write(context, s.band, index, s.frequency);

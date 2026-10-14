@@ -24,6 +24,7 @@ import com.garagemdomadeira.nwd.launcher.home.PlayerHandoff;
 import com.garagemdomadeira.nwd.launcher.radio.Band;
 import com.garagemdomadeira.nwd.launcher.radio.BandRange;
 import com.garagemdomadeira.nwd.launcher.radio.Preset;
+import com.garagemdomadeira.nwd.launcher.radio.PresetStore;
 import com.garagemdomadeira.nwd.launcher.radio.RadioClient;
 import com.garagemdomadeira.nwd.launcher.radio.RadioState;
 import com.garagemdomadeira.nwd.launcher.radio.StationArt;
@@ -116,6 +117,20 @@ public class RadioActivity extends Activity implements RadioClient.Listener {
             radio.activateSource();
         }
         radioText.setSelected(true); // required for the marquee to scroll
+        warnBrokenConfig();
+    }
+
+    /** radio.config.json edited by hand with a mistake: memories won't be saved until it's fixed. */
+    private void warnBrokenConfig() {
+        new Thread(() -> {
+            if (!PresetStore.isBroken()) return;
+            String path = String.valueOf(PresetStore.file());
+            runOnUiThread(() -> {
+                if (!isFinishing()) {
+                    Toast.makeText(this, getString(R.string.radio_config_invalid, path), Toast.LENGTH_LONG).show();
+                }
+            });
+        }).start();
     }
 
     @Override
@@ -242,8 +257,13 @@ public class RadioActivity extends Activity implements RadioClient.Listener {
         renderPower();
     }
 
+    /** Landscape: 2 columns × 6 rows in the side panel. Portrait (horizontal container): one row. */
     private void buildPresetGrid() {
         LinearLayout grid = (LinearLayout) findViewById(R.id.presets_grid);
+        if (grid.getOrientation() == LinearLayout.HORIZONTAL) {
+            buildPresetRow(grid);
+            return;
+        }
         int cardH = Math.round(Ui.dp(this, 128));
         int gap = Math.round(Ui.dp(this, 4));
         for (int row = 0; row < PRESET_SLOTS / 2; row++) {
@@ -267,6 +287,30 @@ public class RadioActivity extends Activity implements RadioClient.Listener {
                 cards[index] = card;
             }
             grid.addView(line, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, cardH));
+        }
+    }
+
+    /** The 12 memories side by side; about 6 fit across, the row scrolls sideways. */
+    private void buildPresetRow(LinearLayout row) {
+        int cardW = Math.round(Ui.dp(this, 146));
+        int cardH = Math.round(Ui.dp(this, 112));
+        int gap = Math.round(Ui.dp(this, 8));
+        for (int i = 0; i < PRESET_SLOTS; i++) {
+            int index = i;
+            PresetCardView card = new PresetCardView(this);
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(cardW, cardH);
+            if (i > 0) lp.leftMargin = gap;
+            row.addView(card, lp);
+            card.setOnClickListener(v -> {
+                ensureOn();
+                playPreset(index);
+            });
+            card.setOnLongClickListener(v -> {
+                radio.savePreset(index);
+                Toast.makeText(this, getString(R.string.radio_preset_saved, index + 1), Toast.LENGTH_SHORT).show();
+                return true;
+            });
+            cards[index] = card;
         }
     }
 

@@ -90,4 +90,18 @@
         <item quantity="one">सूची · %1$d गाना</item>
         <item quantity="other">सूची · %1$d गाने</item>
     </plurals>
+    <string name="media_music_folder">फ़ोल्डर</string>
+    <string name="media_music_choose_folder">अपना संगीत कहाँ है, यह चुनने के लिए फ़ोल्डर पर टैप करें</string>
+    <string name="media_folder_title">संगीत फ़ोल्डर</string>
+    <string name="media_folder_storages">स्टोरेज</string>
+    <string name="media_folder_internal">आंतरिक स्टोरेज</string>
+    <string name="media_folder_up">वापस</string>
+    <string name="media_folder_use">यह फ़ोल्डर इस्तेमाल करें</string>
+    <string name="media_folder_cancel">रद्द करें</string>
+    <string name="media_folder_no_storage">कोई स्टोरेज नहीं मिला</string>
+    <string name="media_folder_no_subfolders">कोई सबफ़ोल्डर नहीं</string>
+    <plurals name="media_folder_path">
+        <item quantity="one">%1$s · %2$d गाना</item>
+        <item quantity="other">%1$s · %2$d गाने</item>
+    </plurals>
 </resources>

@@ -75,7 +75,7 @@
     <string name="adv_autorun_sub">NWD whitelist (whitelist_packagename / appautorun_packagename). To change it, use Vehicle settings.</string>
 
     <string name="adv_sec_360">360 camera (factory)</string>
-    <string name="adv_360_note">Power-on delay, hardware arrow, car in bird view, image and parking monitor stay in the 360 app until we confirm Garagem can save its preferences.</string>
+    <string name="adv_360_note">Power-on delay, hardware arrow, car in bird view, image and parking monitor stay in the 360 app until we confirm GDM Launcher can save its preferences.</string>
     <string name="adv_360_app_settings">360 app settings</string>
     <string name="adv_calibration">Calibration</string>
     <string name="adv_calibration_sub">App password: 0000. The flow stays in their app.</string>
@@ -111,8 +111,8 @@
     <string name="adv_toast_app_missing">App not found on this head unit (%1$s)</string>
 
     <!-- Platform compatibility -->
-    <string name="adv_compat_untested">NWD platform not yet tested with Garagem (%1$s). It may fail.</string>
-    <string name="adv_compat_incompatible">This device doesn\'t look like a compatible NWD head unit. Garagem may not control sound, radio or Bluetooth.</string>
+    <string name="adv_compat_untested">NWD platform not yet tested with GDM Launcher (%1$s). It may fail.</string>
+    <string name="adv_compat_incompatible">This device doesn\'t look like a compatible NWD head unit. GDM Launcher may not control sound, radio or Bluetooth.</string>
     <string name="adv_compat_ok">OK</string>
     <string name="adv_compat_untested_label">NWD untested</string>
     <string name="adv_compat_incompatible_label">Incompatible</string>

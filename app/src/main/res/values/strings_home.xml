@@ -53,12 +53,12 @@
 
     <!-- Default launcher dialogs -->
     <string name="home_default_launcher_title">Default launcher</string>
-    <string name="home_default_launcher_message">The head unit has another launcher set as default:\n%1$s\n\nSet Garagem as the default launcher?</string>
+    <string name="home_default_launcher_message">The head unit has another launcher set as default:\n%1$s\n\nSet GDM Launcher as the default launcher?</string>
     <string name="home_not_set_paren">(not set)</string>
     <string name="home_not_set">not set</string>
     <string name="home_not_now">Not now</string>
     <string name="home_set">Set</string>
-    <string name="home_default_launcher_done">Garagem set as the default launcher</string>
+    <string name="home_default_launcher_done">GDM Launcher set as the default launcher</string>
     <string name="home_default_launcher_failed_title">Couldn\'t change it</string>
     <string name="home_default_launcher_failed_message">The system didn\'t apply the change (current value: %1$s).\n\nTo set it manually, connect adb and run:</string>
 
@@ -96,4 +96,25 @@
     <string name="home_dock_video_title">Video</string>
     <string name="home_dock_apps">APPS</string>
     <string name="home_dock_apps_title">Apps</string>
+    <string name="home_image">Chosen image</string>
+    <string name="home_image_empty">Choose an image in Settings › Customize</string>
+    <string name="home_gps_none" translatable="false">—</string>
+    <string name="home_speed_unit">km/h</string>
+    <string name="home_gps_waiting">Waiting for GPS</string>
+    <string name="home_gps_unavailable">No GPS</string>
+    <string name="home_gps_lat">Latitude</string>
+    <string name="home_gps_lon">Longitude</string>
+    <string name="home_gps_alt">Altitude</string>
+    <string name="home_gps_dir">Heading</string>
+    <string name="home_gps_stopped">Stopped</string>
+    <string name="home_gps_altitude_value">%1$d m</string>
+    <string name="home_gps_heading_value">%1$s (%2$d°)</string>
+    <string name="home_gps_dir_n">N</string>
+    <string name="home_gps_dir_ne">NE</string>
+    <string name="home_gps_dir_e">E</string>
+    <string name="home_gps_dir_se">SE</string>
+    <string name="home_gps_dir_s">S</string>
+    <string name="home_gps_dir_sw">SW</string>
+    <string name="home_gps_dir_w">W</string>
+    <string name="home_gps_dir_nw">NW</string>
 </resources>

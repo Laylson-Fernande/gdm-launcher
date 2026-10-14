@@ -49,12 +49,12 @@
 
     <!-- Default launcher dialogs -->
     <string name="home_default_launcher_title">डिफ़ॉल्ट लॉन्चर</string>
-    <string name="home_default_launcher_message">हेड यूनिट में कोई दूसरा लॉन्चर डिफ़ॉल्ट है:\n%1$s\n\nक्या Garagem को डिफ़ॉल्ट लॉन्चर बनाएँ?</string>
+    <string name="home_default_launcher_message">हेड यूनिट में कोई दूसरा लॉन्चर डिफ़ॉल्ट है:\n%1$s\n\nक्या GDM Launcher को डिफ़ॉल्ट लॉन्चर बनाएँ?</string>
     <string name="home_not_set_paren">(सेट नहीं)</string>
     <string name="home_not_set">सेट नहीं</string>
     <string name="home_not_now">अभी नहीं</string>
     <string name="home_set">सेट करें</string>
-    <string name="home_default_launcher_done">Garagem को डिफ़ॉल्ट लॉन्चर बना दिया गया</string>
+    <string name="home_default_launcher_done">GDM Launcher को डिफ़ॉल्ट लॉन्चर बना दिया गया</string>
     <string name="home_default_launcher_failed_title">बदला नहीं जा सका</string>
     <string name="home_default_launcher_failed_message">सिस्टम ने बदलाव लागू नहीं किया (मौजूदा मान: %1$s)।\n\nमैन्युअल रूप से सेट करने के लिए adb कनेक्ट करके चलाएँ:</string>
 
@@ -92,4 +92,24 @@
     <string name="home_dock_video_title">वीडियो</string>
     <string name="home_dock_apps">ऐप्स</string>
     <string name="home_dock_apps_title">ऐप्स</string>
+    <string name="home_image">चुना गया चित्र</string>
+    <string name="home_image_empty">सेटिंग्स › अनुकूलन में एक चित्र चुनें</string>
+    <string name="home_speed_unit">किमी/घं</string>
+    <string name="home_gps_waiting">GPS की प्रतीक्षा</string>
+    <string name="home_gps_unavailable">GPS नहीं</string>
+    <string name="home_gps_lat">अक्षांश</string>
+    <string name="home_gps_lon">देशांतर</string>
+    <string name="home_gps_alt">ऊँचाई</string>
+    <string name="home_gps_dir">दिशा</string>
+    <string name="home_gps_stopped">रुका हुआ</string>
+    <string name="home_gps_altitude_value">%1$d मी</string>
+    <string name="home_gps_heading_value">%1$s (%2$d°)</string>
+    <string name="home_gps_dir_n">उ</string>
+    <string name="home_gps_dir_ne">उपू</string>
+    <string name="home_gps_dir_e">पू</string>
+    <string name="home_gps_dir_se">दपू</string>
+    <string name="home_gps_dir_s">द</string>
+    <string name="home_gps_dir_sw">दप</string>
+    <string name="home_gps_dir_w">प</string>
+    <string name="home_gps_dir_nw">उप</string>
 </resources>

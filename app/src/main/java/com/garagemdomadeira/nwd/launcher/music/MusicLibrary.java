@@ -2,9 +2,10 @@ package com.garagemdomadeira.nwd.launcher.music;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
+
+import com.garagemdomadeira.nwd.launcher.home.LauncherPrefs;
 
 import java.io.File;
 import java.text.Collator;
@@ -15,7 +16,13 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
-/** Lists tracks in the MediaStore and, if empty, scans mounted folders. */
+/**
+ * Lists the tracks in the folder the driver picked for the MP3 player (subfolders too): from the
+ * MediaStore and, if it has none there (not indexed yet), by scanning the folder. No folder picked
+ * yet = no tracks: the player starts empty instead of gathering every song on the unit. Tracks come
+ * grouped by folder (the folder's own first, then each subfolder in order), so the list can show
+ * them as a tree and next/previous stay within a folder before moving on.
+ */
 public final class MusicLibrary {
     private static final String TAG = "GaragemMusicLib";
     private static final int MAX_FILES = 2000;
@@ -28,17 +35,58 @@ public final class MusicLibrary {
     }
 
     public static List<MusicTrack> load(Context context) {
-        List<MusicTrack> fromStore = fromMediaStore(context);
-        if (!fromStore.isEmpty()) {
-            Log.d(TAG, "MediaStore: " + fromStore.size() + " tracks");
-            return fromStore;
+        String folder = LauncherPrefs.musicFolder(context);
+        if (folder == null) return new ArrayList<>();
+        File dir = new File(folder);
+        List<MusicTrack> tracks = fromMediaStore(context, dir);
+        if (!tracks.isEmpty()) {
+            Log.d(TAG, "MediaStore: " + tracks.size() + " tracks in " + dir);
+        } else {
+            tracks = fromDisk(dir);
+            Log.d(TAG, "Disk: " + tracks.size() + " tracks in " + dir);
         }
-        List<MusicTrack> fromDisk = fromDisk();
-        Log.d(TAG, "Disk: " + fromDisk.size() + " tracks");
-        return fromDisk;
+        sortByFolder(tracks, dir);
+        return tracks;
     }
 
-    private static List<MusicTrack> fromMediaStore(Context context) {
+    /**
+     * Folder segments of {@code track} below {@code root}: {@code []} for a track right in it,
+     * {@code ["Rock", "80s"]} for {@code root/Rock/80s/song.mp3}.
+     */
+    public static String[] folders(MusicTrack track, File root) {
+        String base = root.getAbsolutePath() + "/";
+        String path = track.path;
+        int slash = path.lastIndexOf('/');
+        if (!path.startsWith(base) || slash < base.length()) return new String[0];
+        return path.substring(base.length(), slash).split("/");
+    }
+
+    /** The folder's own tracks first, then each subfolder (alphabetically, depth first); title inside. */
+    private static void sortByFolder(List<MusicTrack> tracks, File root) {
+        Collator order = Collator.getInstance(new Locale("pt", "BR"));
+        order.setStrength(Collator.PRIMARY);
+        Collections.sort(tracks, (a, b) -> {
+            String[] fa = folders(a, root);
+            String[] fb = folders(b, root);
+            for (int i = 0; i < Math.min(fa.length, fb.length); i++) {
+                int c = order.compare(fa[i], fb[i]);
+                if (c != 0) return c;
+            }
+            if (fa.length != fb.length) return fa.length - fb.length;
+            return order.compare(a.displayTitle(), b.displayTitle());
+        });
+    }
+
+    /** Whether {@code name} looks like a music file (the folder picker counts them). */
+    public static boolean isAudio(String name) {
+        String lower = name.toLowerCase(Locale.US);
+        for (String ext : EXTENSIONS) {
+            if (lower.endsWith(ext)) return true;
+        }
+        return false;
+    }
+
+    private static List<MusicTrack> fromMediaStore(Context context, File dir) {
         List<MusicTrack> list = new ArrayList<>();
         String[] cols = {
             MediaStore.Audio.Media.DATA,
@@ -52,8 +100,8 @@ public final class MusicLibrary {
             c = context.getContentResolver().query(
                 MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
                 cols,
-                MediaStore.Audio.Media.IS_MUSIC + "!=0",
-                null,
+                MediaStore.Audio.Media.IS_MUSIC + "!=0 AND " + MediaStore.Audio.Media.DATA + " LIKE ?",
+                new String[]{dir.getAbsolutePath() + "/%"},
                 MediaStore.Audio.Media.TITLE + " COLLATE LOCALIZED ASC");
             if (c == null) return list;
             int iPath = c.getColumnIndex(MediaStore.Audio.Media.DATA);
@@ -81,33 +129,11 @@ public final class MusicLibrary {
         return list;
     }
 
-    private static List<MusicTrack> fromDisk() {
+    private static List<MusicTrack> fromDisk(File dir) {
         List<MusicTrack> list = new ArrayList<>();
         Set<String> seen = new HashSet<>();
-        for (String root : roots()) {
-            File dir = new File(root);
-            if (!dir.isDirectory()) continue;
-            walk(dir, 0, list, seen);
-            if (list.size() >= MAX_FILES) break;
-        }
-        Collator order = Collator.getInstance(new Locale("pt", "BR"));
-        order.setStrength(Collator.PRIMARY);
-        Collections.sort(list, (a, b) -> order.compare(a.displayTitle(), b.displayTitle()));
+        if (dir.isDirectory()) walk(dir, 0, list, seen);
         return list;
-    }
-
-    private static String[] roots() {
-        List<String> roots = new ArrayList<>();
-        File ext = Environment.getExternalStorageDirectory();
-        if (ext != null) roots.add(ext.getAbsolutePath());
-        roots.add("/storage");
-        roots.add("/mnt/usb_storage");
-        roots.add("/mnt/external_sd");
-        roots.add("/mnt/ext_sdcard");
-        roots.add("/mnt/extsd");
-        roots.add("/mnt/sdcard");
-        roots.add("/mnt/media_rw");
-        return roots.toArray(new String[0]);
     }
 
     private static void walk(File dir, int depth, List<MusicTrack> out, Set<String> seen) {
@@ -139,14 +165,6 @@ public final class MusicLibrary {
         String n = name.toLowerCase(Locale.US);
         return "android".equals(n) || "lost+found".equals(n) || "cache".equals(n)
             || "tmp".equals(n) || "temp".equals(n) || "thumbnails".equals(n);
-    }
-
-    private static boolean isAudio(String name) {
-        String lower = name.toLowerCase(Locale.US);
-        for (String ext : EXTENSIONS) {
-            if (lower.endsWith(ext)) return true;
-        }
-        return false;
     }
 
     private static String clean(String s) {
