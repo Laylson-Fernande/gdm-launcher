@@ -32,19 +32,29 @@
         <item name="android:windowAnimationStyle">@style/DialogAnimation</item>
     </style>
 
-    <style name="Chip">
+
+    <!-- Radio reception toggle: icon + fixed label + a dot on the right that lights up when the function is on. -->
+    <style name="ToggleBox">
         <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">38dp</item>
-        <item name="android:layout_marginLeft">6dp</item>
-        <item name="android:layout_marginRight">6dp</item>
+        <item name="android:layout_height">40dp</item>
+        <item name="android:layout_marginLeft">8dp</item>
+        <item name="android:layout_marginRight">8dp</item>
+        <item name="android:minWidth">150dp</item>
         <item name="android:gravity">center</item>
-        <item name="android:paddingLeft">14dp</item>
-        <item name="android:paddingRight">14dp</item>
-        <item name="android:background">@drawable/chip</item>
-        <item name="android:textColor">@color/text_soft</item>
-        <item name="android:textSize">22sp</item>
+        <item name="android:orientation">horizontal</item>
+        <item name="android:paddingLeft">8dp</item>
+        <item name="android:paddingRight">16dp</item>
+        <item name="android:background">@drawable/toggle</item>
+        <item name="android:clickable">true</item>
+    </style>
+
+    <style name="ToggleBoxText">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginLeft">4dp</item>
+        <item name="android:textColor">@color/text</item>
+        <item name="android:textSize">21sp</item>
         <item name="android:singleLine">true</item>
-        <item name="android:visibility">gone</item>
     </style>
 
     <style name="Toggle">

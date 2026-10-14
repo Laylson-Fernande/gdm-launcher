@@ -3,21 +3,12 @@
     <!-- Radio screen -->
     <string name="radio_cd_power">रेडियो चालू/बंद करें</string>
     <string name="radio_cd_exit">बंद करें और बाहर निकलें</string>
-    <string name="radio_chip_stereo">स्टीरियो</string>
-    <string name="radio_chip_traffic">ट्रैफ़िक</string>
-    <string name="radio_chip_seeking">खोज रहा है</string>
-    <string name="radio_chip_scanning">स्कैन हो रहा है</string>
-    <string name="radio_chip_intro">इंट्रो</string>
     <string name="radio_cd_station_art">स्टेशन की तस्वीर</string>
     <string name="radio_cd_prev_saved">पिछला सेव किया स्टेशन</string>
     <string name="radio_cd_step_down">0.1 MHz नीचे</string>
-    <string name="radio_cd_ams">स्टेशन स्कैन करें और सेव करें</string>
     <string name="radio_cd_step_up">0.1 MHz ऊपर</string>
     <string name="radio_cd_next_saved">अगला सेव किया स्टेशन</string>
     <string name="radio_cd_keypad">फ़्रीक्वेंसी डालें</string>
-    <string name="radio_presets_title">प्रीसेट %1$s</string>
-    <string name="radio_cd_prev_preset">पिछला प्रीसेट</string>
-    <string name="radio_cd_next_preset">अगला प्रीसेट</string>
     <string name="radio_presets_hint">सुनने के लिए टैप · सेव करने के लिए दबाकर रखें</string>
     <string name="radio_preset_saved">स्टेशन प्रीसेट %1$d में सेव हुआ</string>
     <string name="radio_preset_empty">खाली</string>
@@ -37,39 +28,8 @@
     <string name="radio_diag_activate_source">सोर्स चालू करें</string>
     <string name="radio_diag_reconnect">फिर से कनेक्ट करें</string>
     <!-- RDS programme types (PTY 0..31) -->
-    <string-array name="radio_pty_names">
-        <item>कोई नहीं</item>
-        <item>समाचार</item>
-        <item>करंट अफ़ेयर्स</item>
-        <item>जानकारी</item>
-        <item>खेल</item>
-        <item>शिक्षा</item>
-        <item>ड्रामा</item>
-        <item>संस्कृति</item>
-        <item>विज्ञान</item>
-        <item>विविध</item>
-        <item>पॉप</item>
-        <item>रॉक</item>
-        <item>हल्का संगीत</item>
-        <item>हल्का क्लासिकल</item>
-        <item>क्लासिकल</item>
-        <item>अन्य</item>
-        <item>मौसम</item>
-        <item>वित्त</item>
-        <item>बच्चे</item>
-        <item>सामाजिक</item>
-        <item>धर्म</item>
-        <item>फ़ोन-इन</item>
-        <item>यात्रा</item>
-        <item>मनोरंजन</item>
-        <item>जैज़</item>
-        <item>कंट्री</item>
-        <item>राष्ट्रीय</item>
-        <item>पुराने गाने</item>
-        <item>लोक संगीत</item>
-        <item>डॉक्यूमेंट्री</item>
-        <item>टेस्ट</item>
-        <item>अलार्म</item>
-    </string-array>
     <string name="radio_config_invalid">%1$s अमान्य है: फ़ाइल ठीक करें। तब तक मेमोरी में बदलाव सहेजे नहीं जाएँगे।</string>
+    <string name="radio_stereo">स्टीरियो</string>
+    <string name="radio_distant">दूर</string>
+    <string name="radio_favorites">पसंदीदा</string>
 </resources>

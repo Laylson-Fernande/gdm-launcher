@@ -113,4 +113,7 @@
     <string name="home_gps_dir_sw">ЮЗ</string>
     <string name="home_gps_dir_w">З</string>
     <string name="home_gps_dir_nw">СЗ</string>
+    <string name="screen_opening">Открываем</string>
+    <string name="home_day">День</string>
+    <string name="home_night">Ночь (фары включены)</string>
 </resources>

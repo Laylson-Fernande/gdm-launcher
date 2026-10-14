@@ -123,4 +123,22 @@
     <string name="settings_hide_bottom_bar_hint">The head unit\'s floating bar (Home, Back, volume) goes away while GDM Launcher is on screen and comes back in other apps</string>
     <string name="settings_zlink_name">Z-Link name in the dock</string>
     <string name="settings_zlink_name_hint">How the Z-Link icon is named and drawn: Z-Link, CarPlay or Auto</string>
+    <string name="settings_group_audio">Audio</string>
+    <string name="audio_sources_section">Volume per source</string>
+    <string name="audio_connecting">Reading the current volumes from the head unit…</string>
+    <string name="audio_sources_hint">Each source has its own volume, independent of the others. Applied when you lift your finger.</string>
+    <string name="audio_unavailable">Head unit audio service not found: volumes can\'t be changed.</string>
+    <string name="audio_apply_failed">Couldn\'t apply: %1$s</string>
+    <string name="audio_gain_radio">Radio</string>
+    <string name="audio_gain_bt">Bluetooth</string>
+    <string name="audio_gain_media">Media (USB / player)</string>
+    <string name="audio_gain_navi">Navigation</string>
+    <string name="audio_gain_aux">AUX</string>
+    <string name="audio_music_section">Android music</string>
+    <string name="audio_music_max">Maximum music volume</string>
+    <string name="audio_music_max_hint">Ceiling for MP3 and apps (5 to 15)</string>
+    <string name="settings_show_day_night">Show day/night</string>
+    <string name="settings_show_day_night_hint">Sun by day, moon with the headlights on (left of the voltmeter)</string>
+    <string name="settings_screen_off_after">Turn screen off after</string>
+    <string name="settings_screen_off_after_hint">Without touching the home screen for this long, it turns off like the screen-off button</string>
 </resources>

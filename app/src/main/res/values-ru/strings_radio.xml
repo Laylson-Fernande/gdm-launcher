@@ -3,21 +3,12 @@
     <!-- Radio screen -->
     <string name="radio_cd_power">Вкл/выкл радио</string>
     <string name="radio_cd_exit">Выключить и выйти</string>
-    <string name="radio_chip_stereo">СТЕРЕО</string>
-    <string name="radio_chip_traffic">ПРОБКИ</string>
-    <string name="radio_chip_seeking">ПОИСК</string>
-    <string name="radio_chip_scanning">СКАН</string>
-    <string name="radio_chip_intro">ОБЗОР</string>
     <string name="radio_cd_station_art">Логотип станции</string>
     <string name="radio_cd_prev_saved">Предыдущая сохранённая станция</string>
     <string name="radio_cd_step_down">Шаг вниз 0.1 MHz</string>
-    <string name="radio_cd_ams">Найти и сохранить станции</string>
     <string name="radio_cd_step_up">Шаг вверх 0.1 MHz</string>
     <string name="radio_cd_next_saved">Следующая сохранённая станция</string>
     <string name="radio_cd_keypad">Ввести частоту</string>
-    <string name="radio_presets_title">Пресеты %1$s</string>
-    <string name="radio_cd_prev_preset">Предыдущий пресет</string>
-    <string name="radio_cd_next_preset">Следующий пресет</string>
     <string name="radio_presets_hint">нажмите — слушать · удерживайте — сохранить</string>
     <string name="radio_preset_saved">Станция сохранена в пресет %1$d</string>
     <string name="radio_preset_empty">Пусто</string>
@@ -37,39 +28,8 @@
     <string name="radio_diag_activate_source">Активировать источник</string>
     <string name="radio_diag_reconnect">Переподключить</string>
     <!-- RDS programme types (PTY 0..31) -->
-    <string-array name="radio_pty_names">
-        <item>Нет</item>
-        <item>Новости</item>
-        <item>Актуальное</item>
-        <item>Информация</item>
-        <item>Спорт</item>
-        <item>Образование</item>
-        <item>Драма</item>
-        <item>Культура</item>
-        <item>Наука</item>
-        <item>Разное</item>
-        <item>Поп</item>
-        <item>Рок</item>
-        <item>Лёгкая музыка</item>
-        <item>Лёгкая классика</item>
-        <item>Классика</item>
-        <item>Другое</item>
-        <item>Погода</item>
-        <item>Финансы</item>
-        <item>Детям</item>
-        <item>Общество</item>
-        <item>Религия</item>
-        <item>Звонки в эфир</item>
-        <item>Путешествия</item>
-        <item>Досуг</item>
-        <item>Джаз</item>
-        <item>Кантри</item>
-        <item>Нац. музыка</item>
-        <item>Ретро</item>
-        <item>Фолк</item>
-        <item>Документальное</item>
-        <item>Тест</item>
-        <item>Тревога</item>
-    </string-array>
     <string name="radio_config_invalid">Файл %1$s повреждён: исправьте его. До этого изменения памяти не сохраняются.</string>
+    <string name="radio_stereo">Стерео</string>
+    <string name="radio_distant">Дальний</string>
+    <string name="radio_favorites">Избранное</string>
 </resources>

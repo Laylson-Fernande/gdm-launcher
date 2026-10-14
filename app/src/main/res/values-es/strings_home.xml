@@ -113,4 +113,7 @@
     <string name="home_gps_dir_sw">SO</string>
     <string name="home_gps_dir_w">O</string>
     <string name="home_gps_dir_nw">NO</string>
+    <string name="screen_opening">Abriendo</string>
+    <string name="home_day">Día</string>
+    <string name="home_night">Noche (faros encendidos)</string>
 </resources>

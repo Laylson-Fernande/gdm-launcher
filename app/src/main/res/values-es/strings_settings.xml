@@ -123,4 +123,22 @@
     <string name="settings_hide_bottom_bar_hint">La barra flotante del equipo (Inicio, Atrás, volumen) desaparece mientras GDM Launcher está en pantalla y vuelve en las demás apps</string>
     <string name="settings_zlink_name">Nombre de Z-Link en el dock</string>
     <string name="settings_zlink_name_hint">Nombre e ícono de Z-Link en el dock: Z-Link, CarPlay o Auto</string>
+    <string name="settings_group_audio">Audio</string>
+    <string name="audio_sources_section">Volumen por fuente</string>
+    <string name="audio_connecting">Leyendo los volúmenes actuales de la central…</string>
+    <string name="audio_sources_hint">Cada fuente tiene su propio volumen, independiente de las demás. Se aplica al soltar el dedo.</string>
+    <string name="audio_unavailable">No se encontró el servicio de audio de la central: no se pueden cambiar los volúmenes.</string>
+    <string name="audio_apply_failed">No se pudo aplicar: %1$s</string>
+    <string name="audio_gain_radio">Radio</string>
+    <string name="audio_gain_bt">Bluetooth</string>
+    <string name="audio_gain_media">Multimedia (USB / reproductor)</string>
+    <string name="audio_gain_navi">Navegación</string>
+    <string name="audio_gain_aux">AUX</string>
+    <string name="audio_music_section">Música de Android</string>
+    <string name="audio_music_max">Volumen máximo de la música</string>
+    <string name="audio_music_max_hint">Límite para MP3 y apps (5 a 15)</string>
+    <string name="settings_show_day_night">Mostrar día/noche</string>
+    <string name="settings_show_day_night_hint">Sol de día, luna con los faros encendidos (a la izquierda del voltímetro)</string>
+    <string name="settings_screen_off_after">Apagar pantalla tras</string>
+    <string name="settings_screen_off_after_hint">Sin tocar la pantalla de inicio durante ese tiempo, se apaga como con el botón de apagar pantalla</string>
 </resources>

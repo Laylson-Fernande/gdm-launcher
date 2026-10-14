@@ -123,4 +123,22 @@
     <string name="settings_hide_bottom_bar_hint">हेड यूनिट की तैरती बार (होम, वापस, वॉल्यूम) GDM Launcher खुला रहने तक छिपी रहती है और दूसरे ऐप्स में वापस आती है</string>
     <string name="settings_zlink_name">डॉक में Z-Link का नाम</string>
     <string name="settings_zlink_name_hint">डॉक में Z-Link का नाम और आइकन: Z-Link, CarPlay या Auto</string>
+    <string name="settings_group_audio">ऑडियो</string>
+    <string name="audio_sources_section">हर स्रोत का वॉल्यूम</string>
+    <string name="audio_connecting">हेड यूनिट से मौजूदा वॉल्यूम पढ़ रहे हैं…</string>
+    <string name="audio_sources_hint">हर स्रोत का अपना वॉल्यूम है, बाकी से अलग। उंगली हटाने पर लागू होता है।</string>
+    <string name="audio_unavailable">हेड यूनिट की ऑडियो सेवा नहीं मिली: वॉल्यूम नहीं बदल सकते।</string>
+    <string name="audio_apply_failed">लागू नहीं हो सका: %1$s</string>
+    <string name="audio_gain_radio">रेडियो</string>
+    <string name="audio_gain_bt">ब्लूटूथ</string>
+    <string name="audio_gain_media">मीडिया (USB / प्लेयर)</string>
+    <string name="audio_gain_navi">नेविगेशन</string>
+    <string name="audio_gain_aux">AUX</string>
+    <string name="audio_music_section">Android संगीत</string>
+    <string name="audio_music_max">संगीत का अधिकतम वॉल्यूम</string>
+    <string name="audio_music_max_hint">MP3 और ऐप्स की सीमा (5 से 15)</string>
+    <string name="settings_show_day_night">दिन/रात दिखाएँ</string>
+    <string name="settings_show_day_night_hint">दिन में सूरज, हेडलाइट जलने पर चाँद (वोल्टमीटर के बाईं ओर)</string>
+    <string name="settings_screen_off_after">इतने बाद स्क्रीन बंद करें</string>
+    <string name="settings_screen_off_after_hint">इतनी देर होम स्क्रीन को न छूने पर, स्क्रीन बंद करें बटन की तरह बंद हो जाती है</string>
 </resources>

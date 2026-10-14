@@ -1,7 +1,5 @@
 package com.garagemdomadeira.nwd.launcher;
 
-import android.animation.ObjectAnimator;
-import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
@@ -29,7 +27,6 @@ import com.garagemdomadeira.nwd.launcher.radio.RadioClient;
 import com.garagemdomadeira.nwd.launcher.radio.RadioState;
 import com.garagemdomadeira.nwd.launcher.radio.StationArt;
 import com.garagemdomadeira.nwd.launcher.system.DevMode;
-import com.garagemdomadeira.nwd.launcher.ui.AmsButton;
 import com.garagemdomadeira.nwd.launcher.ui.IconView;
 import com.garagemdomadeira.nwd.launcher.ui.IconView.Icon;
 import com.garagemdomadeira.nwd.launcher.ui.IconView.Style;
@@ -57,20 +54,20 @@ public class RadioActivity extends Activity implements RadioClient.Listener {
     private Integer preview;
 
     private SlantedTabsView tabs;
-    private TextView chipPreset, chipStereo, chipTp, chipTa, chipPty, chipBusy;
     private TextView freqValue, freqUnit, stationName, radioText;
+    private View stationArtFrame;
     private ImageView stationArt;
+    private IconView stationArtPlaceholder;
     /** Current station's art file (e.g. FM_104.5), to avoid reloading on every service update. */
     private String artKey;
     private int artGen;
     private final ExecutorService artLoader = Executors.newSingleThreadExecutor();
     private final Handler handler = new Handler(Looper.getMainLooper());
     private TunerDialView dial;
-    private AmsButton ams;
-    private TextView toggleSt, toggleLoc, toggleAf, toggleTa;
-    private TextView presetsTitle, banner;
+    private View toggleSt, toggleLoc;
+    private View toggleStDot, toggleLocDot;
+    private TextView banner;
     private final PresetCardView[] cards = new PresetCardView[PRESET_SLOTS];
-    private ObjectAnimator busyBlink;
     private IconView powerButton;
     /** Radio on = it's the active audio source. Off = source 0 (silence), app stays open. */
     private boolean radioOn = true;
@@ -110,11 +107,10 @@ public class RadioActivity extends Activity implements RadioClient.Listener {
     protected void onResume() {
         super.onResume();
         hideSystemBars();
-        // When coming to the foreground, the radio becomes the audio source
-        // (unless the user turned it off with the Power button).
-        if (radioOn) {
-            PlayerHandoff.pauseOtherPlayers(this);
-            radio.activateSource();
+        // When coming to the foreground, the radio becomes the audio source (unless the user
+        // turned it off with the Power button, or it already is the source: nothing to restart).
+        if (radioOn && !PlayerHandoff.radioIsSource(this)) {
+            PlayerHandoff.switchToRadio(this, radio::activateSource);
         }
         radioText.setSelected(true); // required for the marquee to scroll
         warnBrokenConfig();
@@ -144,7 +140,6 @@ public class RadioActivity extends Activity implements RadioClient.Listener {
     protected void onDestroy() {
         radio.setListener(null);
         radio.release();
-        if (busyBlink != null) busyBlink.cancel();
         artGen++;
         artLoader.shutdownNow();
         super.onDestroy();
@@ -160,25 +155,11 @@ public class RadioActivity extends Activity implements RadioClient.Listener {
             radio.selectBand(Band.SELECTABLE[i]);
         });
 
-        powerButton = icon(R.id.btn_power, Icon.POWER, Style.NONE);
-        powerButton.setOnClickListener(v -> setRadioOn(!radioOn));
         icon(R.id.btn_exit, Icon.EXIT, Style.NONE).setOnClickListener(v -> {
             radio.deactivateSource();
             finish();
         });
 
-        chipPreset = text(R.id.chip_preset);
-        chipStereo = text(R.id.chip_stereo);
-        chipTp = text(R.id.chip_tp);
-        chipTa = text(R.id.chip_ta);
-        chipTa.setTextColor(Ui.DANGER);
-        chipPty = text(R.id.chip_pty);
-        chipBusy = text(R.id.chip_busy);
-        chipBusy.setTextColor(Ui.ACCENT);
-        busyBlink = ObjectAnimator.ofFloat(chipBusy, "alpha", 1f, 0.35f);
-        busyBlink.setDuration(700);
-        busyBlink.setRepeatCount(ValueAnimator.INFINITE);
-        busyBlink.setRepeatMode(ValueAnimator.REVERSE);
 
         freqValue = text(R.id.freq_value);
         // Diagnostics without a button: hold the frequency for ~1 s (developer mode only).
@@ -190,7 +171,10 @@ public class RadioActivity extends Activity implements RadioClient.Listener {
         }
         freqUnit = text(R.id.freq_unit);
         stationName = text(R.id.station_name);
+        stationArtFrame = findViewById(R.id.station_art_frame);
         stationArt = (ImageView) findViewById(R.id.station_art);
+        stationArtPlaceholder = (IconView) findViewById(R.id.station_art_placeholder);
+        stationArtPlaceholder.set(Icon.RADIO, Style.NONE).color(Ui.TEXT_DIM);
         radioText = text(R.id.radio_text);
         radioText.setTypeface(Ui.regular(this));
 
@@ -210,47 +194,40 @@ public class RadioActivity extends Activity implements RadioClient.Listener {
         });
 
         // ⏮ ⏭: previous/next saved station. ‹ ›: 1 frequency step (0.1 MHz on FM).
-        icon(R.id.btn_seek_prev, Icon.SKIP_PREV, Style.CIRCLE).setOnClickListener(v -> {
+        icon(R.id.btn_seek_prev, Icon.SKIP_PREV, Style.NONE).setOnClickListener(v -> {
             ensureOn();
             radio.presetStep(false);
         });
-        icon(R.id.btn_step_prev, Icon.CHEVRON_LEFT, Style.CIRCLE).setOnClickListener(v -> {
+        icon(R.id.btn_step_prev, Icon.CHEVRON_LEFT, Style.NONE).setOnClickListener(v -> {
             ensureOn();
             radio.step(false);
         });
-        icon(R.id.btn_step_next, Icon.CHEVRON_RIGHT, Style.CIRCLE).setOnClickListener(v -> {
+        icon(R.id.btn_step_next, Icon.CHEVRON_RIGHT, Style.NONE).setOnClickListener(v -> {
             ensureOn();
             radio.step(true);
         });
-        icon(R.id.btn_seek_next, Icon.SKIP_NEXT, Style.CIRCLE).setOnClickListener(v -> {
+        icon(R.id.btn_seek_next, Icon.SKIP_NEXT, Style.NONE).setOnClickListener(v -> {
             ensureOn();
             radio.presetStep(true);
         });
-        ams = (AmsButton) findViewById(R.id.btn_ams);
-        ams.setOnClickListener(v -> {
-            ensureOn();
-            radio.autoStore();
-        });
+        // Central button (same look as the MP3 play button): turns the radio on/off.
+        powerButton = icon(R.id.btn_power, Icon.POWER, Style.OUTLINE_CIRCLE);
+        powerButton.setOnClickListener(v -> setRadioOn(!radioOn));
 
-        toggleSt = text(R.id.toggle_st);
-        toggleLoc = text(R.id.toggle_loc);
-        toggleAf = text(R.id.toggle_af);
-        toggleTa = text(R.id.toggle_ta);
+        // Reception toggles: fixed icon and label; the dot on the right lights up when the function is on.
+        toggleSt = findViewById(R.id.toggle_st);
+        toggleIcon(R.id.toggle_st_icon, Icon.STEREO);
+        text(R.id.toggle_st_text).setText(R.string.radio_stereo);
+        toggleStDot = findViewById(R.id.toggle_st_dot);
+        toggleLoc = findViewById(R.id.toggle_loc);
+        toggleIcon(R.id.toggle_loc_icon, Icon.TOWER_FAR);
+        text(R.id.toggle_loc_text).setText(R.string.radio_distant);
+        toggleLocDot = findViewById(R.id.toggle_loc_dot);
         toggleSt.setOnClickListener(v -> radio.setStereo(!state.stereoOn));
         toggleLoc.setOnClickListener(v -> radio.setLoc(!state.locOn));
-        toggleAf.setOnClickListener(v -> radio.setRds(Band.RDS_AF, !state.afOn));
-        toggleTa.setOnClickListener(v -> radio.setRds(Band.RDS_TA, !state.taOn));
+        renderToggles();
         icon(R.id.btn_keypad, Icon.KEYBOARD, Style.NONE).setOnClickListener(v -> showKeypad());
 
-        presetsTitle = text(R.id.presets_title);
-        icon(R.id.btn_preset_prev, Icon.CHEVRON_LEFT, Style.SQUARE).setOnClickListener(v -> {
-            ensureOn();
-            radio.presetStep(false);
-        });
-        icon(R.id.btn_preset_next, Icon.CHEVRON_RIGHT, Style.SQUARE).setOnClickListener(v -> {
-            ensureOn();
-            radio.presetStep(true);
-        });
         buildPresetGrid();
 
         banner = text(R.id.banner);
@@ -318,6 +295,14 @@ public class RadioActivity extends Activity implements RadioClient.Listener {
         return ((IconView) findViewById(id)).set(icon, style);
     }
 
+    /** Icon inside a toggle: the toggle handles the tap. */
+    private void toggleIcon(int id, Icon icon) {
+        IconView v = (IconView) findViewById(id);
+        v.set(icon, Style.NONE).color(Ui.TEXT);
+        v.setClickable(false);
+        v.setFocusable(false);
+    }
+
     private TextView text(int id) {
         return (TextView) findViewById(id);
     }
@@ -340,36 +325,14 @@ public class RadioActivity extends Activity implements RadioClient.Listener {
         findViewById(R.id.rt_left).setVisibility(rtVis);
         findViewById(R.id.rt_right).setVisibility(rtVis);
 
-        show(chipPreset, s.presetIndex > 0);
-        chipPreset.setText("M" + s.presetIndex);
-        show(chipStereo, fm && s.stereoSignal);
-        show(chipTp, fm && s.tp);
-        show(chipTa, s.taActive);
-        String[] ptyNames = getResources().getStringArray(R.array.radio_pty_names);
-        boolean hasPty = fm && s.pty > 0 && s.pty < ptyNames.length;
-        show(chipPty, hasPty);
-        if (hasPty) chipPty.setText(ptyNames[s.pty]);
-        boolean busy = s.isBusy();
-        chipBusy.setText(s.radioState == 3 ? R.string.radio_chip_scanning
-            : s.radioState == 4 ? R.string.radio_chip_intro : R.string.radio_chip_seeking);
-        show(chipBusy, busy);
-        if (busy && !busyBlink.isStarted()) busyBlink.start();
-        if (!busy && busyBlink.isStarted()) {
-            busyBlink.cancel();
-            chipBusy.setAlpha(1f);
-        }
-        ams.setBusy(busy);
-
-        toggleSt.setActivated(s.stereoOn);
-        toggleLoc.setActivated(s.locOn);
-        toggleLoc.setText(s.locOn ? "[LOC]" : "[DX]");
-        toggleAf.setActivated(s.afOn);
-        toggleTa.setActivated(s.taOn);
-        show(toggleAf, fm);
-        show(toggleTa, fm);
-
+        renderToggles();
         renderPresets(s);
         renderBanner(s.connection);
+    }
+
+    private void renderToggles() {
+        toggleStDot.setActivated(state.stereoOn);
+        toggleLocDot.setActivated(!state.locOn); // "Distant" = LOC off
     }
 
     private void renderFrequency() {
@@ -380,25 +343,25 @@ public class RadioActivity extends Activity implements RadioClient.Listener {
         freqUnit.setText(Band.unit(fm));
     }
 
-    /** Looks for Garagem/radio/<FM|AM>_<freq>.jpg for the tuned station; without a file, number only. */
+    /** Looks for Garagem/radio/<FM|AM>_<freq>.jpg for the tuned station; without a file, the radio placeholder. */
     private void bindArt(int band, int frequency) {
         String key = StationArt.baseName(band, frequency);
         if (key.equals(artKey)) return;
         artKey = key;
         int gen = ++artGen;
-        int size = stationArt.getLayoutParams().width;
+        int size = stationArtFrame.getLayoutParams().width;
         artLoader.execute(() -> {
             Bitmap bmp = StationArt.load(band, frequency, size);
             handler.post(() -> {
                 if (gen != artGen) return;
+                // The square always stays; without a picture, the radio icon shows through.
                 stationArt.setImageBitmap(bmp);
-                show(stationArt, bmp != null);
+                show(stationArtPlaceholder, bmp == null);
             });
         });
     }
 
     private void renderPresets(RadioState s) {
-        presetsTitle.setText(getString(R.string.radio_presets_title, Band.label(s.band)));
         Preset[] presets = s.currentPresets();
         boolean fm = s.isFm();
         for (int i = 0; i < PRESET_SLOTS; i++) {
@@ -450,10 +413,7 @@ public class RadioActivity extends Activity implements RadioClient.Listener {
 
     private void setRadioOn(boolean on) {
         radioOn = on;
-        if (on) {
-            PlayerHandoff.pauseOtherPlayers(this);
-            radio.activateSource();
-        }
+        if (on) PlayerHandoff.switchToRadio(this, radio::activateSource);
         else radio.deactivateSource();
         renderPower();
     }
@@ -470,7 +430,7 @@ public class RadioActivity extends Activity implements RadioClient.Listener {
         freqUnit.setAlpha(a);
         radioText.setAlpha(a);
         dial.setAlpha(a);
-        stationArt.setAlpha(a);
+        stationArtFrame.setAlpha(a);
         stationName.setAlpha(radioOn ? 1f : 0.6f);
         if (!radioOn) stationName.setText(R.string.radio_off);
         else onRadioStateText();

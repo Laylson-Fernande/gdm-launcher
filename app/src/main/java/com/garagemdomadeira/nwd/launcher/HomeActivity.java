@@ -35,6 +35,7 @@ import com.garagemdomadeira.nwd.launcher.radio.Band;
 import com.garagemdomadeira.nwd.launcher.radio.RadioClient;
 import com.garagemdomadeira.nwd.launcher.radio.RadioState;
 import com.garagemdomadeira.nwd.launcher.radio.StationArt;
+import com.garagemdomadeira.nwd.launcher.system.NwdSettings;
 import com.garagemdomadeira.nwd.launcher.system.SystemProps;
 import com.garagemdomadeira.nwd.launcher.ui.IconView;
 import com.garagemdomadeira.nwd.launcher.ui.Touch;
@@ -135,6 +136,9 @@ public class HomeActivity extends Activity {
     private int artGen;
     private View voltageView;
     private TextView voltageText;
+    private View sourceBadge;
+    private IconView dayNight;
+    private TextView sourceBadgeText;
     private final ExecutorService artLoader = Executors.newSingleThreadExecutor();
     /** Image module: picture version (path, date and size) and slot on screen, to reload only on change. */
     private long imageStamp = -1;
@@ -160,8 +164,22 @@ public class HomeActivity extends Activity {
         public void onChange(boolean selfChange) {
             if (screenOffOverlay != null && screenOffOverlay.getVisibility() == View.VISIBLE) {
                 screenOffOverlay.setVisibility(View.GONE);
+                scheduleAutoScreenOff();
             }
         }
+    };
+
+    /** Headlights (MCU ILL signal) switched: sun ⇄ moon. */
+    private final ContentObserver headlightObserver = new ContentObserver(handler) {
+        @Override
+        public void onChange(boolean selfChange) {
+            renderDayNight();
+        }
+    };
+
+    /** Settings › "Turn screen off after": same action as the screen-off button, after inactivity. */
+    private final Runnable autoScreenOff = () -> {
+        if (screenOffOverlay != null && screenOffOverlay.getVisibility() != View.VISIBLE) setScreenOn(false);
     };
 
     /**
@@ -218,7 +236,8 @@ public class HomeActivity extends Activity {
         createDateFormats();
         setContentView(R.layout.activity_home);
         Ui.applyFont(findViewById(R.id.home_root));
-        dock = Screens.attachDock(this, null);
+        // On the home screen the dock always highlights Home; what is playing shows in the top bar.
+        dock = Screens.attachDock(this, DockView.Item.HOME);
         bindViews();
         modules = new HomeModuleViews(this);
         modules.apply(LauncherPrefs.homeLayout(this));
@@ -269,6 +288,8 @@ public class HomeActivity extends Activity {
             Settings.System.getUriFor(KEY_FAN_SWITCH), false, fanObserver);
         getContentResolver().registerContentObserver(
             Settings.System.getUriFor(KEY_BACKLIGHT_STATE), false, backlightObserver);
+        getContentResolver().registerContentObserver(
+            Settings.System.getUriFor(NwdSettings.KEY_NO_SOURCE_DEVICE), false, headlightObserver);
         readFan();
 
         // Only observes. connect(false) doesn't send ACTION_MEDIA_PLAY.
@@ -340,6 +361,12 @@ public class HomeActivity extends Activity {
         voltageText = text(R.id.voltage_text);
         voltageText.setTypeface(Ui.medium(this));
         icon(R.id.voltage_icon, IconView.Icon.BATTERY, IconView.Style.NONE).color(Ui.TEXT_MUTED);
+        dayNight = (IconView) findViewById(R.id.day_night);
+        dayNight.setClickable(false);
+        sourceBadge = findViewById(R.id.source_badge);
+        sourceBadge.setActivated(true);
+        sourceBadgeText = text(R.id.source_badge_text);
+        sourceBadgeText.setTypeface(Ui.medium(this));
         npArt = (ImageView) findViewById(R.id.np_art);
         npArtIcon = (IconView) findViewById(R.id.np_art_icon);
         npArtIcon.color(Ui.TEXT_DIM);
@@ -408,6 +435,8 @@ public class HomeActivity extends Activity {
         } else {
             voltageView.setVisibility(View.GONE);
         }
+        renderDayNight();
+        scheduleAutoScreenOff();
     }
 
     @Override
@@ -416,6 +445,7 @@ public class HomeActivity extends Activity {
         if (screenOffOverlay != null && screenOffOverlay.getVisibility() == View.VISIBLE) setScreenOn(true);
         handler.removeCallbacks(clockTick);
         handler.removeCallbacks(voltageTick);
+        handler.removeCallbacks(autoScreenOff);
         gps.stop();
         super.onPause();
     }
@@ -435,6 +465,7 @@ public class HomeActivity extends Activity {
         }
         getContentResolver().unregisterContentObserver(fanObserver);
         getContentResolver().unregisterContentObserver(backlightObserver);
+        getContentResolver().unregisterContentObserver(headlightObserver);
         if (volume != null) {
             volume.setListener(null);
             volume.release();
@@ -492,8 +523,8 @@ public class HomeActivity extends Activity {
             findViewById(R.id.now_playing).setVisibility(calling ? View.INVISIBLE : View.VISIBLE);
         }
         renderNowPlaying();
+        renderSourceBadge(s);
         renderCall(s);
-        renderDock();
         renderBt();
     }
 
@@ -524,6 +555,16 @@ public class HomeActivity extends Activity {
         muteButton.color(muted ? Ui.TEXT : Ui.TEXT_SOFT);
         muteButton.setContentDescription(getString(
             muted ? R.string.home_unmute_volume : R.string.home_mute_volume, volumeValue));
+    }
+
+    /** Top bar, next to the voltmeter: what is playing right now (Radio, MP3 or BT). */
+    private void renderSourceBadge(HomeSession.Snapshot s) {
+        String label = null;
+        if (s.source == SOURCE_RADIO) label = getString(R.string.home_radio);
+        else if (s.kind == HomeSession.Kind.USB && s.playing) label = "MP3";
+        else if (s.kind == HomeSession.Kind.BT && s.btPlaying) label = "BT";
+        if (label != null) sourceBadgeText.setText(label);
+        show(sourceBadge, label != null);
     }
 
     /** "Now playing": radio, USB/SD or Bluetooth music, depending on the current source. */
@@ -711,19 +752,6 @@ public class HomeActivity extends Activity {
         }
     }
 
-    /** Home screen dock highlight: the source that is playing (or the phone, during a call). */
-    private void renderDock() {
-        HomeSession.Snapshot s = snap;
-        DockView.Item active = null;
-        if (s != null) {
-            if (s.call != HomeSession.CallPhase.NONE) active = DockView.Item.PHONE;
-            else if (s.source == SOURCE_RADIO) active = DockView.Item.RADIO;
-            else if (s.source == SOURCE_ANDROID && s.kind == HomeSession.Kind.USB) active = DockView.Item.MUSIC;
-            else if (s.source == SOURCE_ANDROID && s.kind == HomeSession.Kind.BT) active = DockView.Item.BT_MUSIC;
-        }
-        if (dock.getActive() != active) dock.setActive(active);
-    }
-
     // ------------------------------------------------------------------ GPS
 
     /** GPS only runs while the home screen is visible and a GPS module is on the grid. */
@@ -836,6 +864,31 @@ public class HomeActivity extends Activity {
         if (!on) screenOffOverlay.bringToFront();
     }
 
+    /** Any touch on the home screen restarts the "turn screen off after" countdown. */
+    @Override
+    public void onUserInteraction() {
+        super.onUserInteraction();
+        scheduleAutoScreenOff();
+    }
+
+    private void scheduleAutoScreenOff() {
+        handler.removeCallbacks(autoScreenOff);
+        int seconds = LauncherPrefs.screenOffAfter(this);
+        if (seconds > 0) handler.postDelayed(autoScreenOff, seconds * 1000L);
+    }
+
+    /** Sun by day, moon with the headlights on (Settings › Main can hide it). */
+    private void renderDayNight() {
+        if (!LauncherPrefs.showDayNight(this)) {
+            dayNight.setVisibility(View.GONE);
+            return;
+        }
+        boolean night = NwdSettings.headlightsOn(this);
+        dayNight.set(night ? IconView.Icon.MOON : IconView.Icon.SUN, IconView.Style.NONE).color(Ui.TEXT_SOFT);
+        dayNight.setContentDescription(getString(night ? R.string.home_night : R.string.home_day));
+        dayNight.setVisibility(View.VISIBLE);
+    }
+
     /** −1 previous, 0 play/pause (on the radio: on/off), +1 next. */
     private void transport(int what) {
         if (snap == null) return;
@@ -878,8 +931,7 @@ public class HomeActivity extends Activity {
     /** Previous/next memory. If the radio isn't the source, turns it on first — the tap is what turns it on. */
     private void tuneRadio(boolean next) {
         if (snap == null || snap.source != SOURCE_RADIO) {
-            PlayerHandoff.pauseOtherPlayers(this);
-            radio.activateSource();
+            PlayerHandoff.switchToRadio(this, radio::activateSource);
             session.assumeSource(SOURCE_RADIO);
         }
         radio.presetStep(next);
@@ -890,8 +942,7 @@ public class HomeActivity extends Activity {
             radio.deactivateSource();
             session.assumeSource(SOURCE_ANDROID);
         } else {
-            PlayerHandoff.pauseOtherPlayers(this);
-            radio.activateSource();
+            PlayerHandoff.switchToRadio(this, radio::activateSource);
             session.assumeSource(SOURCE_RADIO);
         }
     }

@@ -123,4 +123,22 @@
     <string name="settings_hide_bottom_bar_hint">主机的悬浮栏（主页、返回、音量）在 GDM Launcher 显示时隐藏，在其他应用中重新出现</string>
     <string name="settings_zlink_name">Dock 中 Z-Link 的名称</string>
     <string name="settings_zlink_name_hint">Dock 中 Z-Link 的名称和图标：Z-Link、CarPlay 或 Auto</string>
+    <string name="settings_group_audio">音频</string>
+    <string name="audio_sources_section">各音源音量</string>
+    <string name="audio_connecting">正在从主机读取当前音量…</string>
+    <string name="audio_sources_hint">每个音源有独立的音量，互不影响。松开手指时生效。</string>
+    <string name="audio_unavailable">未找到主机音频服务：无法修改音量。</string>
+    <string name="audio_apply_failed">无法应用：%1$s</string>
+    <string name="audio_gain_radio">收音机</string>
+    <string name="audio_gain_bt">蓝牙</string>
+    <string name="audio_gain_media">媒体（USB / 播放器）</string>
+    <string name="audio_gain_navi">导航</string>
+    <string name="audio_gain_aux">AUX</string>
+    <string name="audio_music_section">Android 音乐</string>
+    <string name="audio_music_max">音乐最大音量</string>
+    <string name="audio_music_max_hint">MP3 和应用的上限（5 到 15）</string>
+    <string name="settings_show_day_night">显示昼/夜</string>
+    <string name="settings_show_day_night_hint">白天显示太阳，开大灯时显示月亮（电压表左侧）</string>
+    <string name="settings_screen_off_after">屏幕关闭时间</string>
+    <string name="settings_screen_off_after_hint">在此时间内未触摸主屏幕，将像关屏按钮一样关闭屏幕</string>
 </resources>

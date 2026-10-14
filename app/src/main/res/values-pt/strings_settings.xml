@@ -123,4 +123,22 @@
     <string name="settings_hide_bottom_bar_hint">A barra flutuante da central (Início, Voltar, volume) some enquanto o GDM Launcher está na tela e volta nos outros apps</string>
     <string name="settings_zlink_name">Nome do Z-Link no dock</string>
     <string name="settings_zlink_name_hint">Nome e ícone do Z-Link no dock: Z-Link, CarPlay ou Auto</string>
+    <string name="settings_group_audio">Áudio</string>
+    <string name="audio_sources_section">Volume por fonte</string>
+    <string name="audio_connecting">Lendo os volumes atuais da central…</string>
+    <string name="audio_sources_hint">Cada fonte tem o próprio volume, independente das outras. Aplicado ao soltar o dedo.</string>
+    <string name="audio_unavailable">Serviço de áudio da central não encontrado: não dá para mudar os volumes.</string>
+    <string name="audio_apply_failed">Não foi possível aplicar: %1$s</string>
+    <string name="audio_gain_radio">Rádio</string>
+    <string name="audio_gain_bt">Bluetooth</string>
+    <string name="audio_gain_media">Mídia (USB / player)</string>
+    <string name="audio_gain_navi">Navegação</string>
+    <string name="audio_gain_aux">AUX</string>
+    <string name="audio_music_section">Música do Android</string>
+    <string name="audio_music_max">Volume máximo da música</string>
+    <string name="audio_music_max_hint">Teto para o MP3 e apps (5 a 15)</string>
+    <string name="settings_show_day_night">Mostrar dia/noite</string>
+    <string name="settings_show_day_night_hint">Sol de dia, lua com o farol ligado (à esquerda do voltímetro)</string>
+    <string name="settings_screen_off_after">Desligar tela após</string>
+    <string name="settings_screen_off_after_hint">Sem tocar na tela inicial por esse tempo, ela apaga como no botão de desligar tela</string>
 </resources>

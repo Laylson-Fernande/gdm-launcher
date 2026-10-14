@@ -9,7 +9,7 @@ import android.view.MotionEvent;
 import android.view.View;
 
 /**
- * Tabs with a slanted right side, in the "[FM1] [FM2] …" style. The active tab has a light
+ * Tabs with a slanted right side (FM1, FM2, …). The active tab has a light
  * outline and joins the baseline; the others are gray.
  */
 public class SlantedTabsView extends View {
@@ -105,7 +105,7 @@ public class SlantedTabsView extends View {
                 text.setColor(active ? Ui.TEXT : Ui.TEXT_MUTED);
                 float tx = l + (tw + s) / 2f;
                 float ty = h / 2f - (text.descent() + text.ascent()) / 2f;
-                c.drawText("[" + labels[i] + "]", tx, ty, text);
+                c.drawText(labels[i], tx, ty, text);
             }
         }
         // Baseline to the left of the active tab (like an open folder).

@@ -4,4 +4,6 @@
     <item name="touch_installed" type="id" />
     <!-- Ui.autoFit: full text size and maximum width of a TextView. -->
     <item name="auto_fit" type="id" />
+    <!-- Screens.attachDock: screen content above the dock (Splash covers only this). -->
+    <item name="screen_stage" type="id" />
 </resources>

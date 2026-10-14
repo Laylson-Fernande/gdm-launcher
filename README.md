@@ -36,21 +36,23 @@ El proyecto forma parte de **Garagem do Madeira**, un espacio sobre coches, hazl
 
 | | Screen | What it does |
 |---|---|---|
-| 🏠 | **Home** | Modules placed on a 6-slot grid (clock and date, volume and mute, "now playing" for radio, USB/SD or Bluetooth, fan and Bluetooth status, a picture of your choice, GPS speed and GPS data), each resizing to its slot, and a customizable dock |
-| 📻 | **Radio** | FM/AM with RDS (station name, RadioText, PTY, TA/AF), 12 presets per band, tuning dial and numeric keypad |
+| 🏠 | **Home** | Modules placed on a 6-slot grid (clock and date, volume and mute, "now playing" for radio, USB/SD or Bluetooth, fan and Bluetooth status, a picture of your choice, GPS speed and GPS data), each resizing to its slot, and a customizable dock. The top bar shows day/night (moon = headlights on), the battery voltage and what is playing (Radio, MP3 or BT) |
+| 📻 | **Radio** | FM/AM with RDS (station name, RadioText), station art, 12 favorites per band, tuning dial, power button, Stereo and Distant toggles and numeric keypad |
 | 🎵 | **Music** | Music player with album art and track list, playing from a folder you choose (internal memory, USB or SD) |
 | 🎧 | **Bluetooth music** | A2DP/AVRCP playback controls and track info from your phone |
 | 📞 | **Phone** | Bluetooth dialer, contacts, call history and in-call screen |
 | 🎚️ | **Equalizer** | 10-band EQ with presets, loudness and sound field (fader/balance) |
 | 🌀 | **Fan** | Cooling fan preferences |
 | 📱 | **Apps** | Paged grid of installed apps |
-| ⚙️ | **Settings** | Four panels in a side column: **Main** (language), **Customize** (theme color, font, home modules, dock and voltmeter), **Assists** (reverse camera, navigation) and **System** (default launcher, beep and volume, display, "About the unit") |
+| ⚙️ | **Settings** | Five panels in a side column: **Main** (language, day/night and voltmeter, turn screen off after), **Customize** (theme color, font, home modules, dock), **Assists** (reverse camera, navigation), **Audio** (volume per source) and **System** (default launcher, beep and volume, display, "About the unit") |
 
 🔇 Opening the home screen **never** turns the radio on or interrupts what's playing.
 
+🔀 **One source at a time:** starting the radio, the MP3 player or Bluetooth music pauses the other two.
+
 📻 **Radio files** live in `Garagem/radio/` on the head unit's internal storage (never USB or SD):
 
-- Station art, 1:1: `FM_104.5.jpg`, `AM_1040.png`…
+- Station art, 1:1: `FM_104.5.jpg`, `AM_1040.png`… Without a file, the radio screen shows a radio icon in its place.
 - `radio.config.json`: the 12 memories of each band and the last station, which come back at power-on. The app writes it, and you can also edit it by hand (FM in MHz, AM in kHz, a missing memory is empty):
 
 ```json

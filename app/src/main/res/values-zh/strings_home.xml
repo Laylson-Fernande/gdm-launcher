@@ -114,4 +114,7 @@
     <string name="home_gps_dir_sw">西南</string>
     <string name="home_gps_dir_w">西</string>
     <string name="home_gps_dir_nw">西北</string>
+    <string name="screen_opening">正在打开</string>
+    <string name="home_day">白天</string>
+    <string name="home_night">夜间（大灯开启）</string>
 </resources>

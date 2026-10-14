@@ -14,6 +14,7 @@ import android.os.PowerManager;
 import android.util.Log;
 
 import com.garagemdomadeira.nwd.launcher.R;
+import com.garagemdomadeira.nwd.launcher.home.PlayerHandoff;
 import com.garagemdomadeira.nwd.launcher.radio.NwdConstants;
 
 import java.io.IOException;
@@ -48,6 +49,9 @@ public class MusicPlaybackService extends Service {
     private static final String KEY_PATH = "last_path";
     private static final String KEY_SHUFFLE = "shuffle";
     private static final String KEY_REPEAT = "repeat";
+
+    /** Running instance (same process), so the radio can pause it synchronously. Main thread only. */
+    private static MusicPlaybackService running;
 
     private final IBinder binder = new LocalBinder();
     private final Handler main = new Handler(Looper.getMainLooper());
@@ -91,6 +95,7 @@ public class MusicPlaybackService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+        running = this;
         audio = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         SharedPreferences prefs = prefs();
         state.shuffle = prefs.getBoolean(KEY_SHUFFLE, false);
@@ -109,15 +114,38 @@ public class MusicPlaybackService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        if (intent != null && ACTION_PAUSE.equals(intent.getAction()) && state.playing) {
-            Log.d(TAG, "Paused for the radio");
-            pauseInternal(false);
-        }
+        if (intent != null && ACTION_PAUSE.equals(intent.getAction())) pauseForRadio();
         return START_STICKY;
+    }
+
+    /**
+     * Pauses and releases audio focus right now, on the caller's (main) thread. Must run before the
+     * radio takes the source: when the source leaves Android while our player still holds audio
+     * focus, the NWD system (NwdProcessAdjuster) force-stops our whole package.
+     * Returns false if the service isn't running (nothing is playing then).
+     */
+    public static boolean pauseRunning() {
+        MusicPlaybackService s = running;
+        if (s == null) return false;
+        s.pauseForRadio();
+        return true;
+    }
+
+    /** true if our player is playing (or still holds audio focus). Main thread only. */
+    public static boolean isPlayingNow() {
+        MusicPlaybackService s = running;
+        return s != null && (s.state.playing || s.focusHeld);
+    }
+
+    private void pauseForRadio() {
+        if (!state.playing && !focusHeld) return;
+        Log.d(TAG, "Paused for the radio");
+        pauseInternal(false);
     }
 
     @Override
     public void onDestroy() {
+        if (running == this) running = null;
         main.removeCallbacksAndMessages(null);
         releasePlayer();
         abandonFocus();
@@ -185,7 +213,7 @@ public class MusicPlaybackService extends Service {
         if (playWhenReady && !state.tracks.isEmpty()) {
             playWhenReady = false;
             if (state.index < 0) state.index = 0;
-            claimSource();
+            takeOver();
             open(state.index, true);
         } else {
             playWhenReady = false;
@@ -194,7 +222,7 @@ public class MusicPlaybackService extends Service {
 
     public void playIndex(int index) {
         if (index < 0 || index >= state.tracks.size()) return;
-        claimSource();
+        takeOver();
         open(index, true);
     }
 
@@ -209,7 +237,7 @@ public class MusicPlaybackService extends Service {
             return;
         }
         if (state.index < 0) state.index = 0;
-        claimSource();
+        takeOver();
         if (player == null) open(state.index, true);
         else resume();
     }
@@ -217,7 +245,7 @@ public class MusicPlaybackService extends Service {
     public void next() {
         int n = nextIndex(true);
         if (n < 0) return;
-        claimSource();
+        takeOver();
         open(n, true);
     }
 
@@ -228,7 +256,7 @@ public class MusicPlaybackService extends Service {
         }
         int n = nextIndex(false);
         if (n < 0) return;
-        claimSource();
+        takeOver();
         open(n, true);
     }
 
@@ -258,6 +286,12 @@ public class MusicPlaybackService extends Service {
         else state.repeat = MusicState.Repeat.ALL;
         prefs().edit().putString(KEY_REPEAT, state.repeat.name()).apply();
         publish();
+    }
+
+    /** About to play: stops Bluetooth music and takes the source (which also takes the radio off). */
+    private void takeOver() {
+        PlayerHandoff.beforeMp3(this);
+        claimSource();
     }
 
     /** Tells the head unit that music is the active source. */

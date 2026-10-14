@@ -123,4 +123,22 @@
     <string name="settings_hide_bottom_bar_hint">Плавающая панель устройства (Домой, Назад, громкость) скрыта, пока открыт GDM Launcher, и возвращается в других приложениях</string>
     <string name="settings_zlink_name">Название Z-Link в доке</string>
     <string name="settings_zlink_name_hint">Название и значок Z-Link в доке: Z-Link, CarPlay или Auto</string>
+    <string name="settings_group_audio">Звук</string>
+    <string name="audio_sources_section">Громкость по источникам</string>
+    <string name="audio_connecting">Читаем текущую громкость из магнитолы…</string>
+    <string name="audio_sources_hint">У каждого источника своя громкость, независимо от других. Применяется, когда отпускаете палец.</string>
+    <string name="audio_unavailable">Аудиосервис магнитолы не найден: громкость изменить нельзя.</string>
+    <string name="audio_apply_failed">Не удалось применить: %1$s</string>
+    <string name="audio_gain_radio">Радио</string>
+    <string name="audio_gain_bt">Bluetooth</string>
+    <string name="audio_gain_media">Медиа (USB / плеер)</string>
+    <string name="audio_gain_navi">Навигация</string>
+    <string name="audio_gain_aux">AUX</string>
+    <string name="audio_music_section">Музыка Android</string>
+    <string name="audio_music_max">Максимальная громкость музыки</string>
+    <string name="audio_music_max_hint">Предел для MP3 и приложений (от 5 до 15)</string>
+    <string name="settings_show_day_night">Показывать день/ночь</string>
+    <string name="settings_show_day_night_hint">Солнце днём, луна при включённых фарах (слева от вольтметра)</string>
+    <string name="settings_screen_off_after">Выключать экран через</string>
+    <string name="settings_screen_off_after_hint">Если не касаться главного экрана это время, он гаснет, как по кнопке выключения экрана</string>
 </resources>

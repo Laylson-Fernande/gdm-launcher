@@ -7,8 +7,6 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.RectF;
 import android.graphics.Shader;
-import android.text.Layout;
-import android.text.StaticLayout;
 import android.text.TextPaint;
 import android.text.TextUtils;
 import android.util.AttributeSet;
@@ -16,8 +14,8 @@ import android.view.View;
 import com.garagemdomadeira.nwd.launcher.R;
 
 /**
- * Preset card: beveled right corners, dark header with number and frequency,
- * body with the station name. Selected = glowing cyan border and ◀ marker.
+ * Preset card: beveled right corners, the memory number large on top and the station
+ * (frequency · name) in small type at the bottom. Selected = glowing cyan border.
  */
 public class PresetCardView extends View {
 
@@ -26,22 +24,15 @@ public class PresetCardView extends View {
     private final Paint borderPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint glowPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint linePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-    private final Paint markerPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final TextPaint indexPaint = new TextPaint(Paint.ANTI_ALIAS_FLAG);
-    private final TextPaint freqPaint = new TextPaint(Paint.ANTI_ALIAS_FLAG);
-    private final TextPaint namePaint = new TextPaint(Paint.ANTI_ALIAS_FLAG);
+    private final TextPaint stationPaint = new TextPaint(Paint.ANTI_ALIAS_FLAG);
     private final Path shape = new Path();
-    private final Path marker = new Path();
     private final RectF arc = new RectF();
 
     private int index;
-    private String freqText = "";
-    private String name = "";
+    private String station = "";
     private boolean empty = true;
     private boolean selectedCard;
-
-    private StaticLayout nameLayout;
-    private int nameLayoutWidth = -1;
 
     public PresetCardView(Context c) {
         this(c, null);
@@ -56,28 +47,25 @@ public class PresetCardView extends View {
         borderPaint.setStyle(Paint.Style.STROKE);
         glowPaint.setStyle(Paint.Style.STROKE);
         glowPaint.setColor(Ui.ACCENT);
-        markerPaint.setColor(Ui.ACCENT);
-        indexPaint.setTypeface(Ui.medium(c));
-        indexPaint.setTextSize(Ui.dp(c, 30));
-        freqPaint.setTypeface(Ui.semiBold(c));
-        freqPaint.setTextSize(Ui.dp(c, 32));
-        namePaint.setTypeface(Ui.medium(c));
-        namePaint.setTextSize(Ui.dp(c, 23));
+        indexPaint.setTypeface(Ui.semiBold(c));
+        indexPaint.setTextSize(Ui.dp(c, 40));
+        indexPaint.setTextAlign(Paint.Align.CENTER);
+        stationPaint.setTypeface(Ui.medium(c));
+        stationPaint.setTextSize(Ui.dp(c, 15));
     }
 
     /** @param freqText frequency text ("98.5") or empty if the preset is unused */
     public void bind(int index, String freqText, String psName, boolean empty, boolean selected) {
-        String n = empty ? getContext().getString(R.string.radio_preset_empty) : (psName == null || psName.isEmpty() ? "---" : psName.toUpperCase());
-        boolean changed = this.index != index || !TextUtils.equals(this.freqText, freqText)
-            || !TextUtils.equals(name, n) || this.empty != empty || selectedCard != selected;
+        String st;
+        if (empty) st = getContext().getString(R.string.radio_preset_empty);
+        else if (psName == null || psName.trim().isEmpty()) st = freqText;
+        else st = freqText + " · " + psName.trim().toUpperCase();
+        boolean changed = this.index != index || !TextUtils.equals(station, st)
+            || this.empty != empty || selectedCard != selected;
         this.index = index;
-        this.freqText = freqText;
+        this.station = st;
         this.empty = empty;
         this.selectedCard = selected;
-        if (!TextUtils.equals(name, n)) {
-            name = n;
-            nameLayoutWidth = -1;
-        }
         if (changed) invalidate();
     }
 
@@ -97,7 +85,7 @@ public class PresetCardView extends View {
         float b = getHeight() - inset;
         float cut = Ui.dp(ctx, 22);
         float round = Ui.dp(ctx, 12);
-        float headH = (b - t) * 0.42f;
+        float headH = (b - t) * 0.66f;
 
         buildShape(l, t, r, b, cut, round);
 
@@ -133,47 +121,21 @@ public class PresetCardView extends View {
             c.drawLine(l + cut, y, r - cut, y, linePaint);
         }
 
-        // Header: "3   98.5 ◀".
-        float pad = Ui.dp(ctx, 16);
+        // Top: memory number, large and centered.
         float headCenter = t + headH / 2f;
-        indexPaint.setColor(selectedCard ? Ui.ACCENT : Ui.TEXT_MUTED);
+        indexPaint.setColor(selectedCard ? Ui.ACCENT : empty ? Ui.TEXT_MUTED : Ui.TEXT);
         float baseIdx = headCenter - (indexPaint.descent() + indexPaint.ascent()) / 2f;
-        c.drawText(String.valueOf(index + 1), l + pad, baseIdx, indexPaint);
-        if (!empty) {
-            freqPaint.setColor(Ui.TEXT);
-            float fx = l + pad + indexPaint.measureText("00") + Ui.dp(ctx, 12);
-            float baseFreq = headCenter - (freqPaint.descent() + freqPaint.ascent()) / 2f;
-            c.drawText(freqText, fx, baseFreq, freqPaint);
-            if (selectedCard) {
-                float mx = fx + freqPaint.measureText(freqText) + Ui.dp(ctx, 12);
-                float ms = Ui.dp(ctx, 9);
-                marker.reset();
-                marker.moveTo(mx + ms * 1.4f, headCenter - ms);
-                marker.lineTo(mx + ms * 1.4f, headCenter + ms);
-                marker.lineTo(mx, headCenter);
-                marker.close();
-                c.drawPath(marker, markerPaint);
-            }
-        }
+        c.drawText(String.valueOf(index + 1), (l + r) / 2f, baseIdx, indexPaint);
 
-        // Body: station name on up to 2 lines, centered.
-        int width = (int) (r - l - pad * 2);
+        // Bottom: the station in small type, one line (cut with … if it doesn't fit).
+        float pad = Ui.dp(ctx, 12);
+        float width = r - l - pad * 2;
         if (width > 0) {
-            if (nameLayout == null || nameLayoutWidth != width) {
-                namePaint.setColor(Ui.TEXT);
-                nameLayout = new StaticLayout(name, namePaint, width, Layout.Alignment.ALIGN_CENTER, 0.95f, 0, false);
-                nameLayoutWidth = width;
-            }
-            namePaint.setColor(empty ? Ui.TEXT_MUTED : Ui.TEXT);
-            float bodyTop = t + headH;
-            float bodyH = b - bodyTop;
-            int lines = Math.min(2, nameLayout.getLineCount());
-            float textH = nameLayout.getLineBottom(lines - 1);
-            c.save();
-            c.translate(l + pad, bodyTop + (bodyH - textH) / 2f);
-            c.clipRect(0, 0, width, textH);
-            nameLayout.draw(c);
-            c.restore();
+            stationPaint.setColor(empty ? Ui.TEXT_DIM : Ui.TEXT_SOFT);
+            String text = TextUtils.ellipsize(station, stationPaint, width, TextUtils.TruncateAt.END).toString();
+            float bodyCenter = t + headH + (b - t - headH) / 2f;
+            float baseSt = bodyCenter - (stationPaint.descent() + stationPaint.ascent()) / 2f;
+            c.drawText(text, (l + r - stationPaint.measureText(text)) / 2f, baseSt, stationPaint);
         }
     }
 

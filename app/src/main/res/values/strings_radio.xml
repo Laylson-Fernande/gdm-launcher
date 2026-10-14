@@ -3,21 +3,12 @@
     <!-- Radio screen -->
     <string name="radio_cd_power">Turn radio on/off</string>
     <string name="radio_cd_exit">Turn off and exit</string>
-    <string name="radio_chip_stereo">STEREO</string>
-    <string name="radio_chip_traffic">TRAFFIC</string>
-    <string name="radio_chip_seeking">SEEKING</string>
-    <string name="radio_chip_scanning">SCANNING</string>
-    <string name="radio_chip_intro">INTRO</string>
     <string name="radio_cd_station_art">Station artwork</string>
     <string name="radio_cd_prev_saved">Previous saved station</string>
     <string name="radio_cd_step_down">Step down 0.1 MHz</string>
-    <string name="radio_cd_ams">Scan and save stations</string>
     <string name="radio_cd_step_up">Step up 0.1 MHz</string>
     <string name="radio_cd_next_saved">Next saved station</string>
     <string name="radio_cd_keypad">Enter frequency</string>
-    <string name="radio_presets_title">Presets %1$s</string>
-    <string name="radio_cd_prev_preset">Previous preset</string>
-    <string name="radio_cd_next_preset">Next preset</string>
     <string name="radio_presets_hint">tap to listen · hold to save</string>
     <string name="radio_preset_saved">Station saved to preset %1$d</string>
     <string name="radio_preset_empty">Empty</string>
@@ -37,39 +28,8 @@
     <string name="radio_diag_activate_source">Activate source</string>
     <string name="radio_diag_reconnect">Reconnect</string>
     <!-- RDS programme types (PTY 0..31) -->
-    <string-array name="radio_pty_names">
-        <item>None</item>
-        <item>News</item>
-        <item>Current affairs</item>
-        <item>Information</item>
-        <item>Sport</item>
-        <item>Education</item>
-        <item>Drama</item>
-        <item>Culture</item>
-        <item>Science</item>
-        <item>Varied</item>
-        <item>Pop</item>
-        <item>Rock</item>
-        <item>Easy</item>
-        <item>Light classical</item>
-        <item>Classical</item>
-        <item>Other</item>
-        <item>Weather</item>
-        <item>Finance</item>
-        <item>Children</item>
-        <item>Social</item>
-        <item>Religion</item>
-        <item>Phone-in</item>
-        <item>Travel</item>
-        <item>Leisure</item>
-        <item>Jazz</item>
-        <item>Country</item>
-        <item>National</item>
-        <item>Oldies</item>
-        <item>Folk</item>
-        <item>Documentary</item>
-        <item>Test</item>
-        <item>Alarm</item>
-    </string-array>
     <string name="radio_config_invalid">Invalid %1$s: fix the file. Memory changes won\'t be saved until then.</string>
+    <string name="radio_stereo">Stereo</string>
+    <string name="radio_distant">Distant</string>
+    <string name="radio_favorites">Favorites</string>
 </resources>

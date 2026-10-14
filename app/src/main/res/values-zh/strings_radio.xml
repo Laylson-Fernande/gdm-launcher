@@ -3,21 +3,12 @@
     <!-- 收音机界面 -->
     <string name="radio_cd_power">打开/关闭收音机</string>
     <string name="radio_cd_exit">关闭并退出</string>
-    <string name="radio_chip_stereo">立体声</string>
-    <string name="radio_chip_traffic">交通</string>
-    <string name="radio_chip_seeking">搜台中</string>
-    <string name="radio_chip_scanning">扫描中</string>
-    <string name="radio_chip_intro">试听</string>
     <string name="radio_cd_station_art">电台图片</string>
     <string name="radio_cd_prev_saved">上一个已存电台</string>
     <string name="radio_cd_step_down">向下微调 0.1 MHz</string>
-    <string name="radio_cd_ams">扫描并保存电台</string>
     <string name="radio_cd_step_up">向上微调 0.1 MHz</string>
     <string name="radio_cd_next_saved">下一个已存电台</string>
     <string name="radio_cd_keypad">输入频率</string>
-    <string name="radio_presets_title">预设 %1$s</string>
-    <string name="radio_cd_prev_preset">上一个预设</string>
-    <string name="radio_cd_next_preset">下一个预设</string>
     <string name="radio_presets_hint">点按收听 · 长按保存</string>
     <string name="radio_preset_saved">电台已保存到预设 %1$d</string>
     <string name="radio_preset_empty">空</string>
@@ -37,39 +28,8 @@
     <string name="radio_diag_activate_source">激活音源</string>
     <string name="radio_diag_reconnect">重新连接</string>
     <!-- RDS 节目类型（PTY 0..31） -->
-    <string-array name="radio_pty_names">
-        <item>无</item>
-        <item>新闻</item>
-        <item>时事</item>
-        <item>资讯</item>
-        <item>体育</item>
-        <item>教育</item>
-        <item>戏剧</item>
-        <item>文化</item>
-        <item>科学</item>
-        <item>综合</item>
-        <item>流行</item>
-        <item>摇滚</item>
-        <item>轻音乐</item>
-        <item>轻古典</item>
-        <item>古典</item>
-        <item>其他</item>
-        <item>天气</item>
-        <item>财经</item>
-        <item>少儿</item>
-        <item>社会</item>
-        <item>宗教</item>
-        <item>热线</item>
-        <item>旅游</item>
-        <item>休闲</item>
-        <item>爵士</item>
-        <item>乡村</item>
-        <item>民族音乐</item>
-        <item>怀旧金曲</item>
-        <item>民谣</item>
-        <item>纪录</item>
-        <item>测试</item>
-        <item>警报</item>
-    </string-array>
     <string name="radio_config_invalid">%1$s 无效：请修复该文件。在此之前，对预设的更改不会保存。</string>
+    <string name="radio_stereo">立体声</string>
+    <string name="radio_distant">远程</string>
+    <string name="radio_favorites">收藏</string>
 </resources>
