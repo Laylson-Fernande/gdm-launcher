@@ -17,6 +17,7 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.garagemdomadeira.nwd.launcher.audio.AudioGains;
 import com.garagemdomadeira.nwd.launcher.audio.AudioPanel;
 import com.garagemdomadeira.nwd.launcher.home.AppCatalog;
 import com.garagemdomadeira.nwd.launcher.home.LauncherPrefs;
@@ -135,9 +136,11 @@ public class SettingsActivity extends Activity {
         buildScreen();
         buildAbout();
         showLastCrash();
-        list.into(panels[PANEL_AUDIO]);
-        audio = new AudioPanel(this, list);
-        audio.build();
+        if (AudioGains.ENABLED) {
+            list.into(panels[PANEL_AUDIO]);
+            audio = new AudioPanel(this, list);
+            audio.build();
+        }
         list.setAfterRender(this::renderExtras);
         renderAll();
         setUpTabs();
@@ -170,6 +173,7 @@ public class SettingsActivity extends Activity {
             tabs[i].setTypeface(Ui.medium(this));
             tabs[i].setOnClickListener(v -> showPanel(panel));
         }
+        tabs[PANEL_AUDIO].setVisibility(AudioGains.ENABLED ? View.VISIBLE : View.GONE);
         // Advanced isn't a panel: in dev mode it's one more tab that asks for the password.
         TextView advanced = (TextView) findViewById(R.id.settings_tab_advanced);
         advanced.setVisibility(DevMode.enabled() ? View.VISIBLE : View.GONE);

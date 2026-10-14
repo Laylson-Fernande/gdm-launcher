@@ -26,6 +26,12 @@ public final class AudioGains {
     private AudioGains() {
     }
 
+    /**
+     * Settings › Audio is hidden for now (not yet confirmed on a real unit): no tab and nothing
+     * reapplied at start. Flip to true to bring it back.
+     */
+    public static final boolean ENABLED = false;
+
     /** A gain source: id = position in key_audio_gain (1 navi … 14 OnStar). */
     public static final class Source {
         public final int id;
@@ -102,6 +108,7 @@ public final class AudioGains {
 
     /** At app start: reapplies only what the driver changed here. */
     public static void reapply(Context context) {
+        if (!ENABLED) return;
         final Context app = context.getApplicationContext();
         SharedPreferences p = prefs(app);
         if (p.contains(KEY_MUSIC_MAX)) writeMusicMax(app, p.getInt(KEY_MUSIC_MAX, MUSIC_MAX));
