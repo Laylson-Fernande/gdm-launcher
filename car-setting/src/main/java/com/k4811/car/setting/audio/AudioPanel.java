@@ -58,7 +58,8 @@ public final class AudioPanel {
             sliders[i] = slider(maxGain, values[i], 0, v -> applyGain(index, source.id, v));
             setEnabled(sliders[i], false); // until the current value is read
             values[i].setText("—");
-            list.custom(activity.getString(source.labelRes), null, row(sliders[i], values[i])).local();
+            OptionList.Row gainRow = list.custom(activity.getString(source.labelRes), null, row(sliders[i], values[i])).local();
+            if (i == 0) gainRow.help(activity.getString(R.string.settings_help_audio_sources));
         }
 
         list.section(activity.getString(R.string.audio_music_section));
@@ -68,7 +69,8 @@ public final class AudioPanel {
         music.setProgress(AudioGains.musicMax() - AudioGains.MUSIC_MIN);
         musicValue.setText(String.valueOf(AudioGains.musicMax()));
         list.custom(activity.getString(R.string.audio_music_max),
-            activity.getString(R.string.audio_music_max_hint), row(music, musicValue)).local();
+            activity.getString(R.string.audio_music_max_hint), row(music, musicValue))
+            .local().help(activity.getString(R.string.settings_help_music_max));
 
         client = new SettingClient(activity, new AudioGains.Callbacks() {
             @Override

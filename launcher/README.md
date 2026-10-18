@@ -7,7 +7,7 @@ Launcher leve para a central NWD, com o visual padrão do GDM K4811 App suite, m
 | | |
 |---|---|
 | Package | `com.garagemdomadeira.nwd.launcher` (instala ao lado do `com.android.launcher` original) |
-| Versão | 2.0.5 (versionCode 20270005) |
+| Versão | 2.0.6 (versionCode 20270006) |
 | App original | `radio apk/com.android.launcher` |
 | Base visual | tema, fonte, dock e ícones do [`common`](../common/README.md) |
 | Dock e configurações | [`../common`](../common/README.md) |

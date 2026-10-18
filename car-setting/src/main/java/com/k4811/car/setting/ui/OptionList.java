@@ -228,9 +228,11 @@ public final class OptionList {
         final TextView titleView;
         final TextView subtitleView;
         final TextView noteView;
+        final IconView helpButton;
         View divider;
         private Check visibleWhen;
         private Check enabledWhen;
+        String helpText;
         Hint hint;
         boolean local;
         private Runnable verify;
@@ -271,11 +273,32 @@ public final class OptionList {
             noteView.setVisibility(View.GONE);
             texts.addView(noteView);
 
+            helpButton = new IconView(activity);
+            helpButton.set(IconView.Icon.HELP, IconView.Style.NONE);
+            helpButton.color(Ui.TEXT_MUTED);
+            helpButton.setContentDescription(activity.getString(R.string.settings_help));
+            helpButton.setVisibility(View.GONE);
+            LinearLayout.LayoutParams helpLp = new LinearLayout.LayoutParams(px(48), px(48));
+            helpLp.rightMargin = px(8);
+            view.addView(helpButton, helpLp);
+            helpButton.setOnClickListener(v -> {
+                if (helpText == null || helpText.isEmpty()) return;
+                if (dialog != null) dialog.dismiss();
+                dialog = HelpDialog.show(activity, titleView.getText().toString(), helpText);
+            });
+
             controls = new LinearLayout(activity);
             controls.setOrientation(LinearLayout.HORIZONTAL);
             controls.setGravity(Gravity.CENTER_VERTICAL);
             view.addView(controls, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT));
+        }
+
+        /** Texto do botão de interrogação (blockquote do guia). Sem texto, o botão some. */
+        public Row help(String text) {
+            helpText = text;
+            helpButton.setVisibility(TextUtils.isEmpty(text) ? View.GONE : View.VISIBLE);
+            return this;
         }
 
         /** The row only shows when the condition holds (e.g. package installed). */
@@ -377,35 +400,41 @@ public final class OptionList {
 
     private final class ToggleRow extends Row {
         private final Bool get;
-        private final TextView button;
+        private final ToggleSwitch toggle;
 
         ToggleRow(String title, String subtitle, Bool get, BoolSetter set) {
             super(title, subtitle);
             this.get = get;
-            button = button(controls, "");
-            controls.addView(button);
-            View.OnClickListener toggle = v -> {
+            toggle = new ToggleSwitch(activity);
+            controls.addView(toggle);
+            View.OnClickListener click = v -> {
                 Boolean now = get.get();
                 if (now == null) return;
                 boolean want = !now;
                 set.set(want);
+                toggle.setOn(want, true);
                 verifyLater(() -> {
                     Boolean after = get.get();
                     return after != null && after == want;
                 }, want ? "1" : "0");
                 render();
             };
-            button.setOnClickListener(toggle);
-            // The whole row also toggles (bigger finger target while the car is moving).
-            view.setOnClickListener(toggle);
+            toggle.setOnClickListener(click);
+            // A linha inteira também liga/desliga (alvo maior com o carro em movimento),
+            // exceto o botão de ajuda.
+            view.setOnClickListener(click);
+            helpButton.setOnClickListener(v -> {
+                if (helpText == null || helpText.isEmpty()) return;
+                if (dialog != null) dialog.dismiss();
+                dialog = HelpDialog.show(activity, titleView.getText().toString(), helpText);
+            });
         }
 
         @Override
         boolean render() {
             Boolean on = get.get();
             if (on == null) return false;
-            button.setText(on ? R.string.settings_on : R.string.settings_off);
-            button.setActivated(on);
+            toggle.setOn(on, false);
             return true;
         }
     }

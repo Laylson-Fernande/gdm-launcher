@@ -83,8 +83,9 @@ public class HomeSettingsActivity extends Activity {
                 e.getValue().setText(slot == null ? getString(R.string.settings_home_hidden) : slot.label);
             }
             File image = HomeImage.file(this);
-            imageRow.setSubtitle(image == null ? getString(R.string.settings_home_no_image)
-                : image.isFile() ? HomeImage.displayName(image) : getString(R.string.settings_home_image_missing));
+            // Subtítulo explicativo fica fixo; o nome da foto atual vai na nota.
+            imageRow.setNote(image == null ? getString(R.string.settings_home_no_image)
+                : image.isFile() ? HomeImage.displayName(image) : getString(R.string.settings_home_image_missing), false);
         });
         list.renderAll();
         Touch.install(findViewById(android.R.id.content));
@@ -92,23 +93,38 @@ public class HomeSettingsActivity extends Activity {
 
     private void build() {
         list.section(getString(R.string.settings_home_modules));
-        list.note(getString(R.string.settings_home_modules_hint), Ui.TEXT_MUTED);
 
         for (HomeGrid.Module module : HomeGrid.Module.values()) {
-            OptionList.Row row = list.plain(getString(module.titleRes), null);
+            OptionList.Row row = list.plain(getString(module.titleRes), getString(hintRes(module)))
+                .help(getString(R.string.settings_help_home_module));
             TextView button = row.addButton("", () -> showSlotPicker(module));
             button.setMinWidth(dp(190));
             slotButtons.put(module, button);
             if (module == HomeGrid.Module.IMAGE) {
                 imageRow = row;
+                row.help(getString(R.string.settings_help_home_pick_image));
                 row.addButton(getString(R.string.settings_home_pick_image), this::pickImage);
             }
         }
-        list.action(getString(R.string.settings_dock_reset), getString(R.string.settings_home_reset_hint),
+        list.action(getString(R.string.settings_home_reset), getString(R.string.settings_home_reset_hint),
             getString(R.string.settings_reset), () -> {
             LauncherConfig.resetHomeLayout(this);
             list.renderAll();
-        });
+        }).help(getString(R.string.settings_help_home_reset));
+    }
+
+    private int hintRes(HomeGrid.Module module) {
+        switch (module) {
+            case NOW_PLAYING: return R.string.settings_home_module_now_playing_hint;
+            case CLOCK: return R.string.settings_home_module_clock_hint;
+            case VOLUME: return R.string.settings_home_module_volume_hint;
+            case FAN: return R.string.settings_home_module_fan_hint;
+            case BLUETOOTH: return R.string.settings_home_module_bluetooth_hint;
+            case IMAGE: return R.string.settings_home_module_image_hint;
+            case SPEED: return R.string.settings_home_module_speed_hint;
+            case GPS: return R.string.settings_home_module_gps_hint;
+            default: return R.string.settings_home_modules_hint;
+        }
     }
 
     /** The home map as a picker: tapping a slot places {@code module} there (swapping if taken). */

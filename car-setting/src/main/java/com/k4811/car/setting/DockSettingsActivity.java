@@ -16,9 +16,9 @@ import com.k4811.common.ui.Ui;
 import java.util.Set;
 
 /**
- * Dock icons (Settings › Customize › Customize dock): Home and Apps always stay; the driver picks
- * up to {@link LauncherConfig#MAX_DOCK_TOGGLES} of the others, and the name the Z-Link item shows.
- * Items whose app or hardware doesn't exist on this head unit are hidden. No dock.
+ * Ícones do dock (Configurações › Customizar › Customizar dock): Início e Apps ficam sempre;
+ * o motorista escolhe até {@link LauncherConfig#MAX_DOCK_TOGGLES} dos outros, e o nome do Z-Link.
+ * Cada linha tem título, texto explicativo e botão de ajuda. Sem dock nesta tela.
  */
 public class DockSettingsActivity extends Activity {
 
@@ -46,15 +46,20 @@ public class DockSettingsActivity extends Activity {
     }
 
     private void build() {
+        int max = LauncherConfig.MAX_DOCK_TOGGLES;
         counter = list.info(getString(R.string.settings_dock_items), () -> LauncherConfig.dockToggles(this).size()
-            + " / " + LauncherConfig.MAX_DOCK_TOGGLES);
-        counter.setSubtitle(getString(R.string.settings_dock_hint, LauncherConfig.MAX_DOCK_TOGGLES));
+            + " / " + max);
+        counter.setSubtitle(getString(R.string.settings_dock_hint, max));
+        counter.help(getString(R.string.settings_help_dock_items, max));
+
         for (DockView.Item item : DockView.Item.values()) {
             if (!item.toggleable) {
-                list.info(item.title(this), () -> getString(R.string.settings_always_visible));
+                OptionList.Row fixed = list.info(item.title(this), () -> getString(R.string.settings_always_visible));
+                fixed.setSubtitle(getString(R.string.settings_dock_fixed_hint));
+                fixed.help(getString(R.string.settings_help_dock_fixed));
                 continue;
             }
-            list.toggle(item.title(this), null,
+            list.toggle(item.title(this), getString(R.string.settings_dock_item_hint),
                 () -> LauncherConfig.dockToggles(this).contains(item),
                 on -> {
                     Set<DockView.Item> set = LauncherConfig.dockToggles(this);
@@ -63,14 +68,14 @@ public class DockSettingsActivity extends Activity {
                     LauncherConfig.setDockToggles(this, set);
                 })
                 .local()
+                .help(getString(R.string.settings_help_dock_item, max))
                 .visibleWhen(() -> item.isAvailable(this))
-                // With 5 enabled, the disabled ones stay greyed out until a slot frees up.
                 .enabledWhen(() -> {
                     Set<DockView.Item> set = LauncherConfig.dockToggles(this);
-                    return set.contains(item) || set.size() < LauncherConfig.MAX_DOCK_TOGGLES;
+                    return set.contains(item) || set.size() < max;
                 });
         }
-        // Z-Link's dock label: the app's name, or what's plugged in (CarPlay, Android Auto).
+
         int[] values = new int[LauncherConfig.ZLINK_NAMES.length];
         for (int i = 0; i < values.length; i++) values[i] = i;
         list.choice(getString(R.string.settings_zlink_name), getString(R.string.settings_zlink_name_hint),
@@ -78,12 +83,13 @@ public class DockSettingsActivity extends Activity {
             () -> LauncherConfig.zlinkName(this),
             i -> LauncherConfig.setZlinkName(this, i))
             .local()
+            .help(getString(R.string.settings_help_zlink_name))
             .visibleWhen(() -> DockView.Item.ZLINK.isAvailable(this));
         list.action(getString(R.string.settings_dock_reset), getString(R.string.settings_dock_reset_hint),
             getString(R.string.settings_reset), () -> {
             LauncherConfig.resetDockToggles(this);
             list.renderAll();
-        });
+        }).help(getString(R.string.settings_help_dock_reset));
     }
 
     private void renderCounter() {
@@ -91,8 +97,6 @@ public class DockSettingsActivity extends Activity {
         counter.setNote(n >= LauncherConfig.MAX_DOCK_TOGGLES
             ? getString(R.string.settings_dock_full, LauncherConfig.MAX_DOCK_TOGGLES) : null, false);
     }
-
-    // ------------------------------------------------------------------ lifecycle
 
     @Override
     protected void onDestroy() {

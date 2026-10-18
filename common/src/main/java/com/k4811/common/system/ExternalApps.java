@@ -10,6 +10,7 @@ import android.os.Looper;
 import android.provider.Settings;
 import android.widget.Toast;
 
+import com.k4811.common.Apps;
 import com.k4811.common.R;
 
 /**
@@ -111,11 +112,19 @@ public final class ExternalApps {
         open(c, PKG_AVM, AVM_CALIBRATE);
     }
 
-    /** Vehicle settings. {@code page} (optional) goes in the ref0 extra, e.g. setNaviPath. */
+    /**
+     * Config. Veículo de fábrica. {@code page} (opcional) vai no extra ref0, ex.: setNaviPath.
+     * Se o app original ({@link #PKG_CAR_SETTING}) não estiver instalado, abre o das configurações
+     * da suíte ({@link Apps#SETTINGS}).
+     */
     public static void openCarSettings(Context c, String page) {
-        Intent i = component(PKG_CAR_SETTING, PKG_CAR_SETTING + HOME_HORIZONTAL);
-        if (page != null) i.putExtra("ref0", page);
-        start(c, i, PKG_CAR_SETTING);
+        if (installed(c, PKG_CAR_SETTING)) {
+            Intent i = component(PKG_CAR_SETTING, PKG_CAR_SETTING + HOME_HORIZONTAL);
+            if (page != null) i.putExtra("ref0", page);
+            start(c, i, PKG_CAR_SETTING);
+            return;
+        }
+        start(c, component(Apps.SETTINGS, "com.k4811.car.setting.SettingsActivity"), Apps.SETTINGS);
     }
 
     public static void openFactoryMenu(Context c) {
