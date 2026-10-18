@@ -7,7 +7,7 @@ Substituto da tela de música Bluetooth (A2DP/AVRCP) da central NWD, com o **mes
 | | |
 |---|---|
 | Package | `com.nwd.bt.music` (o mesmo do original) |
-| Versão | 2.0.6 (versionCode 20270006, maior que o do original) |
+| Versão | 2.0.7 (versionCode 20270007, maior que o do original) |
 | App original | `radio apk/com.nwd.bt.music` |
 
 **Dock e configurações:** usa o mesmo dock do launcher e segue as configurações feitas no [`car-setting`](../car-setting/README.md) (idioma, tema, fonte, ícones do dock). Ver [`../common`](../common/README.md).

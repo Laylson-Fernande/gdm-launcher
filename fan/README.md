@@ -7,7 +7,7 @@ Substituto do app **Fan** da central NWD (`com.nwd.cpumonitor`), com o visual pa
 | | |
 |---|---|
 | Package | `com.nwd.cpumonitor` (o mesmo do original) |
-| Versão | 2.0.6 (versionCode 20270006, maior que o do original) |
+| Versão | 2.0.7 (versionCode 20270007, maior que o do original) |
 | App original | `radio apk/com.nwd.cpumonitor` |
 | Linguagem | **Java puro**, Views clássicas e layouts XML, **sem nenhuma biblioteca** |
 | minSdk / targetSdk | **17 / 19**, os mesmos dos originais |

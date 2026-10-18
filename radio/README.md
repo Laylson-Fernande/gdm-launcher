@@ -7,7 +7,7 @@ Substituto do app de rádio original da central NWD, com o **mesmo package** do 
 | | |
 |---|---|
 | Package | `com.nwd.radio` (o mesmo do original) |
-| Versão | 2.0.6 (versionCode 20270006, maior que o do original) |
+| Versão | 2.0.7 (versionCode 20270007, maior que o do original) |
 | App original | `radio apk/com.nwd.radio` |
 | Protocolo do serviço de rádio | `radio apk/com.nwd.radio/COMANDOS.md` |
 | Linguagem | **Java puro**, Views clássicas e layouts XML, **sem nenhuma biblioteca** |
