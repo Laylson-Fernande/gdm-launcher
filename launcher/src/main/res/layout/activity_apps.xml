@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Drawer at 1280×720: header, then every app in a 5-column grid that scrolls down until the
+    last one (no pages). Rows are sized so that two and a half fit: the cut row hints at the scroll.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/apps_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingLeft="12dp"
+        android:paddingRight="28dp">
+
+        <com.k4811.common.ui.IconView
+            android:id="@+id/apps_back"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:contentDescription="@string/home_apps_back" />
+
+        <TextView
+            android:id="@+id/apps_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:layout_weight="1"
+            android:text="@string/home_apps_title"
+            android:textColor="@color/text"
+            android:textSize="32sp" />
+
+        <!-- How many apps -->
+        <TextView
+            android:id="@+id/apps_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/text_muted"
+            android:textSize="20sp" />
+    </LinearLayout>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <!-- AppsActivity sets the row height, the thin scrollbar and the entry animation. -->
+        <GridView
+            android:id="@+id/apps_grid"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:cacheColorHint="@android:color/transparent"
+            android:clipToPadding="false"
+            android:fadingEdgeLength="40dp"
+            android:listSelector="@android:color/transparent"
+            android:numColumns="5"
+            android:paddingBottom="24dp"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:paddingTop="4dp"
+            android:requiresFadingEdge="vertical"
+            android:scrollbarStyle="outsideOverlay"
+            android:scrollbarSize="5dp"
+            android:scrollbarThumbVertical="@drawable/apps_scroll_thumb"
+            android:scrollbars="vertical"
+            android:stretchMode="columnWidth"
+            android:verticalSpacing="8dp" />
+
+        <TextView
+            android:id="@+id/apps_empty"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:text="@string/home_apps_empty"
+            android:textColor="@color/text_muted"
+            android:textSize="32sp"
+            android:visibility="gone" />
+    </FrameLayout>
+</LinearLayout>

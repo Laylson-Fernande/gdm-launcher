@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Écran Avancé, menu développeur (props) et utilitaires système (préfixe adv_). -->
+<resources>
+    <!-- Advanced -->
+    <string name="adv_title">Avancé</string>
+    <string name="adv_alert">Options d\'usine. Notez la valeur avant de la modifier.</string>
+    <string name="adv_open">Ouvrir ›</string>
+
+    <string name="adv_sec_shortcuts">Menus de l\'autoradio</string>
+    <string name="adv_car_settings">Réglages du véhicule</string>
+    <string name="adv_car_settings_sub">Réglages voiture NWD</string>
+    <string name="adv_factory_menu">Menu usine</string>
+    <string name="adv_factory_menu_sub">Mot de passe NWD : %1$s</string>
+    <string name="adv_android_settings">Paramètres Android</string>
+    <string name="adv_camera_360">Caméra 360</string>
+    <string name="adv_360_settings">Réglages 360</string>
+    <string name="adv_360_settings_sub">Écran complet de réglages de l\'app 360</string>
+
+    <string name="adv_sec_development">Développement</string>
+    <string name="adv_adb_wifi">ADB via Wi‑Fi</string>
+    <string name="adv_adb_wifi_sub">Port 5555, sans demande d\'autorisation. Désactivez après usage.</string>
+    <string name="adv_log_logcat">Logs système dans un fichier (logcat)</string>
+    <string name="adv_log_kernel">Logs noyau dans un fichier</string>
+    <string name="adv_log_sub">Enregistrés par NWD dans la mémoire interne</string>
+    <string name="adv_system_props">Props système</string>
+    <string name="adv_system_props_sub">Voir, modifier et exporter toutes les props</string>
+
+    <string name="adv_sec_factory_audio">Audio d\'usine</string>
+    <string name="adv_phase">Inverser la phase</string>
+    <string name="adv_phase_sub">\"Phase exchange\" dans le menu usine. Mal réglé, le son est creux.</string>
+    <string name="adv_dual_mic">Deux micros (écho)</string>
+    <string name="adv_dual_mic_sub">Annulation d\'écho à deux micros. Redémarrage parfois requis.</string>
+    <string name="adv_music_max">Volume musique max</string>
+    <string name="adv_music_max_sub">5 à 15</string>
+    <string name="adv_bt_unmute">Délai de réactivation Bluetooth</string>
+    <string name="adv_bt_unmute_sub">En ms. Contre les clics ou coupures au début</string>
+
+    <string name="adv_sec_carplay">CarPlay</string>
+    <string name="adv_carplay_note">S\'applique uniquement aux appels CarPlay.</string>
+    <string name="adv_mic_gain">Gain du micro</string>
+    <string name="adv_speaker_gain">Gain du haut-parleur</string>
+    <string name="adv_noise">Réduction de bruit</string>
+    <string name="adv_noise_sub">Réduction de bruit par réseau neuronal</string>
+    <string name="adv_aec_type">Type d\'annulation d\'écho</string>
+    <string name="adv_aec_delay">Délai d\'annulation d\'écho</string>
+    <string name="adv_in_ms">En ms</string>
+
+    <string name="adv_sec_car">Voiture</string>
+    <string name="adv_radio_region">Région radio</string>
+    <string name="adv_radio_region_sub">Change la bande et le pas radio. Mauvaise région = mauvaises stations.</string>
+    <string-array name="adv_radio_regions">
+        <item>Europe</item>
+        <item>États-Unis</item>
+        <item>Chine</item>
+        <item>Japon</item>
+        <item>OIRT</item>
+        <item>Amérique latine</item>
+        <item>Taïwan</item>
+        <item>Australie</item>
+        <item>Amérique du Sud</item>
+        <item>Iran</item>
+        <item>Moyen-Orient</item>
+        <item>Monde</item>
+    </string-array>
+    <string name="adv_hand_brake">Frein à main requis pour la vidéo</string>
+    <string name="adv_hand_brake_sub">Le désactiver relève de la sécurité du conducteur</string>
+    <string name="adv_any_key_power">Allumer avec n\'importe quelle touche</string>
+    <string name="adv_auto_wakeup">Réveil automatique</string>
+    <string name="adv_auto_wakeup_sub">État dans persist.nwd.autowakeup</string>
+    <string name="adv_backcar_track">Lignes de guidage de recul</string>
+    <string name="adv_backcar_assist">Lignes d\'aide au recul</string>
+    <string name="adv_backcar_sub">Du menu usine ; vérifiez si la caméra les recharge</string>
+    <string name="adv_autorun">Apps au démarrage</string>
+    <string name="adv_autorun_none">aucune</string>
+    <string name="adv_autorun_sub">Liste blanche NWD (whitelist_packagename / appautorun_packagename). Pour la modifier, utilisez Réglages du véhicule.</string>
+
+    <string name="adv_sec_360">Caméra 360 (usine)</string>
+    <string name="adv_360_note">Délai d\'allumage, flèche matérielle, voiture en vue aérienne, image et moniteur de stationnement restent dans l\'app 360 tant que K4811 ne peut pas enregistrer ses préférences.</string>
+    <string name="adv_360_app_settings">Réglages de l\'app 360</string>
+    <string name="adv_calibration">Calibrage</string>
+    <string name="adv_calibration_sub">Mot de passe de l\'app : 0000. Le processus reste dans leur app.</string>
+
+    <string name="adv_sec_car_on">Au démarrage (à confirmer)</string>
+    <string name="adv_car_on_note">Expérimental. À tester avant de passer dans les réglages.</string>
+    <string name="adv_wake_wifi">Activer le Wi‑Fi</string>
+    <string name="adv_wake_hotspot">Activer le point d\'accès</string>
+    <string name="adv_touch_wake">Le toucher allume l\'écran</string>
+    <string name="adv_multi_window">Autoriser la petite fenêtre</string>
+
+    <!-- Developer menu (system props) -->
+    <string name="adv_dev_title">Menu développeur</string>
+    <string name="adv_back">Retour</string>
+    <string name="adv_refresh">Actualiser</string>
+    <string name="adv_export">Exporter .txt</string>
+    <string name="adv_filter_hint">Filtrer par nom ou valeur</string>
+    <string name="adv_props_count">%1$d props</string>
+    <string name="adv_props_count_filtered">%1$d sur %2$d props</string>
+    <string name="adv_props_read_failed">Impossible de lire les props (getprop n\'a rien renvoyé).</string>
+    <string name="adv_prop_dialog_msg">Valeur actuelle : %1$s\nLa modification est demandée au système NWD ; toutes les props ne l\'acceptent pas.</string>
+    <string name="adv_prop_empty_paren">(vide)</string>
+    <string name="adv_prop_empty">vide</string>
+    <string name="adv_prop_save">Enregistrer</string>
+    <string name="adv_prop_applying">Application de %1$s = %2$s…</string>
+    <string name="adv_prop_not_applied">Le système n\'a pas appliqué %1$s (valeur actuelle : %2$s). Via adb : setprop %1$s %3$s</string>
+    <string name="adv_exporting">Exportation…</string>
+    <string name="adv_export_failed">Impossible d\'écrire le fichier.</string>
+    <string name="adv_export_done">%1$d props exportées vers %2$s</string>
+
+    <!-- External apps -->
+    <string name="adv_toast_opened_launcher">Cet écran ne s\'ouvre pas directement ; écran d\'accueil de l\'app ouvert.</string>
+    <string name="adv_toast_app_missing">App introuvable sur cet autoradio (%1$s)</string>
+
+    <!-- Platform compatibility -->
+    <string name="adv_compat_untested">Plateforme NWD pas encore testée avec K4811 (%1$s). Des erreurs sont possibles.</string>
+    <string name="adv_compat_incompatible">Cet appareil ne semble pas être un autoradio NWD compatible. K4811 risque de ne pas contrôler le son, la radio ou le Bluetooth.</string>
+    <string name="adv_compat_ok">OK</string>
+    <string name="adv_compat_untested_label">NWD non testé</string>
+    <string name="adv_compat_incompatible_label">Incompatible</string>
+</resources>

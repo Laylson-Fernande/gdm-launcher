@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Radio screen -->
+    <string name="radio_cd_power">Вкл/выкл радио</string>
+    <string name="radio_cd_station_art">Логотип станции</string>
+    <string name="radio_cd_prev_saved">Предыдущая сохранённая станция</string>
+    <string name="radio_cd_step_down">Шаг вниз 0.1 MHz</string>
+    <string name="radio_cd_step_up">Шаг вверх 0.1 MHz</string>
+    <string name="radio_cd_next_saved">Следующая сохранённая станция</string>
+    <string name="radio_cd_keypad">Ввести частоту</string>
+    <string name="radio_preset_saved">Станция сохранена в пресет %1$d</string>
+    <string name="radio_off">РАДИО ВЫКЛ</string>
+    <string name="radio_banner_connecting">Подключение к сервису радио…</string>
+    <string name="radio_banner_not_found">Сервис радио магнитолы не найден. См. диагностику.</string>
+    <string name="radio_banner_disconnected">Сервис радио отключён, повтор…</string>
+    <!-- Keypad -->
+    <string name="radio_keypad_title">Введите частоту (%1$s)</string>
+    <string name="radio_keypad_cancel">Отмена</string>
+    <string name="radio_keypad_tune">Настроить</string>
+    <!-- Diagnostics dialog -->
+    <string name="radio_diag_title">Диагностика</string>
+    <string name="radio_diag_close">Закрыть</string>
+    <string name="radio_diag_next_band">След. диапазон</string>
+    <string name="radio_diag_request_state">Запросить состояние</string>
+    <string name="radio_diag_activate_source">Активировать источник</string>
+    <string name="radio_diag_reconnect">Переподключить</string>
+    <!-- RDS programme types (PTY 0..31) -->
+    <string name="radio_config_invalid">Файл %1$s повреждён: исправьте его. До этого изменения памяти не сохраняются.</string>
+    <string name="radio_stereo">Стерео</string>
+    <string name="radio_distant">Дальний</string>
+    <string name="radio_power">Радио</string>
+    <string name="radio_ams_started">Поиск станций в %1$s… память будет заменена</string>
+</resources>

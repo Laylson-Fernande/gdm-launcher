@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- English is the default language (values/). Translations live in values-<tag>/. -->
+<resources>
+    <string name="settings_language_section">Language</string>
+    <string name="settings_language">Language</string>
+    <string name="settings_language_hint">App language</string>
+</resources>

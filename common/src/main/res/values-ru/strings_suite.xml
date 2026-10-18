@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="screen_app_missing">Приложение не найдено на этой магнитоле (%1$s)</string>
+</resources>

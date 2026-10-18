@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Radio screen -->
+    <string name="radio_cd_power">Turn radio on/off</string>
+    <string name="radio_cd_station_art">Station artwork</string>
+    <string name="radio_cd_prev_saved">Previous saved station</string>
+    <string name="radio_cd_step_down">Step down 0.1 MHz</string>
+    <string name="radio_cd_step_up">Step up 0.1 MHz</string>
+    <string name="radio_cd_next_saved">Next saved station</string>
+    <string name="radio_cd_keypad">Enter frequency</string>
+    <string name="radio_preset_saved">Station saved to preset %1$d</string>
+    <string name="radio_off">RADIO OFF</string>
+    <string name="radio_banner_connecting">Connecting to the radio service…</string>
+    <string name="radio_banner_not_found">Head unit radio service not found. See diagnostics.</string>
+    <string name="radio_banner_disconnected">Radio service disconnected, retrying…</string>
+    <!-- Keypad -->
+    <string name="radio_keypad_title">Enter frequency (%1$s)</string>
+    <string name="radio_keypad_cancel">Cancel</string>
+    <string name="radio_keypad_tune">Tune</string>
+    <!-- Diagnostics dialog -->
+    <string name="radio_diag_title">Diagnostics</string>
+    <string name="radio_diag_close">Close</string>
+    <string name="radio_diag_next_band">Next band</string>
+    <string name="radio_diag_request_state">Request state</string>
+    <string name="radio_diag_activate_source">Activate source</string>
+    <string name="radio_diag_reconnect">Reconnect</string>
+    <!-- RDS programme types (PTY 0..31) -->
+    <string name="radio_config_invalid">Invalid %1$s: fix the file. Memory changes won\'t be saved until then.</string>
+    <string name="radio_stereo">Stereo</string>
+    <string name="radio_distant">Distant</string>
+    <string name="radio_power">Radio</string>
+    <string name="radio_ams_started">Searching for stations on %1$s… the memories will be replaced</string>
+</resources>

@@ -45,7 +45,7 @@ jobs:
             printf '%s %s' "$name" "$code"
           }
 
-          CURRENT="$(extract_version app/build.gradle.kts)"
+          CURRENT="$(extract_version launcher/build.gradle.kts)"
           CURRENT_NAME="${CURRENT%% *}"
           CURRENT_CODE="${CURRENT##* }"
           TAG="v${CURRENT_NAME}"
@@ -60,9 +60,9 @@ jobs:
           if [ "${EVENT_NAME}" = "push" ] \
             && [ -n "${BEFORE}" ] \
             && [ "${BEFORE}" != "0000000000000000000000000000000000000000" ] \
-            && git cat-file -e "${BEFORE}:app/build.gradle.kts" 2>/dev/null; then
+            && git cat-file -e "${BEFORE}:launcher/build.gradle.kts" 2>/dev/null; then
             PREV_FILE="$(mktemp)"
-            git show "${BEFORE}:app/build.gradle.kts" > "${PREV_FILE}"
+            git show "${BEFORE}:launcher/build.gradle.kts" > "${PREV_FILE}"
             PREVIOUS="$(extract_version "${PREV_FILE}")"
             rm -f "${PREV_FILE}"
             echo "Previous version: ${PREVIOUS}"
@@ -105,22 +105,58 @@ jobs:
         if: steps.version.outputs.should_build == 'true'
         uses: android-actions/setup-android@v4
         with:
-          # Avoid the deprecated `tools` package (removed by Google; breaks sdkmanager).
           packages: platform-tools
 
       - name: Make gradlew executable
         if: steps.version.outputs.should_build == 'true'
         run: chmod +x gradlew
 
-      - name: Build release APK
+      - name: Write NWD signing key
+        if: steps.version.outputs.should_build == 'true'
+        env:
+          NWD_KEYSTORE_BASE64: ${{ secrets.NWD_KEYSTORE_BASE64 }}
+          NWD_KEYSTORE_PASSWORD: ${{ secrets.NWD_KEYSTORE_PASSWORD }}
+          NWD_KEY_ALIAS: ${{ secrets.NWD_KEY_ALIAS }}
+          NWD_KEY_PASSWORD: ${{ secrets.NWD_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          if [ -z "${NWD_KEYSTORE_BASE64}" ]; then
+            echo "::error::Configure os secrets NWD_KEYSTORE_BASE64, NWD_KEYSTORE_PASSWORD, NWD_KEY_ALIAS e NWD_KEY_PASSWORD."
+            exit 1
+          fi
+          mkdir -p keys
+          echo "${NWD_KEYSTORE_BASE64}" | base64 --decode > keys/nwd.jks
+          printf '%s\n' \
+            "storeFile=keys/nwd.jks" \
+            "storePassword=${NWD_KEYSTORE_PASSWORD}" \
+            "keyAlias=${NWD_KEY_ALIAS}" \
+            "keyPassword=${NWD_KEY_PASSWORD}" \
+            > keystore.properties
+
+      - name: Build release APKs
         if: steps.version.outputs.should_build == 'true'
         run: ./gradlew assembleRelease --no-daemon --stacktrace
 
-      - name: Prepare APK artifact
+      - name: Collect APKs
         if: steps.version.outputs.should_build == 'true'
         run: |
-          cp app/build/outputs/apk/release/app-release.apk \
-            "garagem-launcher-${{ steps.version.outputs.version_name }}.apk"
+          set -euo pipefail
+          mkdir -p dist
+          for apk in */build/outputs/apk/release/*-release.apk; do
+            [ -f "$apk" ] || continue
+            cp "$apk" dist/
+          done
+          count="$(find dist -name '*.apk' | wc -l | tr -d ' ')"
+          echo "APKs em dist/: ${count}"
+          ls -la dist/
+          if [ "${count}" -lt 8 ]; then
+            echo "::error::Esperava 8 APKs de release, achei ${count}"
+            exit 1
+          fi
+          (
+            cd dist
+            zip -9 "../updateApk.zip" *.apk
+          )
 
       - name: Require release notes
         if: steps.version.outputs.should_build == 'true'
@@ -138,5 +174,7 @@ jobs:
           tag_name: ${{ steps.version.outputs.tag }}
           name: ${{ steps.version.outputs.tag }}
           body_path: releases/${{ steps.version.outputs.version_name }}.md
-          files: garagem-launcher-*.apk
+          files: |
+            dist/*.apk
+            updateApk.zip
           fail_on_unmatched_files: true

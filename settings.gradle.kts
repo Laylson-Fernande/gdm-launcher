@@ -12,5 +12,15 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
-rootProject.name = "GaragemLauncher"
-include(":app")
+rootProject.name = "GdmK4811AppSuite"
+
+// Módulo comum (dock, Ui, configurações em /sdcard/nwd-configs) e um módulo por app.
+include(":common")
+include(":launcher")
+include(":car-setting")
+include(":radio")
+include(":music")
+include(":bt-music")
+include(":phone")
+include(":eq")
+include(":fan")

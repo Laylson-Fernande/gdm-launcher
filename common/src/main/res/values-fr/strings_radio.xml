@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Radio screen -->
+    <string name="radio_cd_power">Allumer/éteindre la radio</string>
+    <string name="radio_cd_station_art">Logo de la station</string>
+    <string name="radio_cd_prev_saved">Station mémorisée précédente</string>
+    <string name="radio_cd_step_down">Descendre de 0,1 MHz</string>
+    <string name="radio_cd_step_up">Monter de 0,1 MHz</string>
+    <string name="radio_cd_next_saved">Station mémorisée suivante</string>
+    <string name="radio_cd_keypad">Saisir la fréquence</string>
+    <string name="radio_preset_saved">Station mémorisée en %1$d</string>
+    <string name="radio_off">RADIO ÉTEINTE</string>
+    <string name="radio_banner_connecting">Connexion au service radio…</string>
+    <string name="radio_banner_not_found">Service radio de l\'autoradio introuvable. Voir le diagnostic.</string>
+    <string name="radio_banner_disconnected">Service radio déconnecté, nouvelle tentative…</string>
+    <!-- Keypad -->
+    <string name="radio_keypad_title">Saisir la fréquence (%1$s)</string>
+    <string name="radio_keypad_cancel">Annuler</string>
+    <string name="radio_keypad_tune">Syntoniser</string>
+    <!-- Diagnostics dialog -->
+    <string name="radio_diag_title">Diagnostic</string>
+    <string name="radio_diag_close">Fermer</string>
+    <string name="radio_diag_next_band">Bande suivante</string>
+    <string name="radio_diag_request_state">Demander l\'état</string>
+    <string name="radio_diag_activate_source">Activer la source</string>
+    <string name="radio_diag_reconnect">Reconnecter</string>
+    <!-- RDS programme types (PTY 0..31) -->
+    <string name="radio_config_invalid">%1$s invalide : corrigez le fichier. D\'ici là, les changements de mémoires ne seront pas enregistrés.</string>
+    <string name="radio_stereo">Stéréo</string>
+    <string name="radio_distant">Distant</string>
+    <string name="radio_power">Radio</string>
+    <string name="radio_ams_started">Recherche des stations sur %1$s… les mémoires seront remplacées</string>
+</resources>

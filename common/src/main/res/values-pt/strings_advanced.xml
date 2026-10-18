@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Avançado -->
+    <string name="adv_title">Avançado</string>
+    <string name="adv_alert">Opções de fábrica. Anote o valor antes de mudar.</string>
+    <string name="adv_open">Abrir ›</string>
+
+    <string name="adv_sec_shortcuts">Menus da central</string>
+    <string name="adv_car_settings">Config. Veículo</string>
+    <string name="adv_car_settings_sub">Ajustes do carro da NWD</string>
+    <string name="adv_factory_menu">Menu de fábrica</string>
+    <string name="adv_factory_menu_sub">Senha da NWD: %1$s</string>
+    <string name="adv_android_settings">Configurações do Android</string>
+    <string name="adv_camera_360">Câmera 360</string>
+    <string name="adv_360_settings">Configurações do 360</string>
+    <string name="adv_360_settings_sub">Tela completa de ajustes do app 360</string>
+
+    <string name="adv_sec_development">Desenvolvimento</string>
+    <string name="adv_adb_wifi">ADB por Wi‑Fi</string>
+    <string name="adv_adb_wifi_sub">Porta 5555, sem pedido de autorização. Desligue depois de usar.</string>
+    <string name="adv_log_logcat">Logs do sistema em arquivo (logcat)</string>
+    <string name="adv_log_kernel">Logs do kernel em arquivo</string>
+    <string name="adv_log_sub">Gravado pela NWD na memória interna</string>
+    <string name="adv_system_props">Props do sistema</string>
+    <string name="adv_system_props_sub">Ver, alterar e exportar todas as props</string>
+
+    <string name="adv_sec_factory_audio">Áudio de fábrica</string>
+    <string name="adv_phase">Inverter a fase</string>
+    <string name="adv_phase_sub">\"Phase exchange\" do menu de fábrica. Errado soa oco.</string>
+    <string name="adv_dual_mic">Dois microfones (eco)</string>
+    <string name="adv_dual_mic_sub">Cancelamento de eco com dois microfones. Pode precisar reiniciar.</string>
+    <string name="adv_music_max">Volume máximo da música</string>
+    <string name="adv_music_max_sub">5 a 15</string>
+    <string name="adv_bt_unmute">Atraso para tirar o mudo no Bluetooth</string>
+    <string name="adv_bt_unmute_sub">Em ms. Para estalo ou corte no início</string>
+
+    <string name="adv_sec_carplay">CarPlay</string>
+    <string name="adv_carplay_note">Valem só para chamadas pelo CarPlay.</string>
+    <string name="adv_mic_gain">Ganho do microfone</string>
+    <string name="adv_speaker_gain">Ganho do alto-falante</string>
+    <string name="adv_noise">Reduzir ruído</string>
+    <string name="adv_noise_sub">Redução de ruído por rede neural</string>
+    <string name="adv_aec_type">Tipo de cancelamento de eco</string>
+    <string name="adv_aec_delay">Atraso do cancelamento de eco</string>
+    <string name="adv_in_ms">Em ms</string>
+
+    <string name="adv_sec_car">Carro</string>
+    <string name="adv_radio_region">Região do rádio</string>
+    <string name="adv_radio_region_sub">Muda a faixa e o passo do rádio. Região errada = estações erradas.</string>
+    <string-array name="adv_radio_regions">
+        <item>Europa</item>
+        <item>EUA</item>
+        <item>China</item>
+        <item>Japão</item>
+        <item>OIRT</item>
+        <item>América Latina</item>
+        <item>Taiwan</item>
+        <item>Austrália</item>
+        <item>América do Sul</item>
+        <item>Irã</item>
+        <item>Oriente Médio</item>
+        <item>Mundo</item>
+    </string-array>
+    <string name="adv_hand_brake">Exigir freio de mão para vídeo</string>
+    <string name="adv_hand_brake_sub">Desligar é decisão de segurança do motorista</string>
+    <string name="adv_any_key_power">Ligar com qualquer tecla</string>
+    <string name="adv_auto_wakeup">Acordar sozinho</string>
+    <string name="adv_auto_wakeup_sub">Estado em persist.nwd.autowakeup</string>
+    <string name="adv_backcar_track">Linhas de guia na ré</string>
+    <string name="adv_backcar_assist">Linhas de assistência na ré</string>
+    <string name="adv_backcar_sub">Do menu de fábrica; confirmar se a câmera relê</string>
+    <string name="adv_autorun">Apps que abrem sozinhos</string>
+    <string name="adv_autorun_none">nenhum</string>
+    <string name="adv_autorun_sub">Lista branca da NWD (whitelist_packagename / appautorun_packagename). Para mudar, use o Config. Veículo.</string>
+
+    <string name="adv_sec_360">Câmera 360 (fábrica)</string>
+    <string name="adv_360_note">Atraso ao ligar, seta pelo hardware, carro na bird view, imagem e monitor de estacionamento ficam no app 360 até confirmarmos que o K4811 consegue gravar as preferências dele.</string>
+    <string name="adv_360_app_settings">Configurações do app 360</string>
+    <string name="adv_calibration">Calibração</string>
+    <string name="adv_calibration_sub">Senha do app: 0000. O fluxo fica no app deles.</string>
+
+    <string name="adv_sec_car_on">Ao ligar o carro (a confirmar)</string>
+    <string name="adv_car_on_note">Experimental. Testar antes de levar para a tela de configurações.</string>
+    <string name="adv_wake_wifi">Ligar o Wi‑Fi</string>
+    <string name="adv_wake_hotspot">Ligar o ponto de acesso</string>
+    <string name="adv_touch_wake">Tocar na tela acende</string>
+    <string name="adv_multi_window">Permitir janela pequena</string>
+
+    <!-- Menu de desenvolvedor (props do sistema) -->
+    <string name="adv_dev_title">Menu de desenvolvedor</string>
+    <string name="adv_back">Voltar</string>
+    <string name="adv_refresh">Atualizar</string>
+    <string name="adv_export">Exportar .txt</string>
+    <string name="adv_filter_hint">Filtrar por nome ou valor</string>
+    <string name="adv_props_count">%1$d props</string>
+    <string name="adv_props_count_filtered">%1$d de %2$d props</string>
+    <string name="adv_props_read_failed">Não foi possível ler as props (getprop sem saída).</string>
+    <string name="adv_prop_dialog_msg">Valor atual: %1$s\nA alteração é pedida ao sistema da NWD; nem toda prop aceita.</string>
+    <string name="adv_prop_empty_paren">(vazio)</string>
+    <string name="adv_prop_empty">vazio</string>
+    <string name="adv_prop_save">Gravar</string>
+    <string name="adv_prop_applying">Aplicando %1$s = %2$s…</string>
+    <string name="adv_prop_not_applied">O sistema não aplicou %1$s (valor atual: %2$s). Via adb: setprop %1$s %3$s</string>
+    <string name="adv_exporting">Exportando…</string>
+    <string name="adv_export_failed">Não foi possível gravar o arquivo.</string>
+    <string name="adv_export_done">%1$d props exportadas para %2$s</string>
+
+    <!-- Apps externos -->
+    <string name="adv_toast_opened_launcher">Essa tela não abre direto; abri o app no início.</string>
+    <string name="adv_toast_app_missing">App não encontrado nesta central (%1$s)</string>
+
+    <!-- Compatibilidade da plataforma -->
+    <string name="adv_compat_untested">Plataforma NWD ainda não testada com o K4811 (%1$s). Pode falhar.</string>
+    <string name="adv_compat_incompatible">Este aparelho não parece uma central NWD compatível. O K4811 pode não controlar som, rádio nem Bluetooth.</string>
+    <string name="adv_compat_ok">Ok</string>
+    <string name="adv_compat_untested_label">NWD não testada</string>
+    <string name="adv_compat_incompatible_label">Incompatível</string>
+</resources>

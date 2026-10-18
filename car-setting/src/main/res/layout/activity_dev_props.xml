@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Developer menu: all system props (getprop), filter, edit and export. No dock. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/dev_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/main_bg"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <com.k4811.common.ui.IconView
+            android:id="@+id/dev_back"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:contentDescription="@string/adv_back" />
+
+        <TextView
+            android:id="@+id/dev_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:text="@string/adv_dev_title"
+            android:textColor="@color/text"
+            android:textSize="32sp" />
+
+        <TextView
+            android:id="@+id/dev_count"
+            style="@style/Caption"
+            android:layout_width="0dp"
+            android:layout_marginLeft="20dp"
+            android:layout_weight="1" />
+
+        <TextView
+            android:id="@+id/dev_refresh"
+            style="@style/LineButton"
+            android:text="@string/adv_refresh" />
+
+        <TextView
+            android:id="@+id/dev_export"
+            style="@style/LineButton"
+            android:text="@string/adv_export" />
+    </LinearLayout>
+
+    <EditText
+        android:id="@+id/dev_filter"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_marginLeft="12dp"
+        android:layout_marginRight="12dp"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/field_line"
+        android:hint="@string/adv_filter_hint"
+        android:imeOptions="actionDone|flagNoExtractUi|flagNoFullscreen"
+        android:inputType="text|textNoSuggestions"
+        android:singleLine="true"
+        android:textColor="@color/text"
+        android:textColorHint="@color/caption"
+        android:textSize="21sp" />
+
+    <TextView
+        android:id="@+id/dev_status"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="12dp"
+        android:layout_marginRight="12dp"
+        android:layout_marginTop="8dp"
+        android:textColor="@color/text_muted"
+        android:textSize="17sp"
+        android:visibility="gone" />
+
+    <View
+        style="@style/HairlineH"
+        android:layout_marginTop="10dp" />
+
+    <ListView
+        android:id="@+id/dev_list"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:divider="@color/hairline"
+        android:dividerHeight="1dp"
+        android:fastScrollEnabled="true"
+        android:scrollbarStyle="outsideOverlay" />
+</LinearLayout>

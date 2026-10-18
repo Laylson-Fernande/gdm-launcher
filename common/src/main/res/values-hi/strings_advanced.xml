@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Advanced screen, developer props menu and system helpers (prefix adv_). -->
+<resources>
+    <!-- Advanced -->
+    <string name="adv_title">एडवांस्ड</string>
+    <string name="adv_alert">फ़ैक्टरी विकल्प। बदलने से पहले मौजूदा मान नोट कर लें।</string>
+    <string name="adv_open">खोलें ›</string>
+
+    <string name="adv_sec_shortcuts">हेड यूनिट मेन्यू</string>
+    <string name="adv_car_settings">वाहन सेटिंग्स</string>
+    <string name="adv_car_settings_sub">NWD कार सेटिंग्स</string>
+    <string name="adv_factory_menu">फ़ैक्टरी मेन्यू</string>
+    <string name="adv_factory_menu_sub">NWD पासवर्ड: %1$s</string>
+    <string name="adv_android_settings">Android सेटिंग्स</string>
+    <string name="adv_camera_360">360 कैमरा</string>
+    <string name="adv_360_settings">360 सेटिंग्स</string>
+    <string name="adv_360_settings_sub">360 ऐप की पूरी सेटिंग्स स्क्रीन</string>
+
+    <string name="adv_sec_development">डेवलपमेंट</string>
+    <string name="adv_adb_wifi">Wi‑Fi पर ADB</string>
+    <string name="adv_adb_wifi_sub">पोर्ट 5555, बिना अनुमति पूछे। इस्तेमाल के बाद बंद करें।</string>
+    <string name="adv_log_logcat">सिस्टम लॉग फ़ाइल में (logcat)</string>
+    <string name="adv_log_kernel">कर्नेल लॉग फ़ाइल में</string>
+    <string name="adv_log_sub">NWD द्वारा इंटरनल स्टोरेज में सेव</string>
+    <string name="adv_system_props">सिस्टम props</string>
+    <string name="adv_system_props_sub">सभी props देखें, बदलें और एक्सपोर्ट करें</string>
+
+    <string name="adv_sec_factory_audio">फ़ैक्टरी ऑडियो</string>
+    <string name="adv_phase">फ़ेज़ उलटें</string>
+    <string name="adv_phase_sub">फ़ैक्टरी मेन्यू में \"Phase exchange\"। गलत होने पर आवाज़ खोखली लगती है।</string>
+    <string name="adv_dual_mic">दो माइक्रोफ़ोन (इको)</string>
+    <string name="adv_dual_mic_sub">दो माइक्रोफ़ोन से इको कैंसलेशन। रीस्टार्ट की ज़रूरत हो सकती है।</string>
+    <string name="adv_music_max">म्यूज़िक का अधिकतम वॉल्यूम</string>
+    <string name="adv_music_max_sub">5 से 15</string>
+    <string name="adv_bt_unmute">ब्लूटूथ अनम्यूट देरी</string>
+    <string name="adv_bt_unmute_sub">ms में। शुरुआत में पॉप या आवाज़ कटने के लिए</string>
+
+    <string name="adv_sec_carplay">CarPlay</string>
+    <string name="adv_carplay_note">सिर्फ़ CarPlay कॉल पर लागू।</string>
+    <string name="adv_mic_gain">माइक्रोफ़ोन गेन</string>
+    <string name="adv_speaker_gain">स्पीकर गेन</string>
+    <string name="adv_noise">नॉइज़ रिडक्शन</string>
+    <string name="adv_noise_sub">न्यूरल नेटवर्क से नॉइज़ रिडक्शन</string>
+    <string name="adv_aec_type">इको कैंसलेशन का प्रकार</string>
+    <string name="adv_aec_delay">इको कैंसलेशन देरी</string>
+    <string name="adv_in_ms">ms में</string>
+
+    <string name="adv_sec_car">कार</string>
+    <string name="adv_radio_region">रेडियो क्षेत्र</string>
+    <string name="adv_radio_region_sub">रेडियो बैंड और स्टेप बदलता है। गलत क्षेत्र = गलत स्टेशन।</string>
+    <string-array name="adv_radio_regions">
+        <item>यूरोप</item>
+        <item>अमेरिका</item>
+        <item>चीन</item>
+        <item>जापान</item>
+        <item>OIRT</item>
+        <item>लैटिन अमेरिका</item>
+        <item>ताइवान</item>
+        <item>ऑस्ट्रेलिया</item>
+        <item>दक्षिण अमेरिका</item>
+        <item>ईरान</item>
+        <item>मध्य पूर्व</item>
+        <item>विश्व</item>
+    </string-array>
+    <string name="adv_hand_brake">वीडियो के लिए हैंडब्रेक ज़रूरी</string>
+    <string name="adv_hand_brake_sub">इसे बंद करना ड्राइवर की सुरक्षा का फ़ैसला है</string>
+    <string name="adv_any_key_power">किसी भी बटन से चालू करें</string>
+    <string name="adv_auto_wakeup">ऑटो वेक-अप</string>
+    <string name="adv_auto_wakeup_sub">स्थिति persist.nwd.autowakeup में</string>
+    <string name="adv_backcar_track">रिवर्स गाइड लाइनें</string>
+    <string name="adv_backcar_assist">रिवर्स असिस्ट लाइनें</string>
+    <string name="adv_backcar_sub">फ़ैक्टरी मेन्यू से; देखें कि कैमरा इसे दोबारा लोड करता है या नहीं</string>
+    <string name="adv_autorun">ऐप्स ऑटो-स्टार्ट</string>
+    <string name="adv_autorun_none">कोई नहीं</string>
+    <string name="adv_autorun_sub">NWD व्हाइटलिस्ट (whitelist_packagename / appautorun_packagename)। बदलने के लिए वाहन सेटिंग्स इस्तेमाल करें।</string>
+
+    <string name="adv_sec_360">360 कैमरा (फ़ैक्टरी)</string>
+    <string name="adv_360_note">चालू होने की देरी, हार्डवेयर एरो, बर्ड व्यू में कार, इमेज और पार्किंग मॉनिटर 360 ऐप में ही रहेंगे, जब तक हम पुष्टि न कर लें कि K4811 इनकी प्राथमिकताएँ सेव कर सकता है।</string>
+    <string name="adv_360_app_settings">360 ऐप सेटिंग्स</string>
+    <string name="adv_calibration">कैलिब्रेशन</string>
+    <string name="adv_calibration_sub">ऐप पासवर्ड: 0000। यह प्रक्रिया उन्हीं के ऐप में होती है।</string>
+
+    <string name="adv_sec_car_on">कार स्टार्ट होने पर (पुष्टि बाकी)</string>
+    <string name="adv_car_on_note">प्रायोगिक। सेटिंग्स स्क्रीन पर ले जाने से पहले टेस्ट करें।</string>
+    <string name="adv_wake_wifi">Wi‑Fi चालू करें</string>
+    <string name="adv_wake_hotspot">हॉटस्पॉट चालू करें</string>
+    <string name="adv_touch_wake">छूने पर स्क्रीन चालू हो</string>
+    <string name="adv_multi_window">छोटी विंडो की अनुमति दें</string>
+
+    <!-- Developer menu (system props) -->
+    <string name="adv_dev_title">डेवलपर मेन्यू</string>
+    <string name="adv_back">वापस</string>
+    <string name="adv_refresh">रीफ़्रेश</string>
+    <string name="adv_export">.txt एक्सपोर्ट करें</string>
+    <string name="adv_filter_hint">नाम या मान से फ़िल्टर करें</string>
+    <string name="adv_props_count">%1$d props</string>
+    <string name="adv_props_count_filtered">%2$d में से %1$d props</string>
+    <string name="adv_props_read_failed">props नहीं पढ़ सके (getprop ने कुछ नहीं लौटाया)।</string>
+    <string name="adv_prop_dialog_msg">मौजूदा मान: %1$s\nबदलाव का अनुरोध NWD सिस्टम से किया जाता है; हर prop इसे स्वीकार नहीं करता।</string>
+    <string name="adv_prop_empty_paren">(खाली)</string>
+    <string name="adv_prop_empty">खाली</string>
+    <string name="adv_prop_save">सेव करें</string>
+    <string name="adv_prop_applying">%1$s = %2$s लागू हो रहा है…</string>
+    <string name="adv_prop_not_applied">सिस्टम ने %1$s लागू नहीं किया (मौजूदा मान: %2$s)। adb से: setprop %1$s %3$s</string>
+    <string name="adv_exporting">एक्सपोर्ट हो रहा है…</string>
+    <string name="adv_export_failed">फ़ाइल नहीं लिख सके।</string>
+    <string name="adv_export_done">%1$d props %2$s में एक्सपोर्ट किए गए</string>
+
+    <!-- External apps -->
+    <string name="adv_toast_opened_launcher">यह स्क्रीन सीधे नहीं खुल सकती; ऐप की शुरुआती स्क्रीन खोली गई।</string>
+    <string name="adv_toast_app_missing">इस हेड यूनिट पर ऐप नहीं मिला (%1$s)</string>
+
+    <!-- Platform compatibility -->
+    <string name="adv_compat_untested">यह NWD प्लेटफ़ॉर्म अभी K4811 के साथ टेस्ट नहीं हुआ है (%1$s)। गड़बड़ी हो सकती है।</string>
+    <string name="adv_compat_incompatible">यह डिवाइस संगत NWD हेड यूनिट नहीं लगता। K4811 शायद साउंड, रेडियो या ब्लूटूथ नियंत्रित न कर पाए।</string>
+    <string name="adv_compat_ok">ठीक है</string>
+    <string name="adv_compat_untested_label">NWD टेस्ट नहीं हुआ</string>
+    <string name="adv_compat_incompatible_label">असंगत</string>
+</resources>

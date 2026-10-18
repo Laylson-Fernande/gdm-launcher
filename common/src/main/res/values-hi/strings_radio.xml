@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Radio screen -->
+    <string name="radio_cd_power">रेडियो चालू/बंद करें</string>
+    <string name="radio_cd_station_art">स्टेशन की तस्वीर</string>
+    <string name="radio_cd_prev_saved">पिछला सेव किया स्टेशन</string>
+    <string name="radio_cd_step_down">0.1 MHz नीचे</string>
+    <string name="radio_cd_step_up">0.1 MHz ऊपर</string>
+    <string name="radio_cd_next_saved">अगला सेव किया स्टेशन</string>
+    <string name="radio_cd_keypad">फ़्रीक्वेंसी डालें</string>
+    <string name="radio_preset_saved">स्टेशन प्रीसेट %1$d में सेव हुआ</string>
+    <string name="radio_off">रेडियो बंद</string>
+    <string name="radio_banner_connecting">रेडियो सर्विस से कनेक्ट हो रहा है…</string>
+    <string name="radio_banner_not_found">हेड यूनिट की रेडियो सर्विस नहीं मिली। जाँच देखें।</string>
+    <string name="radio_banner_disconnected">रेडियो सर्विस डिस्कनेक्ट हो गई, फिर से कोशिश हो रही है…</string>
+    <!-- Keypad -->
+    <string name="radio_keypad_title">फ़्रीक्वेंसी डालें (%1$s)</string>
+    <string name="radio_keypad_cancel">रद्द करें</string>
+    <string name="radio_keypad_tune">ट्यून करें</string>
+    <!-- Diagnostics dialog -->
+    <string name="radio_diag_title">जाँच</string>
+    <string name="radio_diag_close">बंद करें</string>
+    <string name="radio_diag_next_band">अगला बैंड</string>
+    <string name="radio_diag_request_state">स्थिति माँगें</string>
+    <string name="radio_diag_activate_source">सोर्स चालू करें</string>
+    <string name="radio_diag_reconnect">फिर से कनेक्ट करें</string>
+    <!-- RDS programme types (PTY 0..31) -->
+    <string name="radio_config_invalid">%1$s अमान्य है: फ़ाइल ठीक करें। तब तक मेमोरी में बदलाव सहेजे नहीं जाएँगे।</string>
+    <string name="radio_stereo">स्टीरियो</string>
+    <string name="radio_distant">दूर</string>
+    <string name="radio_power">रेडियो</string>
+    <string name="radio_ams_started">%1$s पर स्टेशन खोजे जा रहे हैं… मेमोरी बदल दी जाएगी</string>
+</resources>

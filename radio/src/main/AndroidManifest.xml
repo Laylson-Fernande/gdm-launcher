@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Mesmas permissões de rádio do app original; ignoradas se o sistema não as conceder. -->
+    <uses-permission
+        android:name="android.permission.ACCESS_FM_RADIO"
+        tools:ignore="ProtectedPermissions" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+    <!-- Para pedir ao sistema NWD que altere propriedades (memórias espelhadas em persist.*).
+         Com targetSdk < 23 é concedida na instalação. -->
+    <uses-permission android:name="android.permission.WRITE_SETTINGS" />
+    <!-- Arte das estações (K4811/radio/) e /sdcard/nwd-configs/launcher.json. -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
+    <application
+        android:name=".RadioApp"
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme">
+
+        <!-- Apps com targetSdk < 26 ganham um limite de proporção de 1,86 (tela "encaixotada");
+             liberamos até 2,4 para ocupar os 1280×720 inteiros. -->
+        <meta-data
+            android:name="android.max_aspect"
+            android:value="2.4" />
+
+        <!-- Única tela, como no com.nwd.radio original (singleTask). -->
+        <activity
+            android:name=".RadioActivity"
+            android:configChanges="fontScale|keyboard|keyboardHidden|locale|mcc|mnc|navigation|orientation|screenLayout|screenSize|smallestScreenSize|uiMode|density"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:screenOrientation="nosensor">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- Nome da Activity do app original: o sistema e outros apps abrem por este componente. -->
+        <activity-alias
+            android:name="com.nwd.radio.home_horizontalActivity"
+            android:exported="true"
+            android:targetActivity=".RadioActivity" />
+
+    </application>
+</manifest>

@@ -1,28 +1,43 @@
-# Gradle
-.gradle/
+# ---------------------------------------------------------------- build e Gradle
 build/
-**/build/
+.gradle/
 .kotlin/
-.externalNativeBuild/
 .cxx/
+.externalNativeBuild/
+captures/
+out/
+*.class
+*.dex
+*.log
 
-# Local machine configuration (SDK path, signing secrets)
-local.properties
-*.keystore
-*.jks
-keystore.properties
-signing.properties
-
-# Build outputs
+# ---------------------------------------------------------------- pacotes gerados
 *.apk
 *.aab
 *.ap_
-*.dex
-*.class
+*.apks
+*.idsig
 output-metadata.json
-captures/
+*.zip
+updateApk/**
+!updateApk/.gitkeep
+/dist/
 
-# IDEs
+# ---------------------------------------------------------------- chaves e segredos
+keystore.properties
+keys/
+*.jks
+*.keystore
+*.p12
+*.pk8
+*.pem
+signing.properties
+
+# ---------------------------------------------------------------- configuração local
+local.properties
+*.env
+.env*
+
+# ---------------------------------------------------------------- IDEs e editores
 .idea/
 *.iml
 *.ipr
@@ -34,17 +49,14 @@ captures/
 *.swp
 *~
 
-# Logs and dumps
-*.log
-*.hprof
-lint-results*.*
-
-# OS files
+# ---------------------------------------------------------------- sistema
 .DS_Store
 ._*
 Thumbs.db
 desktop.ini
 
-# Claude Code local settings
+# ---------------------------------------------------------------- notas locais (fora do remoto)
+local/
+
+# ---------------------------------------------------------------- Claude Code
 .claude/settings.local.json
-/dist/

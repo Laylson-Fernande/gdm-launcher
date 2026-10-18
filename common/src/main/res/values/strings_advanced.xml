@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Advanced screen, developer props menu and system helpers (prefix adv_). -->
+<resources>
+    <!-- Advanced -->
+    <string name="adv_title">Advanced</string>
+    <string name="adv_alert">Factory options. Note the value before changing it.</string>
+    <string name="adv_open">Open ›</string>
+
+    <string name="adv_sec_shortcuts">Head unit menus</string>
+    <string name="adv_car_settings">Vehicle settings</string>
+    <string name="adv_car_settings_sub">NWD car settings</string>
+    <string name="adv_factory_menu">Factory menu</string>
+    <string name="adv_factory_menu_sub">NWD password: %1$s</string>
+    <string name="adv_android_settings">Android settings</string>
+    <string name="adv_camera_360">360 camera</string>
+    <string name="adv_360_settings">360 settings</string>
+    <string name="adv_360_settings_sub">Full settings screen of the 360 app</string>
+
+    <string name="adv_sec_development">Development</string>
+    <string name="adv_adb_wifi">ADB over Wi‑Fi</string>
+    <string name="adv_adb_wifi_sub">Port 5555, no authorization prompt. Turn off after use.</string>
+    <string name="adv_log_logcat">System logs to file (logcat)</string>
+    <string name="adv_log_kernel">Kernel logs to file</string>
+    <string name="adv_log_sub">Saved by NWD to internal storage</string>
+    <string name="adv_system_props">System props</string>
+    <string name="adv_system_props_sub">View, change and export all props</string>
+
+    <string name="adv_sec_factory_audio">Factory audio</string>
+    <string name="adv_phase">Invert phase</string>
+    <string name="adv_phase_sub">\"Phase exchange\" in the factory menu. Wrong sounds hollow.</string>
+    <string name="adv_dual_mic">Dual microphones (echo)</string>
+    <string name="adv_dual_mic_sub">Echo cancelling with two microphones. May need a restart.</string>
+    <string name="adv_music_max">Max music volume</string>
+    <string name="adv_music_max_sub">5 to 15</string>
+    <string name="adv_bt_unmute">Bluetooth unmute delay</string>
+    <string name="adv_bt_unmute_sub">In ms. For pops or cut-offs at the start</string>
+
+    <string name="adv_sec_carplay">CarPlay</string>
+    <string name="adv_carplay_note">Only apply to CarPlay calls.</string>
+    <string name="adv_mic_gain">Microphone gain</string>
+    <string name="adv_speaker_gain">Speaker gain</string>
+    <string name="adv_noise">Noise reduction</string>
+    <string name="adv_noise_sub">Neural-network noise reduction</string>
+    <string name="adv_aec_type">Echo cancellation type</string>
+    <string name="adv_aec_delay">Echo cancellation delay</string>
+    <string name="adv_in_ms">In ms</string>
+
+    <string name="adv_sec_car">Car</string>
+    <string name="adv_radio_region">Radio region</string>
+    <string name="adv_radio_region_sub">Changes the radio band and step. Wrong region = wrong stations.</string>
+    <string-array name="adv_radio_regions">
+        <item>Europe</item>
+        <item>USA</item>
+        <item>China</item>
+        <item>Japan</item>
+        <item>OIRT</item>
+        <item>Latin America</item>
+        <item>Taiwan</item>
+        <item>Australia</item>
+        <item>South America</item>
+        <item>Iran</item>
+        <item>Middle East</item>
+        <item>World</item>
+    </string-array>
+    <string name="adv_hand_brake">Require handbrake for video</string>
+    <string name="adv_hand_brake_sub">Turning it off is the driver\'s safety decision</string>
+    <string name="adv_any_key_power">Power on with any key</string>
+    <string name="adv_auto_wakeup">Auto wake-up</string>
+    <string name="adv_auto_wakeup_sub">State in persist.nwd.autowakeup</string>
+    <string name="adv_backcar_track">Reverse guide lines</string>
+    <string name="adv_backcar_assist">Reverse assist lines</string>
+    <string name="adv_backcar_sub">From the factory menu; check whether the camera reloads it</string>
+    <string name="adv_autorun">Auto-start apps</string>
+    <string name="adv_autorun_none">none</string>
+    <string name="adv_autorun_sub">NWD whitelist (whitelist_packagename / appautorun_packagename). To change it, use Vehicle settings.</string>
+
+    <string name="adv_sec_360">360 camera (factory)</string>
+    <string name="adv_360_note">Power-on delay, hardware arrow, car in bird view, image and parking monitor stay in the 360 app until we confirm K4811 can save its preferences.</string>
+    <string name="adv_360_app_settings">360 app settings</string>
+    <string name="adv_calibration">Calibration</string>
+    <string name="adv_calibration_sub">App password: 0000. The flow stays in their app.</string>
+
+    <string name="adv_sec_car_on">On car start (to confirm)</string>
+    <string name="adv_car_on_note">Experimental. Test before moving it to the settings screen.</string>
+    <string name="adv_wake_wifi">Turn on Wi‑Fi</string>
+    <string name="adv_wake_hotspot">Turn on hotspot</string>
+    <string name="adv_touch_wake">Touch wakes the screen</string>
+    <string name="adv_multi_window">Allow small window</string>
+
+    <!-- Developer menu (system props) -->
+    <string name="adv_dev_title">Developer menu</string>
+    <string name="adv_back">Back</string>
+    <string name="adv_refresh">Refresh</string>
+    <string name="adv_export">Export .txt</string>
+    <string name="adv_filter_hint">Filter by name or value</string>
+    <string name="adv_props_count">%1$d props</string>
+    <string name="adv_props_count_filtered">%1$d of %2$d props</string>
+    <string name="adv_props_read_failed">Couldn\'t read the props (getprop returned nothing).</string>
+    <string name="adv_prop_dialog_msg">Current value: %1$s\nThe change is requested from the NWD system; not every prop accepts it.</string>
+    <string name="adv_prop_empty_paren">(empty)</string>
+    <string name="adv_prop_empty">empty</string>
+    <string name="adv_prop_save">Save</string>
+    <string name="adv_prop_applying">Applying %1$s = %2$s…</string>
+    <string name="adv_prop_not_applied">The system didn\'t apply %1$s (current value: %2$s). Via adb: setprop %1$s %3$s</string>
+    <string name="adv_exporting">Exporting…</string>
+    <string name="adv_export_failed">Couldn\'t write the file.</string>
+    <string name="adv_export_done">%1$d props exported to %2$s</string>
+
+    <!-- External apps -->
+    <string name="adv_toast_opened_launcher">This screen can\'t be opened directly; opened the app\'s start screen.</string>
+    <string name="adv_toast_app_missing">App not found on this head unit (%1$s)</string>
+
+    <!-- Platform compatibility -->
+    <string name="adv_compat_untested">NWD platform not yet tested with K4811 (%1$s). It may fail.</string>
+    <string name="adv_compat_incompatible">This device doesn\'t look like a compatible NWD head unit. K4811 may not control sound, radio or Bluetooth.</string>
+    <string name="adv_compat_ok">OK</string>
+    <string name="adv_compat_untested_label">NWD untested</string>
+    <string name="adv_compat_incompatible_label">Incompatible</string>
+</resources>
