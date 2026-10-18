@@ -102,26 +102,60 @@ public final class Palette {
         accentDim = (accent & 0x00FFFFFF) | 0x26000000;
     }
 
+    /** Tema no modo escuro (fundo preto/graphite). */
     public static Palette of(int theme) {
+        return of(theme, true);
+    }
+
+    /**
+     * {@code dark=true}: fundo escuro (padrão). {@code dark=false}: inverte a luminosidade dos
+     * neutros para fundo claro; o accent colorido se mantém (no tema cinza vira cinza escuro).
+     */
+    public static Palette of(int theme, boolean dark) {
+        Palette p;
         if (theme == GRAY_TINTED) {
             int[] n = new int[BASE.length];
             for (int i = 0; i < BASE.length; i++) {
                 n[i] = Oklch.toColor(Math.min(1, Oklch.lightness(BASE[i]) + LIFT[i] * 1.6), 0, 0);
             }
-            return new Palette(n, 0xFFFFFFFF);
+            p = new Palette(n, 0xFFFFFFFF);
+        } else if (theme < 0 || theme >= THEMES) {
+            p = new Palette(BASE.clone(), 0xFFFFFFFF);
+        } else {
+            boolean tinted = theme >= HUES;
+            double[] a = ACCENTS[theme % HUES];
+            int[] n = new int[BASE.length];
+            for (int i = 0; i < BASE.length; i++) {
+                double l = Oklch.lightness(BASE[i]);
+                n[i] = tinted
+                    ? Oklch.toColor(Math.min(1, l + LIFT[i]), TINT[i], a[2])
+                    : Oklch.toColor(l, Math.min(0.006, TINT[i]), a[2]);
+            }
+            p = new Palette(n, Oklch.toColor(a[0], a[1], a[2]));
         }
-        if (theme < 0 || theme >= THEMES) return new Palette(BASE.clone(), 0xFFFFFFFF);
-        boolean tinted = theme >= HUES;
-        double[] a = ACCENTS[theme % HUES];
-        int[] n = new int[BASE.length];
-        for (int i = 0; i < BASE.length; i++) {
-            double l = Oklch.lightness(BASE[i]);
-            n[i] = tinted
-                ? Oklch.toColor(Math.min(1, l + LIFT[i]), TINT[i], a[2])
-                // "Black": neutral grays with just a trace of the hue.
-                : Oklch.toColor(l, Math.min(0.006, TINT[i]), a[2]);
-        }
-        return new Palette(n, Oklch.toColor(a[0], a[1], a[2]));
+        return dark ? p : p.toLight();
+    }
+
+    /** Versão clara: inverte a luminosidade dos neutros; accent branco vira cinza escuro. */
+    private Palette toLight() {
+        int[] n = {
+            Oklch.invertLightness(bg),
+            Oklch.invertLightness(bgSoft),
+            Oklch.invertLightness(surface),
+            Oklch.invertLightness(surfaceHigh),
+            Oklch.invertLightness(surfaceTop),
+            Oklch.invertLightness(pressed),
+            Oklch.invertLightness(hairline),
+            Oklch.invertLightness(hairlineStrong),
+            Oklch.invertLightness(outline),
+            Oklch.invertLightness(outlineStrong),
+            Oklch.invertLightness(textDim),
+            Oklch.invertLightness(textMuted),
+            Oklch.invertLightness(textSoft),
+            Oklch.invertLightness(text),
+        };
+        int lightAccent = (accent & 0x00FFFFFF) == 0x00FFFFFF ? 0xFF2B3036 : accent;
+        return new Palette(n, lightAccent);
     }
 
     /** Swatch shown in Settings: the accent for "black" themes, a deep shade for "tinted" ones. */
@@ -141,13 +175,31 @@ public final class Palette {
         }
 
         static double lightness(int color) {
+            return oklab(color)[0];
+        }
+
+        /** Mantém croma e matiz; inverte a luminosidade (escuro ↔ claro). */
+        static int invertLightness(int color) {
+            double[] lab = oklab(color);
+            double c = Math.sqrt(lab[1] * lab[1] + lab[2] * lab[2]);
+            double h = Math.toDegrees(Math.atan2(lab[2], lab[1]));
+            if (h < 0) h += 360;
+            return toColor(1.0 - lab[0], c, h);
+        }
+
+        /** OKLab L, a, b. */
+        private static double[] oklab(int color) {
             double r = toLinear((color >> 16) & 0xFF);
             double g = toLinear((color >> 8) & 0xFF);
             double b = toLinear(color & 0xFF);
             double l = Math.cbrt(0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b);
             double m = Math.cbrt(0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b);
             double s = Math.cbrt(0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b);
-            return 0.2104542553 * l + 0.7936177850 * m - 0.0040720468 * s;
+            return new double[]{
+                0.2104542553 * l + 0.7936177850 * m - 0.0040720468 * s,
+                1.9779984951 * l - 2.4285922050 * m + 0.4505937099 * s,
+                0.0259040371 * l + 0.7827717662 * m - 0.8086757660 * s,
+            };
         }
 
         static int toColor(double lightness, double chroma, double hueDeg) {

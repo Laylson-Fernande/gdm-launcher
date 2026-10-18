@@ -7,7 +7,7 @@ Substituto do telefone Bluetooth da central NWD, com o **mesmo package** do orig
 | | |
 |---|---|
 | Package | `com.nwd.android.phone` (o mesmo do original) |
-| Versão | 2.0.0 (versionCode 20270000, maior que o do original) |
+| Versão | 2.0.6 (versionCode 20270006, maior que o do original) |
 | App original | `radio apk/com.nwd.android.phone` |
 
 **Dock e configurações:** usa o mesmo dock do launcher e segue as configurações feitas no [`car-setting`](../car-setting/README.md) (idioma, tema, fonte, ícones do dock). Ver [`../common`](../common/README.md).

@@ -57,15 +57,17 @@ public final class Ui {
     /** Palette in use; the default theme until an Activity applies the chosen one. */
     private static Palette palette;
     private static int paletteTheme = Integer.MIN_VALUE;
+    private static boolean paletteDark = true;
 
     static {
-        use(Palette.DEFAULT);
+        use(Palette.DEFAULT, true);
     }
 
-    private static void use(int theme) {
-        if (theme == paletteTheme) return;
+    private static void use(int theme, boolean dark) {
+        if (theme == paletteTheme && dark == paletteDark) return;
         paletteTheme = theme;
-        palette = Palette.of(theme);
+        paletteDark = dark;
+        palette = Palette.of(theme, dark);
         BG = palette.bg;
         BG_SOFT = palette.bgSoft;
         SURFACE = palette.surface;
@@ -91,11 +93,11 @@ public final class Ui {
      */
     /** Só as cores do tema escolhido, para telas sem Activity (ex.: janela flutuante de um serviço). */
     public static void applyThemeColors(Context c) {
-        use(com.k4811.common.config.LauncherConfig.theme(c));
+        use(LauncherConfig.theme(c), LauncherConfig.darkMode(c));
     }
 
     public static void applyTheme(Activity a) {
-        use(com.k4811.common.config.LauncherConfig.theme(a));
+        use(LauncherConfig.theme(a), LauncherConfig.darkMode(a));
         ThemeInflater.install(a);
         a.getWindow().setBackgroundDrawable(new android.graphics.drawable.ColorDrawable(BG));
     }

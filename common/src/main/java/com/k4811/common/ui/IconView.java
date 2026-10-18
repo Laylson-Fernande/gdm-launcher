@@ -20,7 +20,7 @@ public class IconView extends View {
         MENU, DIAG, POWER, EXIT, RADIO, CHEVRON_LEFT, CHEVRON_RIGHT, SKIP_PREV, SKIP_NEXT, KEYBOARD,
         MUSIC, BLUETOOTH, EQUALIZER, PLAY, PAUSE, PHONE, APPS, FAN, SETTINGS, HOME, BATTERY, VOLUME, VOLUME_MUTE, SCREEN_OFF, PLUS, MINUS,
         AUX, CAMERA_360, VIDEO, PHONE_LINK, CARPLAY, ANDROID_AUTO,
-        STEREO, TOWER_FAR, SUN, MOON
+        STEREO, TOWER_FAR, SUN, MOON, HELP
     }
 
     public enum Style { NONE, CIRCLE, SQUARE, FLAT_CIRCLE, OUTLINE_CIRCLE }
@@ -306,6 +306,18 @@ public class IconView extends View {
                 break;
             case MINUS:
                 c.drawLine(4, 12, 20, 12, stroke);
+                break;
+            case HELP:
+                // Círculo com ponto de interrogação (botão de ajuda nas configurações).
+                c.drawCircle(12, 12, 9.5f, stroke);
+                path.reset();
+                path.moveTo(8.5f, 9.2f);
+                path.quadTo(8.5f, 6.2f, 12, 6.2f);
+                path.quadTo(15.5f, 6.2f, 15.5f, 9.2f);
+                path.quadTo(15.5f, 11.2f, 12.5f, 12.2f);
+                path.lineTo(12.5f, 14.5f);
+                c.drawPath(path, stroke);
+                c.drawCircle(12.5f, 17.5f, 1.1f, fill);
                 break;
             case SCREEN_OFF:
                 // Monitor with stand and a diagonal slash (screen off).

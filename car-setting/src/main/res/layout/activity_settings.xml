@@ -80,6 +80,13 @@
             style="@style/SettingsTab"
             android:text="@string/settings_advanced"
             android:visibility="gone" />
+
+        <!-- Atalho para o Config. Veículo de fábrica (não é um painel desta tela). -->
+        <TextView
+            android:id="@+id/settings_tab_car_settings"
+            style="@style/SettingsTab"
+            android:text="@string/settings_car_settings"
+            android:visibility="gone" />
     </LinearLayout>
 
     <ScrollView

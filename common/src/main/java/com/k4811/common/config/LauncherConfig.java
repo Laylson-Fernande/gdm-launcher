@@ -37,6 +37,8 @@ public final class LauncherConfig {
     private static final String KEY_LANGUAGE = "language";
     private static final String KEY_FONT = "font";
     private static final String KEY_THEME = "theme";
+    /** true = fundo escuro (padrão); false = fundo claro. */
+    private static final String KEY_DARK_MODE = "dark_mode";
     private static final String KEY_VOLTMETER = "show_voltmeter";
     private static final String KEY_DAY_NIGHT = "show_day_night";
     private static final String KEY_SCREEN_OFF_AFTER = "screen_off_after";
@@ -151,6 +153,15 @@ public final class LauncherConfig {
 
     public static boolean setTheme(Context c, int theme) {
         return put(KEY_THEME, theme);
+    }
+
+    /** Modo escuro (fundo escuro). Ligado por padrão; desligado deixa o fundo claro. */
+    public static boolean darkMode(Context c) {
+        return bool(KEY_DARK_MODE, true);
+    }
+
+    public static boolean setDarkMode(Context c, boolean on) {
+        return put(KEY_DARK_MODE, on);
     }
 
     /** Itens opcionais ligados no dock, na ordem fixa do enum. Sem nada gravado, o padrão. */

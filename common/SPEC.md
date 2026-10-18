@@ -35,6 +35,7 @@ Declara `READ_EXTERNAL_STORAGE` e o receiver `com.k4811.common.system.BottomBar$
 | `version` | int | 2 | formato |
 | `language` | string | `en` | `pt en es fr ru ja zh hi` (`LauncherConfig.LANGUAGES`) |
 | `theme` | int | -1 | `Palette.DEFAULT` (-1) ou 0..`Palette.THEMES`-1 |
+| `dark_mode` | bool | true | fundo escuro; `false` inverte luminosidade dos neutros (fundo claro) |
 | `font` | string | `Exo2` | `Exo2 Montserrat Rajdhani Outfit Inter PublicSans` (arquivos `assets/fonts/<id>-400/500/600.ttf`) |
 | `dock_toggles` | array de ids | `radio music bt_music phone eq` | até 5 (`MAX_DOCK_TOGGLES`); ids de `DockView.Item` |
 | `zlink_name` | int | 0 | índice em `ZLINK_NAMES` (Z-Link, CarPlay, Auto) |

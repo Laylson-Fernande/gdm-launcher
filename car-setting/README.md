@@ -8,7 +8,7 @@ Configurações da central e do launcher, com o visual padrão do GDM K4811 App 
 |---|---|
 | Package | `com.nwd.car.setting` |
 | Por que não `com.android.car.setting` | o original usa `sharedUserId com.android.settings`, que exige a **chave de plataforma**. Por isso este app instala ao lado dele |
-| Versão | 2.0.0 (versionCode 20270000, maior que o do original) |
+| Versão | 2.0.6 (versionCode 20270006, maior que o do original) |
 | App original | `radio apk/com.android.car.setting` (análise de onde cada opção grava) |
 | Linguagem | **Java puro**, Views clássicas e layouts XML, **sem nenhuma biblioteca** |
 | minSdk / targetSdk | **17 / 19**, os mesmos do original |

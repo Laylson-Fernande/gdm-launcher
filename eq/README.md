@@ -7,7 +7,7 @@ Substituto do app **Áudio / DSP** da central NWD (`com.nwd.audioset`), com o vi
 | | |
 |---|---|
 | Package | `com.nwd.audioset` (o mesmo do original) |
-| Versão | 2.0.0 (versionCode 20270000, maior que o do original) |
+| Versão | 2.0.6 (versionCode 20270006, maior que o do original) |
 | App original | `radio apk/com.nwd.audioset` |
 | Linguagem | **Java puro**, Views clássicas e layouts XML, **sem nenhuma biblioteca** |
 | minSdk / targetSdk | **17 / 19**, os mesmos dos originais |
