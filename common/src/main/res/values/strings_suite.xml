@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Textos da suíte (apps separados): navegação entre apps pelo dock. -->
+<resources>
+    <string name="screen_app_missing">App not found on this head unit (%1$s)</string>
+    <!-- Nome do launcher da suíte na linha "Launcher padrão" das Configurações. -->
+    <string name="settings_launcher_ours" translatable="false">K4811</string>
+</resources>

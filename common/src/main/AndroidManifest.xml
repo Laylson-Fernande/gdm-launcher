@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Leitura de /sdcard/nwd-configs/launcher.json. Com targetSdk < 23 é concedida na instalação. -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
+    <application>
+        <!-- Barra da NWD: responde "tenho tela na frente" para os outros apps da suíte (BottomBar). -->
+        <receiver
+            android:name="com.k4811.common.system.BottomBar$Query"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.k4811.action.BOTTOM_BAR_QUERY" />
+            </intent-filter>
+        </receiver>
+    </application>
+</manifest>

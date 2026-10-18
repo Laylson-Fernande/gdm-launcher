@@ -1,6 +1,6 @@
 # Contributing
 
-Thanks for helping improve **Garagem Launcher**.
+Thanks for helping improve **GDM K4811 App suite**.
 
 ## How to contribute
 
@@ -25,7 +25,7 @@ By contributing, you agree that your contributions are licensed under the [GNU G
 
 # Contribuindo
 
-Obrigado por ajudar a melhorar o **Garagem Launcher**.
+Obrigado por ajudar a melhorar o **GDM K4811 App suite**.
 
 ## Como contribuir
 

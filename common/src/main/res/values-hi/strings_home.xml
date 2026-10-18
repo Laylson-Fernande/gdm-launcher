@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Home screen -->
+    <string name="home_screen_off">स्क्रीन बंद करें</string>
+    <string name="home_settings">सेटिंग्स</string>
+    <string name="home_battery_voltage">बैटरी वोल्टेज</string>
+    <string name="home_volume_down">वॉल्यूम कम</string>
+    <string name="home_mute">म्यूट</string>
+    <string name="home_volume_up">वॉल्यूम ज़्यादा</string>
+    <string name="home_mute_volume">म्यूट करें (वॉल्यूम %1$d)</string>
+    <string name="home_unmute_volume">अनम्यूट करें (वॉल्यूम %1$d)</string>
+    <string name="home_cover">एल्बम कवर</string>
+    <string name="home_now_playing_radio">रेडियो</string>
+    <string name="home_now_playing_mp3">MP3</string>
+    <string name="home_now_playing_bt">ब्लूटूथ</string>
+    <string name="home_previous">पिछला</string>
+    <string name="home_play_pause">चलाएँ या रोकें</string>
+    <string name="home_next">अगला</string>
+    <string name="home_play">चलाएँ</string>
+    <string name="home_pause">रोकें</string>
+    <string name="home_radio">रेडियो</string>
+    <string name="home_radio_unavailable">रेडियो उपलब्ध नहीं</string>
+    <string name="home_radio_turn_on">रेडियो चालू करें</string>
+    <string name="home_radio_turn_off">रेडियो बंद करें</string>
+    <string name="home_music">म्यूज़िक</string>
+    <string name="home_phone_disconnected">फ़ोन डिस्कनेक्ट है</string>
+    <string name="home_bt_music">ब्लूटूथ म्यूज़िक</string>
+    <string name="home_nothing_playing">कुछ नहीं चल रहा</string>
+    <string name="home_answer">उठाएँ</string>
+    <string name="home_hang_up">काटें</string>
+    <string name="home_call_incoming">इनकमिंग</string>
+    <string name="home_call_outgoing">कॉल हो रही है</string>
+    <string name="home_call_active">कॉल पर</string>
+    <string name="home_unknown_number">अज्ञात नंबर</string>
+    <string name="home_fan">पंखा</string>
+    <string name="home_fan_caps">पंखा</string>
+    <string name="home_fan_on">चालू</string>
+    <string name="home_fan_off">बंद</string>
+    <string name="home_bluetooth">ब्लूटूथ</string>
+    <string name="home_bt_connected">कनेक्टेड</string>
+    <string name="home_bt_disconnected">डिस्कनेक्टेड</string>
+    <string name="home_phone">फ़ोन</string>
+    <string name="home_tap_to_connect">कनेक्ट करने के लिए टैप करें</string>
+    <string name="home_tap_to_wake">स्क्रीन चालू करने के लिए टैप करें</string>
+    <!-- Weekday, month name, day of month, year -->
+    <string name="home_date">%1$s, %3$d %2$s %4$d</string>
+    <string name="home_settings_not_found">सेटिंग्स नहीं मिलीं</string>
+
+    <!-- Default launcher dialogs -->
+    <string name="home_default_launcher_title">डिफ़ॉल्ट लॉन्चर</string>
+    <string name="home_default_launcher_message">हेड यूनिट में कोई दूसरा लॉन्चर डिफ़ॉल्ट है:\n%1$s\n\nक्या K4811 को डिफ़ॉल्ट लॉन्चर बनाएँ?</string>
+    <string name="home_not_set_paren">(सेट नहीं)</string>
+    <string name="home_not_set">सेट नहीं</string>
+    <string name="home_not_now">अभी नहीं</string>
+    <string name="home_set">सेट करें</string>
+    <string name="home_default_launcher_done">K4811 को डिफ़ॉल्ट लॉन्चर बना दिया गया</string>
+    <string name="home_default_launcher_failed_title">बदला नहीं जा सका</string>
+    <string name="home_default_launcher_failed_message">सिस्टम ने बदलाव लागू नहीं किया (मौजूदा मान: %1$s)।\n\nमैन्युअल रूप से सेट करने के लिए adb कनेक्ट करके चलाएँ:</string>
+
+    <!-- Dialog buttons -->
+    <string name="home_cancel">रद्द करें</string>
+    <string name="home_ok">ठीक है</string>
+
+    <!-- App drawer -->
+    <string name="home_apps_back">वापस</string>
+    <string name="home_apps_title">ऐप्स</string>
+    <plurals name="home_apps_count">
+        <item quantity="one">%1$d ऐप</item>
+        <item quantity="other">%1$d ऐप</item>
+    </plurals>
+    <string name="home_apps_empty">कोई ऐप नहीं</string>
+    <string name="home_apps_not_found">ऐप नहीं मिला</string>
+    <string name="home_app_fan">पंखा</string>
+
+    <!-- Dock: short label / full name (Settings list) -->
+    <string name="home_dock_home">होम</string>
+    <string name="home_dock_home_title">होम</string>
+    <string name="home_dock_radio">रेडियो</string>
+    <string name="home_dock_radio_title">रेडियो</string>
+    <string name="home_dock_music">MP3</string>
+    <string name="home_dock_music_title">म्यूज़िक (USB/SD)</string>
+    <string name="home_dock_bt_music">ब्लूटूथ</string>
+    <string name="home_dock_bt_music_title">ब्लूटूथ म्यूज़िक</string>
+    <string name="home_dock_phone">फ़ोन</string>
+    <string name="home_dock_phone_title">फ़ोन</string>
+    <string name="home_dock_eq">इक्वलाइज़र</string>
+    <string name="home_dock_eq_title">इक्वलाइज़र</string>
+    <string name="home_dock_aux">AUX</string>
+    <string name="home_dock_aux_title">AUX</string>
+    <string name="home_dock_cam360">360</string>
+    <string name="home_dock_cam360_title">360 कैमरा</string>
+    <string name="home_dock_video">वीडियो</string>
+    <string name="home_dock_video_title">वीडियो</string>
+    <string name="home_dock_apps">ऐप्स</string>
+    <string name="home_dock_apps_title">ऐप्स</string>
+    <string name="home_image">चुना गया चित्र</string>
+    <string name="home_image_empty">सेटिंग्स › अनुकूलन में एक चित्र चुनें</string>
+    <string name="home_speed_unit">किमी/घं</string>
+    <string name="home_gps_waiting">GPS की प्रतीक्षा</string>
+    <string name="home_gps_unavailable">GPS नहीं</string>
+    <string name="home_gps_lat">अक्षांश</string>
+    <string name="home_gps_lon">देशांतर</string>
+    <string name="home_gps_alt">ऊँचाई</string>
+    <string name="home_gps_dir">दिशा</string>
+    <string name="home_gps_stopped">रुका हुआ</string>
+    <string name="home_gps_altitude_value">%1$d मी</string>
+    <string name="home_gps_heading_value">%1$s (%2$d°)</string>
+    <string name="home_gps_dir_n">उ</string>
+    <string name="home_gps_dir_ne">उपू</string>
+    <string name="home_gps_dir_e">पू</string>
+    <string name="home_gps_dir_se">दपू</string>
+    <string name="home_gps_dir_s">द</string>
+    <string name="home_gps_dir_sw">दप</string>
+    <string name="home_gps_dir_w">प</string>
+    <string name="home_gps_dir_nw">उप</string>
+    <string name="screen_opening">खुल रहा है</string>
+    <string name="home_day">दिन</string>
+    <string name="home_night">रात (हेडलाइट चालू)</string>
+    <!-- Menu da borda de baixo (EdgeMenuService) -->
+    <string name="overlay_back">पीछे</string>
+    <string name="overlay_home">होम</string>
+</resources>

@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="screen_app_missing">App no encontrada en este equipo (%1$s)</string>
+</resources>

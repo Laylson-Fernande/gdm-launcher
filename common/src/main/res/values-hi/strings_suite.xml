@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="screen_app_missing">इस हेड यूनिट पर ऐप नहीं मिला (%1$s)</string>
+</resources>

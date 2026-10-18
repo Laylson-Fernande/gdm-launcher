@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- /sdcard/nwd-configs/launcher.json e arquivos de configuração da central. Com targetSdk < 23 é concedida na instalação. -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <!-- Gravar as chaves da ventoinha em Settings.System. Com targetSdk < 23 é concedida na instalação. -->
+    <uses-permission android:name="android.permission.WRITE_SETTINGS" />
+
+    <application
+        android:name="com.k4811.common.SuiteApp"
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme">
+
+        <!-- Apps com targetSdk < 26 ganham um limite de proporção de 1,86 (tela "encaixotada");
+             liberamos até 2,4 para ocupar os 1280×720 inteiros. -->
+        <meta-data
+            android:name="android.max_aspect"
+            android:value="2.4" />
+
+        <!-- Única tela: ventoinha (chaves mcu_smart_fan_* em Settings.System), como o com.nwd.cpumonitor. -->
+        <activity
+            android:name=".FanActivity"
+            android:configChanges="fontScale|keyboard|keyboardHidden|locale|mcc|mnc|navigation|orientation|screenLayout|screenSize|smallestScreenSize|uiMode|density"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:screenOrientation="sensorLandscape">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- Nome da Activity do app original: o sistema e outros apps abrem por este componente. -->
+        <activity-alias
+            android:name="com.nwd.cpumonitor.MainActivity"
+            android:exported="true"
+            android:targetActivity=".FanActivity" />
+
+    </application>
+</manifest>

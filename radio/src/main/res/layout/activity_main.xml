@@ -1,0 +1,291 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Layout designed for 1280×720 (Ui.applyDesignDensity makes 1dp = 1px at that size); the dock
+    takes the bottom 160dp. One column, also used in portrait. Top to bottom: dial, the station
+    (centered, tuning controls on both sides), reception functions + band + power and, right above
+    the dock, the 12 memories in a row that scrolls sideways (RadioActivity sizes them).
+-->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/main_bg">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:paddingBottom="10dp"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:paddingTop="8dp">
+
+        <!-- Dial: drag to tune by hand -->
+        <com.k4811.radio.ui.TunerDialView
+            android:id="@+id/dial"
+            android:layout_width="match_parent"
+            android:layout_height="72dp" />
+
+        <!-- Station, centered, with the tuning controls on both sides -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <com.k4811.common.ui.IconView
+                android:id="@+id/btn_seek_prev"
+                android:layout_width="72dp"
+                android:layout_height="72dp"
+                android:contentDescription="@string/radio_cd_prev_saved" />
+
+            <com.k4811.common.ui.IconView
+                android:id="@+id/btn_step_prev"
+                android:layout_width="72dp"
+                android:layout_height="72dp"
+                android:layout_marginLeft="12dp"
+                android:contentDescription="@string/radio_cd_step_down" />
+
+            <!-- Station art (K4811/radio/FM_104.5.jpg, placeholder without it) + frequency, name and RadioText -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <FrameLayout
+                    android:id="@+id/station_art_frame"
+                    android:layout_width="150dp"
+                    android:layout_height="150dp"
+                    android:layout_marginRight="28dp"
+                    android:background="@drawable/art_frame">
+
+                    <!-- Placeholder while there is no K4811/radio/<FM|AM>_<freq>.jpg -->
+                    <com.k4811.common.ui.IconView
+                        android:id="@+id/station_art_placeholder"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:clickable="false"
+                        android:focusable="false" />
+
+                    <ImageView
+                        android:id="@+id/station_art"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:contentDescription="@string/radio_cd_station_art"
+                        android:scaleType="centerCrop" />
+                </FrameLayout>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="left"
+                    android:orientation="vertical">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:baselineAligned="true"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/freq_value"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:includeFontPadding="false"
+                            android:singleLine="true"
+                            android:text="98.5"
+                            android:textColor="@color/text"
+                            android:textSize="80sp" />
+
+                        <TextView
+                            android:id="@+id/freq_unit"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="12dp"
+                            android:includeFontPadding="false"
+                            android:text="MHz"
+                            android:textColor="@color/text_muted"
+                            android:textSize="36sp" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/station_name"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:ellipsize="end"
+                        android:includeFontPadding="false"
+                        android:maxWidth="440dp"
+                        android:singleLine="true"
+                        android:textColor="@color/text"
+                        android:textSize="38sp" />
+
+                    <!-- Scrolling RadioText -->
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="34dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/rt_left"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="«"
+                            android:textColor="@color/text_dim"
+                            android:textSize="24sp" />
+
+                        <TextView
+                            android:id="@+id/radio_text"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="12dp"
+                            android:layout_marginRight="12dp"
+                            android:ellipsize="marquee"
+                            android:marqueeRepeatLimit="marquee_forever"
+                            android:maxWidth="380dp"
+                            android:singleLine="true"
+                            android:textColor="@color/text_muted"
+                            android:textSize="22sp" />
+
+                        <TextView
+                            android:id="@+id/rt_right"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="»"
+                            android:textColor="@color/text_dim"
+                            android:textSize="24sp" />
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+
+            <com.k4811.common.ui.IconView
+                android:id="@+id/btn_step_next"
+                android:layout_width="72dp"
+                android:layout_height="72dp"
+                android:layout_marginRight="12dp"
+                android:contentDescription="@string/radio_cd_step_up" />
+
+            <com.k4811.common.ui.IconView
+                android:id="@+id/btn_seek_next"
+                android:layout_width="72dp"
+                android:layout_height="72dp"
+                android:contentDescription="@string/radio_cd_next_saved" />
+        </LinearLayout>
+
+        <!-- Power, reception functions and band (same look); keypad on the right -->
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="48dp">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:id="@+id/btn_power"
+                    style="@style/ToggleBox"
+                    android:contentDescription="@string/radio_cd_power">
+                    <com.k4811.common.ui.IconView
+                        android:id="@+id/btn_power_icon"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp" />
+                    <TextView android:id="@+id/btn_power_text" style="@style/ToggleBoxText" />
+                    <View
+                        android:id="@+id/btn_power_dot"
+                        android:layout_width="12dp"
+                        android:layout_height="12dp"
+                        android:layout_marginLeft="14dp"
+                        android:background="@drawable/status_dot" />
+                </LinearLayout>
+
+                <LinearLayout android:id="@+id/toggle_st" style="@style/ToggleBox">
+                    <com.k4811.common.ui.IconView
+                        android:id="@+id/toggle_st_icon"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp" />
+                    <TextView android:id="@+id/toggle_st_text" style="@style/ToggleBoxText" />
+                    <View
+                        android:id="@+id/toggle_st_dot"
+                        android:layout_width="12dp"
+                        android:layout_height="12dp"
+                        android:layout_marginLeft="14dp"
+                        android:background="@drawable/status_dot" />
+                </LinearLayout>
+
+                <LinearLayout android:id="@+id/toggle_loc" style="@style/ToggleBox">
+                    <com.k4811.common.ui.IconView
+                        android:id="@+id/toggle_loc_icon"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp" />
+                    <TextView android:id="@+id/toggle_loc_text" style="@style/ToggleBoxText" />
+                    <View
+                        android:id="@+id/toggle_loc_dot"
+                        android:layout_width="12dp"
+                        android:layout_height="12dp"
+                        android:layout_marginLeft="14dp"
+                        android:background="@drawable/status_dot" />
+                </LinearLayout>
+
+                <!-- Band: each tap goes to the next one (FM1 → FM2 → FM3 → AM1 → AM2 → FM1) -->
+                <LinearLayout android:id="@+id/btn_band" style="@style/ToggleBox">
+                    <com.k4811.common.ui.IconView
+                        android:id="@+id/btn_band_icon"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp" />
+                    <TextView android:id="@+id/btn_band_text" style="@style/ToggleBoxText" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_gravity="right"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <com.k4811.common.ui.IconView
+                    android:id="@+id/btn_keypad"
+                    android:layout_width="64dp"
+                    android:layout_height="48dp"
+                    android:contentDescription="@string/radio_cd_keypad" />
+            </LinearLayout>
+        </FrameLayout>
+
+        <!-- Memories: RadioActivity fills the row (6 and a bit of the 7th fit across) -->
+        <HorizontalScrollView
+            android:id="@+id/presets_scroll"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:fadingEdgeLength="24dp"
+            android:overScrollMode="never"
+            android:requiresFadingEdge="horizontal"
+            android:scrollbars="none">
+
+            <LinearLayout
+                android:id="@+id/presets_grid"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal" />
+        </HorizontalScrollView>
+    </LinearLayout>
+
+    <!-- Connection warning -->
+    <TextView
+        android:id="@+id/banner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:background="@drawable/pill"
+        android:paddingBottom="12dp"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:paddingTop="12dp"
+        android:textSize="22sp"
+        android:visibility="gone" />
+</FrameLayout>

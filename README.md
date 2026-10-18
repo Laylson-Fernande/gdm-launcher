@@ -1,221 +1,163 @@
-# 🚗 Garagem Launcher
+# GDM K4811 App suite
 
-> A custom home screen for **NWD** Android car head units (1280×720), built with one goal: **an amazing in-car experience**. ✨
+> A custom home screen and companion apps for **NWD** Android car head units (1280×720), built with one goal: **an amazing in-car experience**.
 
 🌐 **Website:** [garagemdomadeira.com](https://garagemdomadeira.com) · 📺 **YouTube:** [Garagem do Madeira](https://www.youtube.com/@garagemdomadeira)
 
 ---
 
-## 🇺🇸 English
+## English
 
-**Garagem Launcher** is an open-source launcher that replaces the stock home screen of NWD head units. It puts everything you use while driving (radio, music, Bluetooth, phone, equalizer and car settings) into a clean, minimalist interface that is fast and easy to use at a glance.
+**GDM K4811 App suite** is an open-source suite for NWD head units: a light home screen plus separate apps for radio, music, Bluetooth, phone, equalizer, fan and settings. Same look, same dock, one audio source at a time.
 
-The project is part of **Garagem do Madeira**, a space about cars, DIY and technology. You can follow the work on the website [garagemdomadeira.com](https://garagemdomadeira.com) and on the YouTube channel [@garagemdomadeira](https://www.youtube.com/@garagemdomadeira). 🔧
+The project is part of **Garagem do Madeira**, a space about cars, DIY and technology. Follow the work on [garagemdomadeira.com](https://garagemdomadeira.com) and [@garagemdomadeira](https://www.youtube.com/@garagemdomadeira).
 
-🎯 **The focus is the experience:** big touch targets, readable at a glance, smooth animations, nothing that distracts you from the road, and nothing that changes your audio unless you ask for it.
+**The focus is the experience:** big touch targets, readable at a glance, smooth animations, nothing that distracts you from the road, and nothing that changes your audio unless you ask for it.
 
-## 🇧🇷 Português
+## Português
 
-O **Garagem Launcher** é um launcher de código aberto que substitui a tela inicial original das centrais multimídia NWD. Ele reúne tudo o que você usa ao dirigir (rádio, música, Bluetooth, telefone, equalizador e ajustes do carro) numa interface limpa e minimalista, rápida e fácil de entender com uma olhada.
+O **GDM K4811 App suite** é uma suíte de código aberto para centrais NWD: uma tela inicial leve e apps separados para rádio, música, Bluetooth, telefone, equalizador, ventoinha e configurações. Mesmo visual, mesmo dock, uma fonte de áudio por vez.
 
-O projeto faz parte da **Garagem do Madeira**, um espaço sobre carros, faça-você-mesmo e tecnologia. Acompanhe o trabalho no site [garagemdomadeira.com](https://garagemdomadeira.com) e no canal do YouTube [@garagemdomadeira](https://www.youtube.com/@garagemdomadeira). 🔧
+O projeto faz parte da **Garagem do Madeira**, um espaço sobre carros, faça-você-mesmo e tecnologia. Acompanhe no site [garagemdomadeira.com](https://garagemdomadeira.com) e no canal [@garagemdomadeira](https://www.youtube.com/@garagemdomadeira).
 
-🎯 **O foco é a experiência:** botões grandes, leitura rápida, animações suaves, nada que tire a sua atenção da estrada e nada que mexa no seu áudio sem você pedir.
+**O foco é a experiência:** botões grandes, leitura rápida, animações suaves, nada que tire a atenção da estrada e nada que mexa no áudio sem você pedir.
 
-## 🇪🇸 Español
+## Español
 
-**Garagem Launcher** es un launcher de código abierto que reemplaza la pantalla de inicio original de las radios multimedia NWD. Reúne todo lo que usas al conducir (radio, música, Bluetooth, teléfono, ecualizador y ajustes del coche) en una interfaz limpia y minimalista, rápida y fácil de entender de un vistazo.
+**GDM K4811 App suite** es una suite de código abierto para radios NWD: una pantalla de inicio ligera y apps separadas para radio, música, Bluetooth, teléfono, ecualizador, ventilador y ajustes. Misma apariencia, mismo dock, una fuente de audio a la vez.
 
-El proyecto forma parte de **Garagem do Madeira**, un espacio sobre coches, hazlo-tú-mismo y tecnología. Sigue el trabajo en el sitio [garagemdomadeira.com](https://garagemdomadeira.com) y en el canal de YouTube [@garagemdomadeira](https://www.youtube.com/@garagemdomadeira). 🔧
+El proyecto forma parte de **Garagem do Madeira**. Sigue el trabajo en [garagemdomadeira.com](https://garagemdomadeira.com) y [@garagemdomadeira](https://www.youtube.com/@garagemdomadeira).
 
-🎯 **El foco es la experiencia:** botones grandes, lectura rápida, animaciones suaves, nada que te distraiga de la carretera y nada que cambie tu audio sin que lo pidas.
+**El foco es la experiencia:** botones grandes, lectura rápida, animaciones suaves, nada que distraiga de la carretera y nada que cambie el audio sin que lo pidas.
 
 ---
 
-## ✨ Features
+## Apps
 
-| | Screen | What it does |
-|---|---|---|
-| 🏠 | **Home** | Modules placed on a 6-slot grid (clock and date, volume and mute, "now playing" for radio, USB/SD or Bluetooth, fan and Bluetooth status, a picture of your choice, GPS speed and GPS data), each resizing to its slot, and a customizable dock. The top bar shows day/night (moon = headlights on), the battery voltage and what is playing (Radio, MP3 or BT) |
-| 📻 | **Radio** | FM/AM with RDS (station name, RadioText), station art, 12 favorites per band, tuning dial, power button, Stereo and Distant toggles and numeric keypad |
-| 🎵 | **Music** | Music player with album art and track list, playing from a folder you choose (internal memory, USB or SD) |
-| 🎧 | **Bluetooth music** | A2DP/AVRCP playback controls and track info from your phone |
-| 📞 | **Phone** | Bluetooth dialer, contacts, call history and in-call screen |
-| 🎚️ | **Equalizer** | 10-band EQ with presets, loudness and sound field (fader/balance) |
-| 🌀 | **Fan** | Cooling fan preferences |
-| 📱 | **Apps** | Paged grid of installed apps |
-| ⚙️ | **Settings** | Four panels in a side column: **Main** (language, day/night and voltmeter, turn screen off after), **Customize** (theme color, font, home modules, dock), **Assists** (reverse camera, navigation) and **System** (default launcher, beep and volume, display, "About the unit") |
+Cada pasta tem o seu próprio README com detalhes daquele app:
 
-🔇 Opening the home screen **never** turns the radio on or interrupts what's playing.
+| App | Pasta | Package | README |
+|---|---|---|---|
+| Launcher (home + drawer) | `launcher/` | `com.garagemdomadeira.nwd.launcher` | [README](launcher/README.md) |
+| Settings (engrenagem) | `car-setting/` | `com.nwd.car.setting` | [README](car-setting/README.md) |
+| Radio | `radio/` | `com.nwd.radio` | [README](radio/README.md) |
+| Music (MP3) | `music/` | `com.nwd.android.music.ui` | [README](music/README.md) |
+| Bluetooth music | `bt-music/` | `com.nwd.bt.music` | [README](bt-music/README.md) |
+| Phone | `phone/` | `com.nwd.android.phone` | [README](phone/README.md) |
+| Equalizer | `eq/` | `com.nwd.audioset` | [README](eq/README.md) |
+| Fan | `fan/` | `com.nwd.cpumonitor` | [README](fan/README.md) |
+| Common (biblioteca) | `common/` | — | [README](common/README.md) |
 
-🔀 **One source at a time:** starting the radio, the MP3 player or Bluetooth music pauses the other two.
+Function apps that replace stock NWD apps use the **same package** as the originals. Launcher and car-setting install **alongside** the stock apps.
 
-📻 **Radio files** live in `Garagem/radio/` on the head unit's internal storage (never USB or SD):
+---
 
-- Station art, 1:1: `FM_104.5.jpg`, `AM_1040.png`… Without a file, the radio screen shows a radio icon in its place.
-- `radio.config.json`: the 12 memories of each band and the last station, which come back at power-on. The app writes it, and you can also edit it by hand (FM in MHz, AM in kHz, a missing memory is empty):
+## Features
 
-```json
-{
-  "version": 1,
-  "last": { "band": "FM1", "frequency": 99.1 },
-  "bands": {
-    "FM1": { "M1": 104.5, "M2": 99.1, "M7": 87.55 },
-    "AM1": { "M1": 1040 }
-  }
-}
-```
+| Screen | What it does |
+|---|---|
+| **Home** | Modules on a 6-slot grid (clock, volume, now playing, fan, Bluetooth, image, GPS…), customizable dock, day/night and voltage on the top bar |
+| **Radio** | FM/AM with RDS, station art, 12 favorites per band, tuning dial, Stereo / Distant |
+| **Music** | Player with album art and track list from a chosen folder |
+| **Bluetooth music** | A2DP/AVRCP controls and track info |
+| **Phone** | Dialer, contacts, history and in-call UI |
+| **Equalizer** | 10-band EQ, presets, loudness, fader/balance |
+| **Fan** | Cooling fan preferences |
+| **Apps** | Paged grid of installed apps |
+| **Settings** | Language, theme, font, home layout, dock, assists, system options |
 
-If the file has a mistake, the radio screen warns about it and saves nothing until it's fixed.
+Opening home **never** turns the radio on or interrupts playback.
 
-## 🌍 Languages
+**One source at a time:** starting radio, MP3 or Bluetooth music pauses the other two — across apps.
 
-The app ships in 8 languages, selectable in **Settings → Language** (each shown with a reference flag), independent of the system language:
+**8 languages**, **14 theme colors**, **6 fonts** — set once in car-setting, followed by every app.
 
-| | Language | Strings |
-|---|---|---|
-| 🇺🇸 | English (default) | `app/src/main/res/values/strings*.xml` |
-| 🇧🇷 | Portuguese (Brazil) | `app/src/main/res/values-pt/strings*.xml` |
-| 🇪🇸 | Spanish | `app/src/main/res/values-es/strings*.xml` |
-| 🇫🇷 | French | `app/src/main/res/values-fr/strings*.xml` |
-| 🇷🇺 | Russian | `app/src/main/res/values-ru/strings*.xml` |
-| 🇯🇵 | Japanese | `app/src/main/res/values-ja/strings*.xml` |
-| 🇨🇳 | Mandarin (Simplified Chinese) | `app/src/main/res/values-zh/strings*.xml` |
-| 🇮🇳 | Hindi | `app/src/main/res/values-hi/strings*.xml` |
+Shared config lives in `/sdcard/nwd-configs/launcher.json` (only car-setting writes it).
 
-Strings are split by area (`strings_home.xml`, `strings_radio.xml`, `strings_settings.xml`…), each name prefixed with its area (`home_`, `radio_`, `settings_`…).
+Radio art and `radio.config.json` live under `/sdcard/K4811/radio/` on internal storage.
 
-➕ **Adding a language** (e.g. German):
+---
 
-1. Copy `res/values-pt/` to `res/values-de/` and translate the texts.
-2. In `home/LauncherPrefs.java`, add the tag to `LANGUAGES` (`"de"`) and the language's own name, with its flag, to `LANGUAGE_NAMES` (`"🇩🇪 Deutsch"`).
-3. If you need a regional variant (like `pt` → `pt-BR` or `zh` → `zh-CN`), adjust `Ui.applyLanguage`.
+## Build and install
 
-Contributions with new translations are very welcome! 🙌
-
-## 🎨 Theme colors
-
-In **Settings → Appearance → Theme color** you pick one of 14 themes, shown as color swatches:
-
-- **Columns:** grayscale, blue, violet, red, orange, yellow and green.
-- **Top row:** the color as the accent on a black background. Grayscale on black is the default.
-- **Bottom row:** the same accent with the background in a dark shade of the theme color.
-
-Every theme color is derived from the chosen hue in OKLCH (perceptual lightness, chroma and hue), so all themes keep the same lightness per token: dark backgrounds and readable text in any color. Error, warning and success colors never change.
-
-- Tokens and derivation: `ui/Palette.java`
-- Themed versions of the XML drawables and color selectors: `ui/ThemeDrawables.java`
-- Applying the theme to every inflated layout: `ui/ThemeInflater.java`
-
-## 🔤 Fonts
-
-**Exo 2** is the default. In **Settings → Appearance → Font** you can switch to **Montserrat**, **Rajdhani**, **Outfit**, **Inter** or **Public Sans**.
-
-Each font ships as three static weights in `app/src/main/assets/fonts/` (`<Font>-400.ttf`, `-500.ttf`, `-600.ttf`), subset to Latin to keep the APK small. To add one, drop the three files and its OFL license there, then add its file prefix to `FONTS` and its display name to `FONT_NAMES` in `home/LauncherPrefs.java`.
-
-## 📦 Build and install
-
-Requires the Android SDK (its path goes in `local.properties`, `sdk.dir=...`).
+Requires the Android SDK (`sdk.dir=...` in `local.properties`).
 
 ```bash
-./gradlew assembleRelease
+./gradlew assembleRelease            # all apps
+./gradlew :radio:assembleRelease     # one app
 ```
 
+APKs land in `<app>/build/outputs/apk/release/<app>-release.apk`.
+
+Release signing uses `keystore.properties` at the repo root (see `keystore.properties.example`). Without it, release builds use the debug key.
+
 ```bash
-adb install -r app/build/outputs/apk/release/app-release.apk
+./copy-to-updateApk.sh --build       # build and copy all APKs to updateApk/
+./copy-apks.sh --build               # build and copy to the UpdateApk USB folder
 ```
+
+Set the launcher as home (after install):
 
 ```bash
 adb shell cmd package set-home-activity com.garagemdomadeira.nwd.launcher/.HomeActivity
 ```
 
-The release build is signed with the debug key so it can be installed directly on the head unit. 💾 **Without adb:** copy the APK to a USB drive, install it, press Home and choose **Garagem** → **Always**.
+**Without adb:** copy the APKs to a USB drive / `UpdateApk` card, install them on the unit, press Home and choose the Garagem launcher → **Always**.
 
-### ↩️ Going back to the stock launcher
-
-```bash
-adb shell cmd package query-activities --brief -a android.intent.action.MAIN -c android.intent.category.HOME
-```
-
-```bash
-adb shell cmd package set-home-activity <package>/<stock launcher activity>
-```
-
-As a last resort, uninstalling Garagem brings the stock launcher back:
+### Stock launcher again
 
 ```bash
 adb uninstall com.garagemdomadeira.nwd.launcher
 ```
 
-🆘 **Emergency exit:** long-press the empty area of the home screen to open Android Settings.
+**Emergency exit:** long-press the empty area of the home screen to open Android Settings.
 
-## 🛠️ Developer mode
+---
 
-Debug and factory features are hidden by default. They show up when the file `LAUNCHER_DEV_MODE.txt` exists at the root of the internal storage (`/sdcard/LAUNCHER_DEV_MODE.txt`). The file's content doesn't matter, and it's checked every time a screen opens.
+## Developer mode
+
+Create `/sdcard/LAUNCHER_DEV_MODE.txt` on the unit to show diagnostics, last error and the Advanced menu.
 
 ```bash
 adb shell touch /sdcard/LAUNCHER_DEV_MODE.txt
 ```
 
-```bash
-adb shell rm /sdcard/LAUNCHER_DEV_MODE.txt
-```
-
-| Screen | What developer mode shows |
-|---|---|
-| 📻 Radio | Diagnostics (long-press the frequency number) |
-| 🎚️ Equalizer | **Diag.** tab and the MCU/DSP badge |
-| ⚙️ Settings | "Last app error" panel, technical "About the unit" lines (NWD platform, SoC, DSP, services, cameras) and the password-protected **Advanced** entry (head unit menus, system props, factory audio, CarPlay…) |
-
-The check lives in `system/DevMode.java`.
-
-### 🧪 Demo mode
-
-To preview the radio layout without a head unit (emulator at 1280×720, 160 dpi):
+### Radio demo (no head unit)
 
 ```bash
-adb shell am start -n com.garagemdomadeira.nwd.launcher/.RadioActivity --ez demo true
+adb shell am start -n com.nwd.radio/com.k4811.radio.RadioActivity --ez demo true
 ```
 
-## 🧩 Technical notes
+---
+
+## Technical notes
 
 | | |
 |---|---|
-| 📦 Package | `com.garagemdomadeira.nwd.launcher` |
-| ☕ Language | Pure Java, classic Android Views, **no external libraries** |
-| 🤖 minSdk / targetSdk | 17 / 19 |
-| 🖥️ Resolution | Designed for 1280×720 |
-| 🔤 Fonts | [Exo 2](https://github.com/googlefonts/Exo-2.0) (default), [Montserrat](https://github.com/JulietaUla/Montserrat), [Rajdhani](https://fonts.google.com/specimen/Rajdhani), [Outfit](https://github.com/Outfitio/Outfit-Fonts), [Inter](https://github.com/rsms/inter) and [Public Sans](https://github.com/uswds/public-sans), all under the SIL Open Font License (`app/src/main/assets/fonts/OFL-*.txt`) |
+| Language | Pure Java, classic Views + XML, **no external libraries** |
+| minSdk / targetSdk | 17 / 19 |
+| Design | 1280×720 (portrait layouts where available for 768×1024) |
+| Guide for contributors / agents | [`AGENTS.md`](AGENTS.md) · `SPEC.md` in each module |
 
-- No AndroidX, AppCompat or Compose: only Android Views and custom Views drawn on `Canvas`.
-- Icons are drawn in code (`ui/IconView`), since vector drawables only exist from Android 5.
-- Fixed 1280×720 scale (`Ui.applyDesignDensity`): 1 dp = 1 design pixel, whatever density the unit reports.
-- `android.max_aspect = 2.4` in the manifest avoids black bars on Android 10.
-- With `targetSdk 19`, Android 10 shows a one-time "built for an older version of Android" notice. Just tap OK.
+Java packages live under `com.k4811.*`. Application IDs are defined only in the root `build.gradle.kts`.
 
-## 🗂️ Project structure
+---
+
+## Project structure
 
 ```
-app/src/main/
-├── AndroidManifest.xml
-├── aidl/                        # system service interfaces (radio, settings, Bluetooth)
-├── assets/fonts/                # fonts (400/500/600, Latin subset) + OFL licenses
-├── java/com/garagemdomadeira/nwd/launcher/
-│   ├── *Activity.java           # one Activity per screen
-│   ├── bt/                      # Bluetooth client (phone and music)
-│   ├── eq/                      # equalizer and DSP
-│   ├── home/                    # home state, volume, mute, app catalog, preferences
-│   ├── music/                   # USB/SD library and playback
-│   ├── radio/                   # radio client, bands, presets
-│   ├── system/                  # system props, head unit settings, external apps, crash log, dev mode
-│   └── ui/                      # Ui (colors/fonts/scale), custom Views, dialogs
-└── res/
+common/          shared dock, theme, NWD clients
+launcher/        home + app drawer
+car-setting/     settings
+radio/ music/ bt-music/ phone/ eq/ fan/
 ```
 
-## ⚠️ Disclaimer
+---
+
+## Disclaimer
 
 This is an independent, community project. It is **not affiliated with or endorsed by NWD** or any head unit manufacturer. Use it at your own risk: it talks to the head unit's system services, and factory options (developer mode) can change how your unit behaves.
 
 ---
 
-<p align="center">Made with ❤️ and ☕ at <a href="https://garagemdomadeira.com">Garagem do Madeira</a> 🚗</p>
+<p align="center">Made with care at <a href="https://garagemdomadeira.com">Garagem do Madeira</a></p>

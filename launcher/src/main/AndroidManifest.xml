@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- "O que está tocando": lê o serviço de rádio e manda memória anterior/próxima e liga/desliga,
+         com as mesmas permissões do app de rádio original (ignoradas se o sistema não conceder). -->
+    <uses-permission
+        android:name="android.permission.ACCESS_FM_RADIO"
+        tools:ignore="ProtectedPermissions" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+    <!-- Para pedir ao sistema NWD que altere propriedades (Settings.System "nwd_system_prop"),
+         como o launcher padrão. Com targetSdk < 23 é concedida na instalação. -->
+    <uses-permission android:name="android.permission.WRITE_SETTINGS" />
+    <!-- Leitura de /sdcard/nwd-configs/launcher.json (gravado pelo car-setting). -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <!-- Módulos de velocidade e dados do GPS da tela inicial. Com targetSdk < 23 é concedida na instalação. -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <!-- Aviso de volume e menu da borda de baixo por cima dos outros apps (overlay/). Com targetSdk < 23 é concedida na instalação. -->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+
+    <application
+        android:name=".LauncherApp"
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme">
+
+        <!-- Apps com targetSdk < 26 ganham um limite de proporção de 1,86 (tela "encaixotada");
+             liberamos até 2,4 para ocupar os 1280×720 inteiros. -->
+        <meta-data
+            android:name="android.max_aspect"
+            android:value="2.4" />
+
+        <!-- Tela inicial (launcher). -->
+        <activity
+            android:name=".HomeActivity"
+            android:clearTaskOnLaunch="true"
+            android:configChanges="fontScale|keyboard|keyboardHidden|locale|mcc|mnc|navigation|orientation|screenLayout|screenSize|smallestScreenSize|uiMode|density"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:screenOrientation="nosensor"
+            android:stateNotNeeded="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.HOME" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- Gaveta: aberta pelo item Apps do dock, aqui e nos apps do suíte (com.k4811.launcher.action.APPS). -->
+        <activity
+            android:name=".AppsActivity"
+            android:configChanges="fontScale|keyboard|keyboardHidden|locale|mcc|mnc|navigation|orientation|screenLayout|screenSize|smallestScreenSize|uiMode|density"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:screenOrientation="sensorLandscape">
+            <intent-filter>
+                <action android:name="com.k4811.launcher.action.APPS" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <!-- Aviso de volume por cima dos apps. Exportado só para a prévia pelo adb (modo desenvolvedor). -->
+        <service
+            android:name="com.k4811.launcher.overlay.VolumeOverlayService"
+            android:exported="true" />
+        <!-- Menu Voltar | Vol− Vol+ | Início ao deslizar da borda de baixo. -->
+        <service
+            android:name="com.k4811.launcher.overlay.EdgeMenuService"
+            android:exported="false" />
+    </application>
+</manifest>

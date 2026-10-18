@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Arquivos do USB/SD, capas e /sdcard/nwd-configs/launcher.json. Com targetSdk < 23 é concedida na instalação. -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <!-- Últimas configurações do player em K4811/mp3player/mp3player.config.json. -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <!-- MediaPlayer com PARTIAL_WAKE_LOCK enquanto toca. -->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+    <application
+        android:name=".MusicApp"
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme">
+
+        <!-- Apps com targetSdk < 26 ganham um limite de proporção de 1,86 (tela "encaixotada");
+             liberamos até 2,4 para ocupar os 1280×720 inteiros. -->
+        <meta-data
+            android:name="android.max_aspect"
+            android:value="2.4" />
+
+        <!-- Única tela, como no com.nwd.android.music.ui original (singleTask). -->
+        <activity
+            android:name=".MusicActivity"
+            android:configChanges="fontScale|keyboard|keyboardHidden|locale|mcc|mnc|navigation|orientation|screenLayout|screenSize|smallestScreenSize|uiMode|density"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:screenOrientation="nosensor">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- Nome da Activity do app original: o sistema e outros apps abrem por este componente. -->
+        <activity-alias
+            android:name="com.nwd.android.music.ui.home_horizontalActivity"
+            android:exported="true"
+            android:targetActivity=".MusicActivity" />
+
+
+        <!-- Player: continua tocando com a tela fechada. -->
+        <service
+            android:name=".music.MusicPlaybackService"
+            android:exported="false" />
+
+        <!-- Outro app do suíte virou a fonte de áudio: pausa. -->
+        <receiver
+            android:name=".music.PauseReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.k4811.action.PAUSE_PLAYERS" />
+            </intent-filter>
+        </receiver>
+        <!-- Launcher: comandos (play/pause, anterior, próxima) e pedido de estado do "o que está tocando". -->
+        <receiver
+            android:name=".music.RemoteReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.k4811.action.MUSIC_COMMAND" />
+                <action android:name="com.k4811.action.MUSIC_QUERY" />
+            </intent-filter>
+        </receiver>
+
+        <!-- Carro ligou com o MP3 como última fonte: retoma a música (como o original). -->
+        <receiver
+            android:name=".music.BackgroundPlayReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.nwd.ACTION_BACKGROUND_MEDIA_PLAY" />
+            </intent-filter>
+        </receiver>
+    </application>
+</manifest>

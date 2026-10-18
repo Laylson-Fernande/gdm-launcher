@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Home screen -->
+    <string name="home_screen_off">画面をオフ</string>
+    <string name="home_settings">設定</string>
+    <string name="home_battery_voltage">バッテリー電圧</string>
+    <string name="home_volume_down">音量を下げる</string>
+    <string name="home_mute">ミュート</string>
+    <string name="home_volume_up">音量を上げる</string>
+    <string name="home_mute_volume">ミュート (音量 %1$d)</string>
+    <string name="home_unmute_volume">ミュート解除 (音量 %1$d)</string>
+    <string name="home_cover">アルバムアート</string>
+    <string name="home_now_playing_radio">ラジオ</string>
+    <string name="home_now_playing_mp3">MP3</string>
+    <string name="home_now_playing_bt">Bluetooth</string>
+    <string name="home_previous">前へ</string>
+    <string name="home_play_pause">再生/一時停止</string>
+    <string name="home_next">次へ</string>
+    <string name="home_play">再生</string>
+    <string name="home_pause">一時停止</string>
+    <string name="home_radio">ラジオ</string>
+    <string name="home_radio_unavailable">ラジオを利用できません</string>
+    <string name="home_radio_turn_on">ラジオをオン</string>
+    <string name="home_radio_turn_off">ラジオをオフ</string>
+    <string name="home_music">音楽</string>
+    <string name="home_phone_disconnected">スマートフォン未接続</string>
+    <string name="home_bt_music">Bluetooth 音楽</string>
+    <string name="home_nothing_playing">再生していません</string>
+    <string name="home_answer">応答</string>
+    <string name="home_hang_up">終了</string>
+    <string name="home_call_incoming">着信</string>
+    <string name="home_call_outgoing">発信中</string>
+    <string name="home_call_active">通話中</string>
+    <string name="home_unknown_number">不明な番号</string>
+    <string name="home_fan">ファン</string>
+    <string name="home_fan_caps">ファン</string>
+    <string name="home_fan_on">オン</string>
+    <string name="home_fan_off">オフ</string>
+    <string name="home_bluetooth">Bluetooth</string>
+    <string name="home_bt_connected">接続済み</string>
+    <string name="home_bt_disconnected">未接続</string>
+    <string name="home_phone">電話</string>
+    <string name="home_tap_to_connect">タップして接続</string>
+    <string name="home_tap_to_wake">タップして画面をオン</string>
+    <!-- Weekday, month name, day of month, year -->
+    <string name="home_date">%4$d年%2$s%3$d日 %1$s</string>
+    <string name="home_settings_not_found">設定が見つかりません</string>
+
+    <!-- Default launcher dialogs -->
+    <string name="home_default_launcher_title">デフォルトのランチャー</string>
+    <string name="home_default_launcher_message">ヘッドユニットには別のランチャーがデフォルトに設定されています:\n%1$s\n\nK4811 をデフォルトのランチャーに設定しますか?</string>
+    <string name="home_not_set_paren">(未設定)</string>
+    <string name="home_not_set">未設定</string>
+    <string name="home_not_now">後で</string>
+    <string name="home_set">設定</string>
+    <string name="home_default_launcher_done">K4811 をデフォルトのランチャーに設定しました</string>
+    <string name="home_default_launcher_failed_title">変更できませんでした</string>
+    <string name="home_default_launcher_failed_message">システムは変更を適用しませんでした (現在の値: %1$s)。\n\n手動で設定するには、adb を接続して次を実行してください:</string>
+
+    <!-- Dialog buttons -->
+    <string name="home_cancel">キャンセル</string>
+    <string name="home_ok">OK</string>
+
+    <!-- App drawer -->
+    <string name="home_apps_back">戻る</string>
+    <string name="home_apps_title">アプリ</string>
+    <plurals name="home_apps_count">
+        <item quantity="other">%1$d 個のアプリ</item>
+    </plurals>
+    <string name="home_apps_empty">アプリがありません</string>
+    <string name="home_apps_not_found">アプリが見つかりません</string>
+    <string name="home_app_fan">ファン</string>
+
+    <!-- Dock: short label / full name (Settings list) -->
+    <string name="home_dock_home">ホーム</string>
+    <string name="home_dock_home_title">ホーム</string>
+    <string name="home_dock_radio">ラジオ</string>
+    <string name="home_dock_radio_title">ラジオ</string>
+    <string name="home_dock_music">MP3</string>
+    <string name="home_dock_music_title">音楽 (USB/SD)</string>
+    <string name="home_dock_bt_music">Bluetooth</string>
+    <string name="home_dock_bt_music_title">Bluetooth 音楽</string>
+    <string name="home_dock_phone">電話</string>
+    <string name="home_dock_phone_title">電話</string>
+    <string name="home_dock_eq">イコライザー</string>
+    <string name="home_dock_eq_title">イコライザー</string>
+    <string name="home_dock_aux">AUX</string>
+    <string name="home_dock_aux_title">AUX</string>
+    <string name="home_dock_cam360">360</string>
+    <string name="home_dock_cam360_title">360 カメラ</string>
+    <string name="home_dock_video">ビデオ</string>
+    <string name="home_dock_video_title">ビデオ</string>
+    <string name="home_dock_apps">アプリ</string>
+    <string name="home_dock_apps_title">アプリ</string>
+    <string name="home_image">選択した画像</string>
+    <string name="home_image_empty">設定 › カスタマイズ で画像を選択してください</string>
+    <string name="home_speed_unit">km/h</string>
+    <string name="home_gps_waiting">GPS を待機中</string>
+    <string name="home_gps_unavailable">GPS なし</string>
+    <string name="home_gps_lat">緯度</string>
+    <string name="home_gps_lon">経度</string>
+    <string name="home_gps_alt">高度</string>
+    <string name="home_gps_dir">方角</string>
+    <string name="home_gps_stopped">停車中</string>
+    <string name="home_gps_altitude_value">%1$d m</string>
+    <string name="home_gps_heading_value">%1$s (%2$d°)</string>
+    <string name="home_gps_dir_n">北</string>
+    <string name="home_gps_dir_ne">北東</string>
+    <string name="home_gps_dir_e">東</string>
+    <string name="home_gps_dir_se">南東</string>
+    <string name="home_gps_dir_s">南</string>
+    <string name="home_gps_dir_sw">南西</string>
+    <string name="home_gps_dir_w">西</string>
+    <string name="home_gps_dir_nw">北西</string>
+    <string name="screen_opening">起動中</string>
+    <string name="home_day">昼</string>
+    <string name="home_night">夜（ヘッドライト点灯）</string>
+    <!-- Menu da borda de baixo (EdgeMenuService) -->
+    <string name="overlay_back">戻る</string>
+    <string name="overlay_home">ホーム</string>
+</resources>
