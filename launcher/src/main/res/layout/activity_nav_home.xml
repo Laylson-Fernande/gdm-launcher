@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Painel da tela de navegação: fica numa metade da tela dividida (o app de navegação ocupa a
+    outra), então a largura varia (≈ 430 a 850 dp). De cima para baixo: a informação escolhida
+    (relógio ou velocidade), o cartão da música (app, capa, faixa, controles) e os atalhos.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/nav_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+    <!-- Relógio: hora e data. -->
+    <LinearLayout
+        android:id="@+id/nav_clock"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:paddingBottom="12dp">
+
+        <TextView
+            android:id="@+id/nav_clock_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:includeFontPadding="false"
+            android:textColor="@color/text"
+            android:textSize="96sp" />
+
+        <TextView
+            android:id="@+id/nav_clock_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/text_muted"
+            android:textSize="22sp" />
+    </LinearLayout>
+
+    <!-- Velocidade do GPS. -->
+    <LinearLayout
+        android:id="@+id/nav_speed"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal|bottom"
+        android:orientation="horizontal"
+        android:paddingBottom="12dp"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/nav_speed_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:includeFontPadding="false"
+            android:textColor="@color/text"
+            android:textSize="96sp" />
+
+        <TextView
+            android:id="@+id/nav_speed_unit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="14dp"
+            android:layout_marginLeft="12dp"
+            android:textColor="@color/text_muted"
+            android:textSize="24sp" />
+    </LinearLayout>
+
+    <!-- Música: o app que está tocando (Spotify, YouTube Music…). -->
+    <LinearLayout
+        android:id="@+id/nav_media"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="@drawable/panel"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <FrameLayout
+                android:id="@+id/nav_art_frame"
+                android:layout_width="160dp"
+                android:layout_height="160dp"
+                android:background="@drawable/art_frame"
+                android:padding="1dp">
+
+                <com.k4811.common.ui.IconView
+                    android:id="@+id/nav_art_icon"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:clickable="false"
+                    android:focusable="false" />
+
+                <ImageView
+                    android:id="@+id/nav_art"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop"
+                    android:visibility="gone" />
+            </FrameLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:id="@+id/nav_app_icon"
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
+                        android:layout_marginRight="10dp"
+                        android:visibility="gone" />
+
+                    <TextView
+                        android:id="@+id/nav_app_name"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:ellipsize="end"
+                        android:singleLine="true"
+                        android:textColor="@color/text_muted"
+                        android:textSize="18sp" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/nav_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:ellipsize="end"
+                    android:maxLines="2"
+                    android:textColor="@color/text"
+                    android:textSize="28sp" />
+
+                <TextView
+                    android:id="@+id/nav_artist"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:ellipsize="end"
+                    android:singleLine="true"
+                    android:textColor="@color/text_soft"
+                    android:textSize="20sp" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Sem acesso às notificações: os botões funcionam, mas não dá para ler a faixa. -->
+        <LinearLayout
+            android:id="@+id/nav_access"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/nav_access_text"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/home_nav_media_access"
+                android:textColor="@color/text_muted"
+                android:textSize="18sp" />
+
+            <TextView
+                android:id="@+id/nav_access_button"
+                android:layout_width="wrap_content"
+                android:layout_height="56dp"
+                android:layout_marginLeft="16dp"
+                android:background="@drawable/line_button"
+                android:gravity="center"
+                android:paddingLeft="24dp"
+                android:paddingRight="24dp"
+                android:text="@string/home_nav_media_allow"
+                android:textColor="@color/text"
+                android:textSize="20sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="104dp"
+            android:layout_marginTop="12dp"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <com.k4811.common.ui.IconView
+                android:id="@+id/nav_prev"
+                android:layout_width="88dp"
+                android:layout_height="88dp"
+                android:contentDescription="@string/media_previous" />
+
+            <com.k4811.common.ui.IconView
+                android:id="@+id/nav_play"
+                android:layout_width="104dp"
+                android:layout_height="104dp"
+                android:layout_marginLeft="40dp"
+                android:layout_marginRight="40dp"
+                android:contentDescription="@string/media_play_pause" />
+
+            <com.k4811.common.ui.IconView
+                android:id="@+id/nav_next"
+                android:layout_width="88dp"
+                android:layout_height="88dp"
+                android:contentDescription="@string/media_next" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Atalhos: tela inicial, reabrir a navegação, gaveta de apps (escondidos no mapa integrado, que tem o dock). -->
+    <LinearLayout
+        android:id="@+id/nav_shortcuts"
+        android:layout_width="match_parent"
+        android:layout_height="96dp"
+        android:layout_marginTop="16dp"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <com.k4811.common.ui.IconView
+            android:id="@+id/nav_home"
+            android:layout_width="0dp"
+            android:layout_height="88dp"
+            android:layout_weight="1"
+            android:contentDescription="@string/home_dock_home_title" />
+
+        <com.k4811.common.ui.IconView
+            android:id="@+id/nav_open"
+            android:layout_width="0dp"
+            android:layout_height="88dp"
+            android:layout_weight="1"
+            android:contentDescription="@string/home_nav_open" />
+
+        <com.k4811.common.ui.IconView
+            android:id="@+id/nav_apps"
+            android:layout_width="0dp"
+            android:layout_height="88dp"
+            android:layout_weight="1"
+            android:contentDescription="@string/home_dock_apps_title" />
+    </LinearLayout>
+</LinearLayout>

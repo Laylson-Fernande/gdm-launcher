@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Mapa integrado e navegação (módulo map). -->
+<resources>
+    <string name="map_act_depart">Начните движение</string>
+    <string name="map_act_straight">Двигайтесь прямо</string>
+    <string name="map_act_slight_left">Держитесь левее</string>
+    <string name="map_act_left">Поверните налево</string>
+    <string name="map_act_sharp_left">Резко поверните налево</string>
+    <string name="map_act_slight_right">Держитесь правее</string>
+    <string name="map_act_right">Поверните направо</string>
+    <string name="map_act_sharp_right">Резко поверните направо</string>
+    <string name="map_act_uturn">Развернитесь</string>
+    <string name="map_act_keep_left">Держитесь левой стороны</string>
+    <string name="map_act_keep_right">Держитесь правой стороны</string>
+    <string name="map_act_ramp_left">Съезжайте на рампу слева</string>
+    <string name="map_act_ramp_right">Съезжайте на рампу справа</string>
+    <string name="map_act_exit_left">Съезжайте на выезд слева</string>
+    <string name="map_act_exit_right">Съезжайте на выезд справа</string>
+    <string name="map_act_merge">Перестройтесь</string>
+    <string name="map_act_roundabout">Въезжайте на круг</string>
+    <string name="map_act_roundabout_exit">На круге — %1$d-й съезд</string>
+    <string name="map_act_arrive">Вы прибыли</string>
+    <string name="map_onto">%1$s на %2$s</string>
+    <string name="map_voice_in">Через %1$s %2$s</string>
+    <string name="map_voice_meters">%1$d метров</string>
+    <string name="map_voice_km">%1$s км</string>
+    <string name="map_search_hint">Куда едем?</string>
+    <string name="map_searching">Поиск…</string>
+    <string name="map_no_results">Ничего не найдено</string>
+    <string name="map_search_error">Поиск не удался</string>
+    <string name="map_offline">Нет интернета: поиск и новые маршруты недоступны</string>
+    <string name="map_route_error">Не удалось построить маршрут</string>
+    <string name="map_calculating">Построение маршрута…</string>
+    <string name="map_recalculating">Перестраиваю маршрут</string>
+    <string name="map_go">Поехали</string>
+    <string name="map_end">Завершить</string>
+    <string name="map_cancel">Отмена</string>
+    <string name="map_arrival">Прибытие %1$s</string>
+    <string name="map_recent">Недавние</string>
+    <string name="map_waiting_gps">Ожидание GPS…</string>
+    <string name="map_dropped_pin">Точка на карте</string>
+    <string name="map_recenter">Центрировать</string>
+    <string name="map_zoom_in">Приблизить</string>
+    <string name="map_zoom_out">Отдалить</string>
+    <string name="map_then">Затем</string>
+    <string name="map_speed_limit">Ограничение скорости</string>
+    <string name="map_alert_camera">Камера скорости</string>
+    <string name="map_alert_red_light">Камера на светофоре</string>
+    <string name="map_alert_bump">Лежачий полицейский</string>
+    <string name="map_alert_toll">Пункт оплаты</string>
+    <string name="map_alert_rail">Железнодорожный переезд</string>
+    <string name="map_say_camera">Камера через %1$s</string>
+    <string name="map_say_camera_limit">Камера через %1$s, ограничение %2$d</string>
+    <string name="map_say_red_light">Камера на светофоре через %1$s</string>
+    <string name="map_say_slow_down">Внимание, снизьте скорость</string>
+</resources>

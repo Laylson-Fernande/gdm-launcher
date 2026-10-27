@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Mapa integrado e navegação (módulo map). -->
+<resources>
+    <string name="map_act_depart">Siga</string>
+    <string name="map_act_straight">Siga em frente</string>
+    <string name="map_act_slight_left">Mantenha-se à esquerda</string>
+    <string name="map_act_left">Vire à esquerda</string>
+    <string name="map_act_sharp_left">Vire acentuadamente à esquerda</string>
+    <string name="map_act_slight_right">Mantenha-se à direita</string>
+    <string name="map_act_right">Vire à direita</string>
+    <string name="map_act_sharp_right">Vire acentuadamente à direita</string>
+    <string name="map_act_uturn">Faça o retorno</string>
+    <string name="map_act_keep_left">Mantenha a esquerda</string>
+    <string name="map_act_keep_right">Mantenha a direita</string>
+    <string name="map_act_ramp_left">Pegue a rampa à esquerda</string>
+    <string name="map_act_ramp_right">Pegue a rampa à direita</string>
+    <string name="map_act_exit_left">Pegue a saída à esquerda</string>
+    <string name="map_act_exit_right">Pegue a saída à direita</string>
+    <string name="map_act_merge">Entre na via</string>
+    <string name="map_act_roundabout">Entre na rotatória</string>
+    <string name="map_act_roundabout_exit">Na rotatória, pegue a %1$dª saída</string>
+    <string name="map_act_arrive">Você chegou ao destino</string>
+    <string name="map_onto">%1$s para %2$s</string>
+    <string name="map_voice_in">Em %1$s, %2$s</string>
+    <string name="map_voice_meters">%1$d metros</string>
+    <string name="map_voice_km">%1$s quilômetros</string>
+    <string name="map_search_hint">Para onde?</string>
+    <string name="map_searching">Buscando…</string>
+    <string name="map_no_results">Nada encontrado</string>
+    <string name="map_search_error">A busca falhou</string>
+    <string name="map_offline">Sem internet: busca e novas rotas indisponíveis</string>
+    <string name="map_route_error">Não foi possível calcular a rota</string>
+    <string name="map_calculating">Calculando a rota…</string>
+    <string name="map_recalculating">Recalculando a rota</string>
+    <string name="map_go">Ir</string>
+    <string name="map_end">Encerrar</string>
+    <string name="map_cancel">Cancelar</string>
+    <string name="map_arrival">Chegada %1$s</string>
+    <string name="map_recent">Recentes</string>
+    <string name="map_waiting_gps">Aguardando o GPS…</string>
+    <string name="map_dropped_pin">Ponto no mapa</string>
+    <string name="map_recenter">Centralizar</string>
+    <string name="map_zoom_in">Aproximar</string>
+    <string name="map_zoom_out">Afastar</string>
+    <string name="map_then">Depois</string>
+    <string name="map_speed_limit">Limite de velocidade</string>
+    <string name="map_alert_camera">Radar</string>
+    <string name="map_alert_red_light">Radar de semáforo</string>
+    <string name="map_alert_bump">Lombada</string>
+    <string name="map_alert_toll">Pedágio</string>
+    <string name="map_alert_rail">Passagem de nível</string>
+    <string name="map_say_camera">Radar em %1$s</string>
+    <string name="map_say_camera_limit">Radar em %1$s, limite de %2$d</string>
+    <string name="map_say_red_light">Radar de semáforo em %1$s</string>
+    <string name="map_say_slow_down">Atenção, reduza a velocidade</string>
+</resources>

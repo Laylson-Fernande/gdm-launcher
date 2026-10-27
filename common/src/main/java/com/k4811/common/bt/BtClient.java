@@ -478,7 +478,7 @@ public final class BtClient {
                 bound = false;
             }
             connect();
-        }, 15000);
+        }, loggedMissing ? 60000 : 15000); // serviço que nem existe no aparelho: tenta bem menos
     }
 
     private Intent resolve() {

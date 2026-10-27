@@ -109,6 +109,12 @@ public final class DockNavigator {
                 home.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 switchTo(from, home, R.anim.screen_close_enter, R.anim.screen_close_exit);
                 return;
+            case NAVIGATION:
+                Intent nav = new Intent(Apps.ACTION_NAV_HOME);
+                nav.setPackage(Apps.LAUNCHER);
+                nav.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                switchTo(from, nav, R.anim.screen_swap_in, R.anim.screen_swap_out);
+                return;
             case APPS:
                 Intent apps = new Intent(Apps.ACTION_APPS);
                 apps.setPackage(Apps.LAUNCHER);

@@ -48,6 +48,29 @@ val signing = Properties().apply {
     if (f.isFile) f.inputStream().use { load(it) }
 }
 
+/*
+ * Endereço dos dados das vias do mapa integrado (radares, limites de velocidade): o GitHub Pages
+ * do repositório, publicado pelo workflow road-data.yml (ver tools/road-data/README.md).
+ * Ordem: -ProadDataUrl=...; GITHUB_REPOSITORY (no CI); remote "origin" do git. Vazio = sem
+ * endereço (o app só usa o que já estiver baixado ou o "road_data" do nav.config.json).
+ */
+fun roadDataUrl(): String {
+    (findProperty("roadDataUrl") as String?)?.takeIf { it.isNotBlank() }?.let { return it }
+    var repo = System.getenv("GITHUB_REPOSITORY").orEmpty()
+    if (repo.isEmpty()) {
+        val config = rootProject.file(".git/config")
+        val text = if (config.isFile) config.readText() else ""
+        val origin = Regex("""\[remote "origin"][^\[]*?url\s*=\s*(\S+)""").find(text)?.groupValues?.get(1).orEmpty()
+        repo = Regex("""github\.com[:/]([^/]+)/(.+?)(\.git)?$""").find(origin)
+            ?.let { it.groupValues[1] + "/" + it.groupValues[2] }.orEmpty()
+    }
+    val parts = repo.split("/")
+    if (parts.size != 2) return ""
+    return "https://" + parts[0].lowercase() + ".github.io/" + parts[1] + "/roads/v1/"
+}
+
+val roadData = roadDataUrl()
+
 subprojects {
     plugins.withId("com.android.application") {
         extensions.configure<ApplicationExtension> {
@@ -80,6 +103,7 @@ subprojects {
         extensions.configure<LibraryExtension> {
             buildFeatures.buildConfig = true
             for ((module, pkg) in packages) defaultConfig.buildConfigField("String", fieldOf(module), "\"$pkg\"")
+            defaultConfig.buildConfigField("String", "ROAD_DATA_URL", "\"$roadData\"")
         }
     }
 }

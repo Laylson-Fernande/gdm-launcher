@@ -1,0 +1,75 @@
+# Dados das vias do mapa integrado (radares, limites de velocidade, lombadas, pedágios,
+# passagens de nível): gera os quadrados a partir do OpenStreetMap (Geofabrik) e publica no
+# GitHub Pages do repositório, em <owner>.github.io/<repo>/roads/v1/. O launcher baixa daí
+# (ver tools/road-data/README.md). Pré-requisito: Settings → Pages → Source: GitHub Actions.
+name: Road data
+
+on:
+  schedule:
+    - cron: "0 6 * * 1"   # toda segunda, 06:00 UTC (a Geofabrik atualiza o recorte toda noite)
+  workflow_dispatch:
+    inputs:
+      region:
+        description: Recorte da Geofabrik (caminho depois de download.geofabrik.de/)
+        default: south-america/brazil-latest.osm.pbf
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Download OpenStreetMap extract
+        env:
+          REGION: ${{ inputs.region || 'south-america/brazil-latest.osm.pbf' }}
+        run: |
+          set -euo pipefail
+          curl -fsSLR -o region.osm.pbf "https://download.geofabrik.de/${REGION}"
+          ls -l region.osm.pbf
+          echo "SOURCE=Geofabrik ${REGION} $(date -u -r region.osm.pbf +%F)" >> "$GITHUB_ENV"
+
+      - name: Build cells
+        run: |
+          set -euo pipefail
+          javac -encoding UTF-8 -d build/road-data tools/road-data/*.java
+          java -Xmx5g -cp build/road-data RoadDataBuilder region.osm.pbf site/roads "$SOURCE"
+          cat > site/roads/README.txt <<'TXT'
+          Road data for the K4811 head unit map (speed cameras, speed limits, speed bumps,
+          toll booths, railway crossings). Generated from OpenStreetMap data.
+          (c) OpenStreetMap contributors. Data available under the Open Database License (ODbL) 1.0:
+          https://www.openstreetmap.org/copyright
+          Format: tools/road-data/README.md in the source repository.
+          TXT
+          du -sh site/roads
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

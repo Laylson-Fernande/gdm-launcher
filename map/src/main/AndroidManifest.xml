@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Tiles do OpenStreetMap, rotas e busca de endereços. -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <!-- Saber se há internet (sem ela: só tiles em cache ou .mbtiles, sem busca nem rota nova). -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <!-- Posição do carro. Com targetSdk < 23 é concedida na instalação. -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <!-- Cache de tiles, mapas offline e destinos recentes em /sdcard/K4811/nav. -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+    <application>
+        <!-- Internet conectou: confere os dados das vias (radares, limites) se o período venceu. -->
+        <receiver
+            android:name="com.k4811.map.road.RoadSyncReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+            </intent-filter>
+        </receiver>
+    </application>
+</manifest>

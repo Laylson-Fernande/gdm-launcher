@@ -31,6 +31,12 @@ Mostra a tensão da bateria no canto superior esquerdo da tela inicial.
 
 > Exibe a voltagem da bateria do carro em tempo quase real. Ajuda a perceber se a bateria está fraca ou se o alternador não está carregando bem. Se o número não aparecer ou ficar parado, o carro ou a central pode não enviar essa informação.
 
+### Mostrar memória e CPU
+
+Indicador pequeno ao lado do voltímetro.
+
+> Mostra na barra de cima da tela inicial quanto da RAM está em uso e o quanto o processador está ocupado, atualizado a cada 2 segundos. A CPU só aparece se a central deixar os apps lerem esse dado.
+
 ### Mostrar volume na tela
 
 Quando você sobe ou desce o volume, aparece uma barra no alto da tela, por cima de qualquer app.
@@ -130,6 +136,76 @@ Define como o ícone do CarPlay / Android Auto (Z-Link) aparece no dock: Z-Link,
 Volta o dock para: Rádio, Música, Música Bluetooth, Telefone e Equalizador.
 
 > Repõe os cinco ícones padrão do dock. Início e Apps continuam fixos. Não altera tema, fonte nem a tela inicial.
+
+### Tela de navegação
+
+Uma segunda tela inicial, como no Android Auto: o app de navegação de um lado e, do outro, a música e uma informação. Também pode ir para o dock (ícone Navegação).
+
+#### Abrir tela de navegação
+
+Mapa de um lado, música e informação do outro.
+
+> A tela de navegação divide a tela como no Android Auto: o app de navegação (Waze, Maps…) de um lado e um painel com a música e uma informação do outro. Arraste a barra do meio para mudar os tamanhos. Ela também pode ir para o dock.
+
+#### Mapa da navegação
+
+Mapa integrado (dentro do launcher), app externo (Waze, Maps… em tela dividida) ou automático.
+
+> Mapa integrado: OpenStreetMap dentro do launcher, com busca, rota e voz, e a música e o dock em volta. App externo: Waze, Maps… em tela dividida. Automático: o app externo quando há internet e o mapa integrado quando não há. Sem internet o mapa integrado mostra as áreas já vistas (e arquivos .mbtiles em K4811/nav), e uma rota já calculada continua guiando.
+
+#### Lado da música
+
+Em qual lado ficam a música e a informação no mapa integrado.
+
+> Em qual lado ficam a música e a informação no mapa integrado; o mapa ocupa o resto, acima do dock. Com o app externo (tela dividida) o Android sempre põe este painel à esquerda.
+
+#### Instruções por voz
+
+Fala as manobras no mapa integrado.
+
+> O mapa integrado avisa a próxima manobra com antecedência e na hora de virar, com a voz do Android (texto para fala). A música abaixa enquanto ele fala, se a central permitir.
+
+#### Alertas de radar
+
+Mostra e avisa por voz os radares à frente.
+
+> Radares fixos e de semáforo do OpenStreetMap. O aviso aparece uns 20 segundos antes, com a distância e o limite, e a voz avisa uma vez. Se você estiver acima do limite perto do radar, ela também pede para reduzir. Só contam os radares na sua rota (ou à frente, sem rota) e no seu sentido. Os dados vêm da comunidade: radar que não foi mapeado não aparece, e radar móvel nunca aparece.
+
+#### Limite de velocidade
+
+Placa com o limite da via ao lado da velocidade.
+
+> Mostra o limite da via em que você está, como está no OpenStreetMap, ao lado da velocidade; a velocidade fica vermelha acima do limite. Via sem limite mapeado fica sem placa (comum fora das cidades grandes).
+
+#### Outros avisos da via
+
+Lombadas, pedágios e passagens de nível.
+
+> Mostra no mapa integrado as lombadas, pedágios e passagens de nível à frente, sem voz.
+
+#### Atualizar dados das vias
+
+Com internet: 100 km em volta do carro e ao longo da rota. Opções: Todo dia, Toda semana, Todo mês. Embaixo, quantas áreas estão baixadas, o tamanho e a data da última conferência.
+
+> Radares, limites e os outros avisos ficam guardados na central (K4811/nav/roads) e funcionam sem internet. Com internet, o launcher confere a área de 100 km em volta do carro no intervalo escolhido (e quando o carro se afasta 30 km), e as áreas por onde passa uma rota assim que ela é calculada, mesmo fora desses 100 km. Só baixa o que mudou: poucos MB para uma cidade grande. Os dados vêm do OpenStreetMap e são gerados de novo toda semana.
+
+#### App de navegação
+
+Qual app abre ao lado do painel, em tela dividida.
+
+> Qual app abre ao lado do painel. Automático usa o app de navegação da central (Config. Veículo); se não houver, o Waze, depois o Google Maps, depois qualquer outro app de navegação instalado.
+
+#### Informação
+
+O que aparece acima dos controles de música: relógio, velocidade (GPS) ou nada.
+
+> O que aparece no alto do painel: o relógio com a data, a velocidade do GPS ou nada (mais espaço para a música).
+
+#### Acesso à música
+
+Deixa o painel mostrar e controlar o app de música (Spotify, YouTube Music…).
+
+> Para mostrar a música e a capa de apps como Spotify e YouTube Music, o Android pede que você libere o acesso a notificações para o launcher. Toque em Abrir e ligue o launcher na lista. Sem isso, tocar, pausar e pular continuam funcionando.
 
 ---
 

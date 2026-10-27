@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Mapa integrado e navegação (módulo map). -->
+<resources>
+    <string name="map_act_depart">出发</string>
+    <string name="map_act_straight">直行</string>
+    <string name="map_act_slight_left">稍向左转</string>
+    <string name="map_act_left">左转</string>
+    <string name="map_act_sharp_left">向左急转</string>
+    <string name="map_act_slight_right">稍向右转</string>
+    <string name="map_act_right">右转</string>
+    <string name="map_act_sharp_right">向右急转</string>
+    <string name="map_act_uturn">掉头</string>
+    <string name="map_act_keep_left">靠左行驶</string>
+    <string name="map_act_keep_right">靠右行驶</string>
+    <string name="map_act_ramp_left">走左侧匝道</string>
+    <string name="map_act_ramp_right">走右侧匝道</string>
+    <string name="map_act_exit_left">从左侧出口驶出</string>
+    <string name="map_act_exit_right">从右侧出口驶出</string>
+    <string name="map_act_merge">并入车道</string>
+    <string name="map_act_roundabout">进入环岛</string>
+    <string name="map_act_roundabout_exit">在环岛从第%1$d个出口驶出</string>
+    <string name="map_act_arrive">已到达目的地</string>
+    <string name="map_onto">%1$s，进入%2$s</string>
+    <string name="map_voice_in">%1$s后，%2$s</string>
+    <string name="map_voice_meters">%1$d米</string>
+    <string name="map_voice_km">%1$s公里</string>
+    <string name="map_search_hint">去哪里？</string>
+    <string name="map_searching">正在搜索…</string>
+    <string name="map_no_results">未找到结果</string>
+    <string name="map_search_error">搜索失败</string>
+    <string name="map_offline">无网络：无法搜索或规划新路线</string>
+    <string name="map_route_error">无法计算路线</string>
+    <string name="map_calculating">正在计算路线…</string>
+    <string name="map_recalculating">正在重新规划路线</string>
+    <string name="map_go">出发</string>
+    <string name="map_end">结束</string>
+    <string name="map_cancel">取消</string>
+    <string name="map_arrival">到达 %1$s</string>
+    <string name="map_recent">最近</string>
+    <string name="map_waiting_gps">正在等待GPS…</string>
+    <string name="map_dropped_pin">地图上的点</string>
+    <string name="map_recenter">回到当前位置</string>
+    <string name="map_zoom_in">放大</string>
+    <string name="map_zoom_out">缩小</string>
+    <string name="map_then">然后</string>
+    <string name="map_speed_limit">限速</string>
+    <string name="map_alert_camera">测速摄像头</string>
+    <string name="map_alert_red_light">闯红灯摄像头</string>
+    <string name="map_alert_bump">减速带</string>
+    <string name="map_alert_toll">收费站</string>
+    <string name="map_alert_rail">铁路道口</string>
+    <string name="map_say_camera">前方%1$s有测速摄像头</string>
+    <string name="map_say_camera_limit">前方%1$s有测速摄像头，限速%2$d</string>
+    <string name="map_say_red_light">前方%1$s有闯红灯摄像头</string>
+    <string name="map_say_slow_down">请减速，您已超速</string>
+</resources>

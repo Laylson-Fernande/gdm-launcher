@@ -126,4 +126,15 @@
     <!-- Menu da borda de baixo (EdgeMenuService) -->
     <string name="overlay_back">Back</string>
     <string name="overlay_home">Home</string>
+    <!-- Tela de navegação (NavHomeActivity) -->
+    <string name="home_dock_nav">NAVIGATION</string>
+    <string name="home_dock_nav_title">Navigation screen</string>
+    <string name="home_nav_open">Open navigation</string>
+    <string name="home_nav_no_app">No navigation app installed</string>
+    <string name="home_nav_no_split">Split screen unavailable on this unit</string>
+    <string name="home_nav_media_access">Allow access to show what is playing</string>
+    <string name="home_nav_media_allow">Allow</string>
+    <!-- Indicador de RAM e CPU ao lado do voltímetro -->
+    <string name="home_sys_ram" translatable="false">RAM %1$d%%</string>
+    <string name="home_sys_ram_cpu" translatable="false">RAM %1$d%%  ·  CPU %2$d%%</string>
 </resources>

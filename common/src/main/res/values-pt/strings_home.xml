@@ -119,4 +119,12 @@
     <!-- Menu da borda de baixo (EdgeMenuService) -->
     <string name="overlay_back">Voltar</string>
     <string name="overlay_home">Início</string>
+    <!-- Tela de navegação (NavHomeActivity) -->
+    <string name="home_dock_nav">NAVEGAÇÃO</string>
+    <string name="home_dock_nav_title">Tela de navegação</string>
+    <string name="home_nav_open">Abrir navegação</string>
+    <string name="home_nav_no_app">Nenhum app de navegação instalado</string>
+    <string name="home_nav_no_split">Tela dividida indisponível nesta central</string>
+    <string name="home_nav_media_access">Permita o acesso para ver o que está tocando</string>
+    <string name="home_nav_media_allow">Permitir</string>
 </resources>

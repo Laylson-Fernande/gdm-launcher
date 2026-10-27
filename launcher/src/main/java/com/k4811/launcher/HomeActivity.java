@@ -18,6 +18,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.Settings;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -31,6 +32,8 @@ import com.k4811.common.bt.BtClient;
 import com.k4811.common.home.GpsClient;
 import com.k4811.common.home.HomeGrid;
 import com.k4811.common.home.HomeImage;
+import com.k4811.common.home.NavApps;
+import com.k4811.common.system.SysMonitor;
 import com.k4811.launcher.home.HomeModuleViews;
 import com.k4811.launcher.home.HomeSession;
 import com.k4811.common.config.LauncherConfig;
@@ -56,7 +59,9 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -89,12 +94,13 @@ public class HomeActivity extends Activity {
     private SimpleDateFormat weekFormat;
     private SimpleDateFormat monthFormat;
 
+    /** O relógio mostra horas e minutos: redesenha na virada de cada minuto, não a cada segundo. */
     private final Runnable clockTick = new Runnable() {
         @Override
         public void run() {
             renderClock();
-            long delay = 1000L - (System.currentTimeMillis() % 1000L);
-            handler.postDelayed(this, Math.max(delay, 16L));
+            long delay = 60000L - (System.currentTimeMillis() % 60000L) + 20L;
+            handler.postDelayed(this, delay);
         }
     };
 
@@ -118,6 +124,7 @@ public class HomeActivity extends Activity {
     private DockView dock;
     private HomeModuleViews modules;
     private GpsClient gps;
+    private final Map<String, String> appLabels = new HashMap<>();
     private TextView speedValue;
     private TextView speedUnit;
     private TextView gpsLat;
@@ -144,6 +151,18 @@ public class HomeActivity extends Activity {
     private String artKey;
     private int artGen;
     private View voltageView;
+    private TextView sysMonitorView;
+    private SysMonitor sysMonitor;
+    /** RAM e CPU a cada 2 s, com a tela inicial na frente. */
+    private final Runnable sysMonitorTick = new Runnable() {
+        @Override
+        public void run() {
+            SysMonitor.Sample s = sysMonitor.sample();
+            setIfChanged(sysMonitorView, s.cpuPercent < 0 ? getString(R.string.home_sys_ram, s.ramPercent)
+                : getString(R.string.home_sys_ram_cpu, s.ramPercent, s.cpuPercent));
+            handler.postDelayed(this, 2000);
+        }
+    };
     private TextView voltageText;
     private View sourceBadge;
     private IconView dayNight;
@@ -400,6 +419,9 @@ public class HomeActivity extends Activity {
         npPlay.setOnClickListener(v -> transport(0));
         npNext.setOnClickListener(v -> transport(1));
         voltageView = findViewById(R.id.voltage);
+        sysMonitorView = text(R.id.sys_monitor);
+        sysMonitorView.setTypeface(Ui.medium(this));
+        sysMonitor = new SysMonitor(this);
         voltageText = text(R.id.voltage_text);
         voltageText.setTypeface(Ui.medium(this));
         icon(R.id.voltage_icon, IconView.Icon.BATTERY, IconView.Style.NONE).color(Ui.TEXT_MUTED);
@@ -483,6 +505,10 @@ public class HomeActivity extends Activity {
         }
         renderDayNight();
         scheduleAutoScreenOff();
+        handler.removeCallbacks(sysMonitorTick);
+        boolean monitor = LauncherConfig.showSysMonitor(this);
+        sysMonitorView.setVisibility(monitor ? View.VISIBLE : View.GONE);
+        if (monitor) handler.post(sysMonitorTick);
     }
 
     @Override
@@ -491,6 +517,7 @@ public class HomeActivity extends Activity {
         if (screenOffOverlay != null && screenOffOverlay.getVisibility() == View.VISIBLE) setScreenOn(true);
         handler.removeCallbacks(clockTick);
         handler.removeCallbacks(voltageTick);
+        handler.removeCallbacks(sysMonitorTick);
         handler.removeCallbacks(autoScreenOff);
         gps.stop();
         super.onPause();
@@ -577,7 +604,7 @@ public class HomeActivity extends Activity {
 
     private void renderClock() {
         Date now = new Date();
-        clockTime.setText(timeFormat.format(now));
+        setIfChanged(clockTime, timeFormat.format(now));
         // "Friday, October 9, 2026" / "Sexta, 9 de Outubro de 2026": weekday without "-feira"
         // and capitalized month (where the language does that); the order comes from home_date.
         String week = weekFormat.format(now);
@@ -587,8 +614,13 @@ public class HomeActivity extends Activity {
         cal.setTime(now);
         String month = monthFormat.format(now);
         if (getResources().getBoolean(R.bool.home_capitalize_month)) month = capitalize(month);
-        clockDate.setText(getString(R.string.home_date, capitalize(week), month,
+        setIfChanged(clockDate, getString(R.string.home_date, capitalize(week), month,
             cal.get(Calendar.DAY_OF_MONTH), cal.get(Calendar.YEAR)));
+    }
+
+    /** setText mede e diagrama de novo mesmo com o mesmo texto: só troca quando muda. */
+    private static void setIfChanged(TextView v, CharSequence text) {
+        if (!TextUtils.equals(v.getText(), text)) v.setText(text);
     }
 
     private void stepVolume(int delta) {
@@ -604,17 +636,18 @@ public class HomeActivity extends Activity {
             muted ? R.string.home_unmute_volume : R.string.home_mute_volume, volumeValue));
     }
 
-    /** Top bar, next to the voltmeter: what is playing right now (Radio, MP3 or BT). */
+    /** Top bar, next to the voltmeter: what is playing right now (Radio, MP3, BT or the other app's name). */
     private void renderSourceBadge(HomeSession.Snapshot s) {
         String label = null;
         if (s.source == SOURCE_RADIO) label = getString(R.string.home_radio);
         else if (s.kind == HomeSession.Kind.USB && s.playing) label = "MP3";
         else if (s.kind == HomeSession.Kind.BT && s.btPlaying) label = "BT";
+        else if (s.kind == HomeSession.Kind.APP && s.app.playing) label = appLabel(s.app.pkg);
         if (label != null) sourceBadgeText.setText(label);
         show(sourceBadge, label != null);
     }
 
-    /** "Now playing": radio, USB/SD or Bluetooth music, depending on the current source. */
+    /** "Now playing": radio, USB/SD, Bluetooth music or another app's player, depending on the current source. */
     private void renderNowPlaying() {
         if (snap == null) return;
         HomeSession.Snapshot s = snap;
@@ -660,6 +693,15 @@ public class HomeActivity extends Activity {
                 setPlay(s.btPlaying);
                 break;
             }
+            case APP: {
+                // Player de outro app (Spotify, YouTube Music…): nome do app no lugar da fonte.
+                String name = appLabel(s.app.pkg);
+                npLabel.setText(name.toUpperCase(Locale.getDefault()));
+                npLine1.setText(s.app.title == null || s.app.title.isEmpty() ? name : s.app.title);
+                sub = s.app.artist == null ? "" : s.app.artist;
+                setPlay(s.app.playing);
+                break;
+            }
             default:
                 npLabel.setText(""); // nothing playing: no source to show
                 npLine1.setText(R.string.home_nothing_playing);
@@ -687,6 +729,22 @@ public class HomeActivity extends Activity {
             : s.kind == HomeSession.Kind.BT ? IconView.Icon.BLUETOOTH : IconView.Icon.MUSIC;
         npArtIcon.set(icon, IconView.Style.NONE);
         npArtIcon.color(Ui.TEXT_DIM);
+
+        if (s.kind == HomeSession.Kind.APP) {
+            Bitmap cover = s.app.art;
+            String key = cover == null ? null : "app:" + s.app.pkg + ":" + System.identityHashCode(cover);
+            if (key == null) {
+                clearArt();
+            } else if (!key.equals(artKey)) {
+                clearArt();
+                artKey = key;
+                npArt.setImageBitmap(cover);
+                npArt.setVisibility(View.VISIBLE);
+                npArtIcon.setVisibility(View.GONE);
+                Touch.fadeIn(npArt);
+            }
+            return;
+        }
 
         long id = 0;
         if (s.kind == HomeSession.Kind.USB && s.mediaId != null) {
@@ -953,6 +1011,9 @@ public class HomeActivity extends Activity {
                 else if (what > 0) session.btTransport(HomeSession.BT_NEXT);
                 else session.btTransport(snap.btPlaying ? HomeSession.BT_PAUSE : HomeSession.BT_PLAY);
                 break;
+            case APP:
+                session.appTransport(what);
+                break;
             default:
                 break;
         }
@@ -970,9 +1031,22 @@ public class HomeActivity extends Activity {
             case BT:
                 openDock(DockView.Item.BT_MUSIC);
                 break;
+            case APP:
+                session.openApp();
+                break;
             default:
                 break;
         }
+    }
+
+    /** Nome do app como aparece na gaveta (guardado: o cartão redesenha a cada mudança do player). */
+    private String appLabel(String pkg) {
+        if (pkg == null) return "";
+        String cached = appLabels.get(pkg);
+        if (cached != null) return cached;
+        String label = NavApps.label(this, pkg);
+        appLabels.put(pkg, label);
+        return label;
     }
 
     /** Previous/next memory. If the radio isn't the source, turns it on first — the tap is what turns it on. */

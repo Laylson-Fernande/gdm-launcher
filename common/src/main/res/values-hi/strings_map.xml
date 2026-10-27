@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Mapa integrado e navegação (módulo map). -->
+<resources>
+    <string name="map_act_depart">चलना शुरू करें</string>
+    <string name="map_act_straight">सीधे चलते रहें</string>
+    <string name="map_act_slight_left">हल्का बाएँ मुड़ें</string>
+    <string name="map_act_left">बाएँ मुड़ें</string>
+    <string name="map_act_sharp_left">तेज़ी से बाएँ मुड़ें</string>
+    <string name="map_act_slight_right">हल्का दाएँ मुड़ें</string>
+    <string name="map_act_right">दाएँ मुड़ें</string>
+    <string name="map_act_sharp_right">तेज़ी से दाएँ मुड़ें</string>
+    <string name="map_act_uturn">यू-टर्न लें</string>
+    <string name="map_act_keep_left">बाएँ रहें</string>
+    <string name="map_act_keep_right">दाएँ रहें</string>
+    <string name="map_act_ramp_left">बाईं ओर रैंप लें</string>
+    <string name="map_act_ramp_right">दाईं ओर रैंप लें</string>
+    <string name="map_act_exit_left">बाईं ओर निकास लें</string>
+    <string name="map_act_exit_right">दाईं ओर निकास लें</string>
+    <string name="map_act_merge">सड़क में मिल जाएँ</string>
+    <string name="map_act_roundabout">गोलचक्कर में प्रवेश करें</string>
+    <string name="map_act_roundabout_exit">गोलचक्कर पर %1$d वाँ निकास लें</string>
+    <string name="map_act_arrive">आप पहुँच गए हैं</string>
+    <string name="map_onto">%1$s, %2$s की ओर</string>
+    <string name="map_voice_in">%1$s बाद, %2$s</string>
+    <string name="map_voice_meters">%1$d मीटर</string>
+    <string name="map_voice_km">%1$s किलोमीटर</string>
+    <string name="map_search_hint">कहाँ जाना है?</string>
+    <string name="map_searching">खोज रहे हैं…</string>
+    <string name="map_no_results">कुछ नहीं मिला</string>
+    <string name="map_search_error">खोज विफल रही</string>
+    <string name="map_offline">इंटरनेट नहीं: खोज और नए रास्ते उपलब्ध नहीं</string>
+    <string name="map_route_error">रास्ता नहीं निकाल सके</string>
+    <string name="map_calculating">रास्ता निकाल रहे हैं…</string>
+    <string name="map_recalculating">रास्ता फिर से निकाल रहे हैं</string>
+    <string name="map_go">चलें</string>
+    <string name="map_end">समाप्त</string>
+    <string name="map_cancel">रद्द करें</string>
+    <string name="map_arrival">पहुँच %1$s</string>
+    <string name="map_recent">हाल के</string>
+    <string name="map_waiting_gps">GPS का इंतज़ार…</string>
+    <string name="map_dropped_pin">नक्शे पर बिंदु</string>
+    <string name="map_recenter">बीच में लाएँ</string>
+    <string name="map_zoom_in">ज़ूम इन</string>
+    <string name="map_zoom_out">ज़ूम आउट</string>
+    <string name="map_then">फिर</string>
+    <string name="map_speed_limit">गति सीमा</string>
+    <string name="map_alert_camera">स्पीड कैमरा</string>
+    <string name="map_alert_red_light">रेड लाइट कैमरा</string>
+    <string name="map_alert_bump">स्पीड ब्रेकर</string>
+    <string name="map_alert_toll">टोल प्लाज़ा</string>
+    <string name="map_alert_rail">रेलवे क्रॉसिंग</string>
+    <string name="map_say_camera">%1$s में स्पीड कैमरा</string>
+    <string name="map_say_camera_limit">%1$s में स्पीड कैमरा, सीमा %2$d</string>
+    <string name="map_say_red_light">%1$s में रेड लाइट कैमरा</string>
+    <string name="map_say_slow_down">ध्यान दें, गति कम करें</string>
+</resources>

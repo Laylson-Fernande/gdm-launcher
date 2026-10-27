@@ -24,6 +24,7 @@ A engenharia reversa dos apps originais (APKs decompilados, protocolos) fica for
 | Pasta | App | Package (applicationId) | Pacote Java | Na central |
 |---|---|---|---|---|
 | `common` | biblioteca | — | `com.k4811.common` | entra em todos |
+| `map` | biblioteca: mapa e navegação (OpenStreetMap, feito do zero) | — | `com.k4811.map` | entra no launcher |
 | `launcher` | tela inicial e gaveta | `com.garagemdomadeira.nwd.launcher` | `com.k4811.launcher` | ao lado do `com.android.launcher` original |
 | `car-setting` | configurações (engrenagem) | `com.nwd.car.setting` | `com.k4811.car.setting` | ao lado do `com.android.car.setting` original |
 | `radio` | rádio FM/AM | `com.nwd.radio` | `com.k4811.radio` | por cima do original |
@@ -66,7 +67,7 @@ Cada app tem seu package, então SharedPreferences não é compartilhável. As c
 
 - **Só o car-setting grava** (`LauncherConfig.set…`). O launcher e os apps só leem. Não chame `LauncherConfig.set…` fora do car-setting.
 - Gravação atômica (`NwdConfigs.write`: `.tmp` + `renameTo`). Leitura com cache por `lastModified()`.
-- Chaves (versão 2): `language`, `theme`, `dark_mode`, `font`, `dock_toggles`, `zlink_name`, `hide_bottom_bar`, `home_layout`, `home_image`, `show_voltmeter`, `show_day_night`, `screen_off_after`, `ask_default_launcher`. Detalhes em `common/SPEC.md`.
+- Chaves (versão 2): `language`, `theme`, `dark_mode`, `font`, `dock_toggles`, `zlink_name`, `hide_bottom_bar`, `home_layout`, `home_image`, `show_voltmeter`, `show_day_night`, `screen_off_after`, `ask_default_launcher`, `nav_app`, `nav_info`, `nav_mode`, `nav_panel_right`, `nav_voice`, `nav_cameras`, `nav_speed_limit`, `nav_road_alerts`, `nav_data_days`, `show_sys_monitor`. Detalhes em `common/SPEC.md`.
 - Preferência que só um app usa fica no SharedPreferences dele (ex.: o EQ em `EqStore`). Rádio e MP3 guardam as delas em JSON editável em `K4811/<app>/` (`PresetStore`, `MusicConfig`).
 
 ## Contratos entre os apps (broadcasts da suíte)
@@ -78,6 +79,7 @@ Cada app tem seu package, então SharedPreferences não é compartilhável. As c
 | `com.k4811.action.MUSIC_QUERY` | launcher | music `RemoteReceiver` | — (responde com `MUSIC_STATE` se o player estiver rodando) |
 | `com.k4811.action.MUSIC_COMMAND` | launcher | music `RemoteReceiver` | `cmd`: 0 tocar/pausar, 1 próxima, 2 anterior |
 | `com.k4811.launcher.action.APPS` | `DockNavigator` (item Apps) | launcher `AppsActivity` | — |
+| `com.k4811.launcher.action.NAV_HOME` | `DockNavigator` (item Navegação), car-setting | launcher `NavHomeActivity` | — |
 | `com.k4811.action.BOTTOM_BAR_QUERY` (ordenado) | `BottomBar` do app que parou | `BottomBar$Query` de todos | resultCode 1 = "tenho tela na frente" |
 
 Com targetSdk 19, broadcast implícito ainda chega em receiver declarado no manifest, mesmo no Android 10. Se um dia o target subir, todos esses contratos quebram.
@@ -98,7 +100,11 @@ Com targetSdk 19, broadcast implícito ainda chega em receiver declarado no mani
 - **Idioma/tema/fonte mudam em outro app:** o launcher compara no `onResume` e chama `recreate()`. Os outros apps aplicam ao abrir (trocar de app pelo dock faz `finish()`).
 - **Dock:** sempre por `DockNavigator.attachDock(activity, item)` logo depois do `setContentView`. Navegação entre apps por `DockNavigator.navigate`. No launcher abre na hora; dentro dos apps há um Splash de 1 s.
 - **Barra da NWD entre processos:** o `BottomBar` de cada app só mostra a barra de volta depois de perguntar aos outros (ver contrato acima). Todo app precisa usar `com.k4811.common.SuiteApp` (ou uma subclasse) como `Application`.
+- **Tela dividida (tela de navegação):** com targetSdk < 24 as Activities são "não redimensionáveis" e desfazem a tela dividida ao vir para a frente; a `NavHomeActivity` declara `resizeableActivity="true"`. A HOME do sistema nunca fica dividida, e uma tarefa que já existe não muda de modo ao vir para a frente: por isso a tela de navegação recria a própria tarefa na metade primária (`launcher/.../nav/SplitScreen.java`). Ver `launcher/SPEC.md`.
 - **Telas verticais (768×1024):** launcher, car-setting e MP3 têm `layout-port` e `screenOrientation="nosensor"`; o rádio tem um layout só, em coluna, que serve nas duas. Os outros são só horizontais (`sensorLandscape`).
+- **Permissão nova numa atualização:** o launcher passou a usar internet (mapa integrado). No Android 10, uma permissão de instalação acrescentada numa *atualização* pode só valer depois de reiniciar a central (o socket falha com `EPERM`). Instalação nova não tem o problema.
+- **Desempenho (central de 2 GB, 4 × 1,5 GHz):** nada de tique por segundo sem necessidade (o relógio da tela inicial vira o minuto), `setText` só quando o texto muda, animação só enquanto algo se mexe e a ~30 qps, nada desenhando com a janela escondida. Medições e método em `docs/desempenho.md`.
+- **Dados das vias (radares, limites):** o endereço vem do build (`BuildConfig.ROAD_DATA_URL`, montado no `build.gradle.kts` da raiz a partir do repositório do GitHub, para não escrever o nome do repositório no código). Os quadrados não têm data dentro: o mesmo dado gera o mesmo arquivo e o app só baixa o que mudou. Mudou o formato? Suba a versão nos dois lados (`RoadDataBuilder` e `RoadCell`).
 - **Modo desenvolvedor:** diagnósticos, último erro e o menu Avançado só aparecem com `/sdcard/LAUNCHER_DEV_MODE.txt` (`DevMode.enabled()`).
 - **Aliases:** os apps que substituem originais têm um `activity-alias` com o nome da Activity original (ex.: `com.nwd.radio.home_horizontalActivity`), porque o sistema e outros apps abrem por esse componente. Não remova.
 
@@ -123,4 +129,8 @@ Com targetSdk 19, broadcast implícito ainda chega em receiver declarado no mani
 | Bluetooth | `common/.../bt/BtClient.java` |
 | SettingService (volume, EQ, brilho) | `common/.../system/NwdSettings.java`, `common/.../eq/SettingClient.java` |
 | Tela inicial (grade de módulos) | `common/.../home/HomeGrid.java`, `launcher/.../home/HomeModuleViews.java` |
+| Tela de navegação (mapa integrado ou app externo em tela dividida + música) | `launcher/.../NavHomeActivity.java`, `launcher/.../nav/`, `common/.../home/NavApps.java` |
+| Mapa, busca, rota, voz | `map/` (ver `map/SPEC.md`) |
+| Radares, limites de velocidade (dados das vias) | gerador `tools/road-data/`, workflow `.github/workflows/road-data.yml`, app `map/.../road/` |
+| Indicador de RAM/CPU | `common/.../system/SysMonitor.java` |
 | Copiar APKs para o pen drive | `copy-apks.sh` |

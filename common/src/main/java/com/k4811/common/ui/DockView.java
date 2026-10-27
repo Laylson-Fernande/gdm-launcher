@@ -30,6 +30,8 @@ public class DockView extends LinearLayout {
     public enum Item {
         // The order here is the order in the dock and in the Settings list.
         HOME("home", R.string.home_dock_home, R.string.home_dock_home_title, IconView.Icon.HOME, false, null),
+        /** Tela de navegação do launcher (aberta pelo DockNavigator); logo depois do Início. */
+        NAVIGATION("nav", R.string.home_dock_nav, R.string.home_dock_nav_title, IconView.Icon.NAVIGATION, true, Apps.LAUNCHER),
         RADIO("radio", R.string.home_dock_radio, R.string.home_dock_radio_title, IconView.Icon.RADIO, true, Apps.RADIO),
         MUSIC("music", R.string.home_dock_music, R.string.home_dock_music_title, IconView.Icon.MUSIC, true, Apps.MUSIC),
         BT_MUSIC("bt_music", R.string.home_dock_bt_music, R.string.home_dock_bt_music_title,

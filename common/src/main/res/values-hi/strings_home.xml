@@ -119,4 +119,12 @@
     <!-- Menu da borda de baixo (EdgeMenuService) -->
     <string name="overlay_back">पीछे</string>
     <string name="overlay_home">होम</string>
+    <!-- Tela de navegação (NavHomeActivity) -->
+    <string name="home_dock_nav">नेविगेशन</string>
+    <string name="home_dock_nav_title">नेविगेशन स्क्रीन</string>
+    <string name="home_nav_open">नेविगेशन खोलें</string>
+    <string name="home_nav_no_app">कोई नेविगेशन ऐप इंस्टॉल नहीं है</string>
+    <string name="home_nav_no_split">इस यूनिट पर स्प्लिट स्क्रीन उपलब्ध नहीं है</string>
+    <string name="home_nav_media_access">जो चल रहा है उसे दिखाने के लिए अनुमति दें</string>
+    <string name="home_nav_media_allow">अनुमति दें</string>
 </resources>

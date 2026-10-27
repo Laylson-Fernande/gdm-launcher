@@ -14,11 +14,11 @@ Tudo que mais de um app usa: dock e navegação entre apps, tema/fonte/idioma/de
 | `config` | `NwdConfigs`, `LauncherConfig` | pasta `/sdcard/nwd-configs`, gravação atômica de JSON; leitura/gravação do `launcher.json` |
 | `ui` | `Ui`, `Palette`, `ThemeInflater`, `ThemeDrawables`, `DockView`, `DockNavigator`, `Splash`, `IconView`, `ButtonIcon`, `Touch` | cores, fontes, idioma, densidade 1280×720; temas OKLCH; dock; navegação; ícones vetoriais; ícone à esquerda de botão de texto (MP3, EQ); feedback de toque |
 | `audio` | `PlayerHandoff`, `AudioGains` | uma fonte por vez entre apps; volume por fonte (painel escondido) |
-| `home` | `HomeGrid`, `HomeImage`, `GpsClient` | áreas A–F e módulos da tela inicial; imagem da pasta `K4811/`; GPS |
+| `home` | `HomeGrid`, `HomeImage`, `GpsClient`, `NavApps` | áreas A–F e módulos da tela inicial; imagem da pasta `K4811/`; GPS; apps de navegação e acesso à música da tela de navegação |
 | `radio` | `RadioClient`, `RadioState`, `PresetStore`, `StationArt`, `Band`, `BandRange`, `Preset` | cliente do serviço de rádio da NWD; favoritas em `K4811/radio/radio.config.json`; arte das estações |
 | `music` | `MusicRemote`, `AlbumArt` | contrato MP3 ↔ launcher; capa da faixa |
 | `eq` | `EqModel`, `SettingClient` | modelo do EQ e cliente do SettingService (usados por eq, car-setting, AudioGains) |
-| `system` | `ExternalApps`, `SystemProps`, `NwdConstants`, `NwdSettings`, `CrashLog`, `BottomBar`, `DevMode`, `McuKeys` | apps da central (AUX, 360, vídeo, Z-Link); props; constantes da NWD; SettingService; registro de crash; barra flutuante; modo desenvolvedor; teclas falsas da MCU (Voltar, Início, Vol±) |
+| `system` | `ExternalApps`, `SystemProps`, `NwdConstants`, `NwdSettings`, `CrashLog`, `BottomBar`, `DevMode`, `McuKeys`, `SysMonitor` | apps da central (AUX, 360, vídeo, Z-Link); props; constantes da NWD; SettingService; registro de crash; barra flutuante; modo desenvolvedor; teclas falsas da MCU (Voltar, Início, Vol±) |
 | `bt` | `BtClient` | serviço de Bluetooth da NWD |
 | `com.bt`, `com.nwd.radio.service.data` | Parcelables | precisam ter o mesmo nome e formato do original (keep no R8) |
 
@@ -45,6 +45,16 @@ Declara `READ_EXTERNAL_STORAGE` e o receiver `com.k4811.common.system.BottomBar$
 | `show_voltmeter`, `show_day_night` | bool | true | barra superior da tela inicial |
 | `screen_off_after` | int (s) | 0 | 0, 5, 10 ou 30 |
 | `ask_default_launcher` | bool | true | perguntar na abertura do launcher |
+| `nav_app` | string | — | package do app de navegação da tela de navegação; sem valor = automático (`NavApps.chosen`: app do Config. Veículo, depois Waze, Google Maps, outro que abra `geo:`) |
+| `nav_info` | string | `clock` | informação acima da música na tela de navegação: `clock`, `speed` ou `none` (`LauncherConfig.NAV_INFOS`) |
+| `nav_mode` | string | `auto` | mapa da tela de navegação: `integrated` (módulo `map`), `external` (app em tela dividida) ou `auto` (integrado sem internet ou sem app de navegação) |
+| `nav_panel_right` | bool | false | no mapa integrado, música e informação à direita (o mapa à esquerda) |
+| `nav_voice` | bool | true | instruções por voz no mapa integrado |
+| `nav_cameras` | bool | true | alertas de radar (tela e voz) no mapa integrado |
+| `nav_speed_limit` | bool | true | placa do limite de velocidade da via no mapa integrado |
+| `nav_road_alerts` | bool | true | avisos de lombada, pedágio e passagem de nível no mapa integrado |
+| `nav_data_days` | int | 7 | período de conferência dos dados das vias (1, 7 ou 30 dias; ver `map/SPEC.md`) |
+| `show_sys_monitor` | bool | true | uso de RAM e CPU ao lado do voltímetro (`SysMonitor`) |
 
 Áreas (`HomeGrid.Slot`): `left`(A), `center_top`(B), `center_bottom`(C), `right_top`(D), `right_middle`(E), `right_bottom`(F). Módulos: `now_playing`, `clock`, `volume`, `fan`, `bluetooth`, `image`, `speed`, `gps`.
 
@@ -52,7 +62,7 @@ Para criar uma configuração nova: chave + getter/setter em `LauncherConfig`, t
 
 ## Dock (`DockView.Item`)
 
-`HOME`, `RADIO`, `MUSIC`, `BT_MUSIC`, `PHONE`, `EQ`, `AUX`, `CAMERA_360`, `VIDEO`, `ZLINK`, `APPS`. Início e Apps são fixos. Cada item tem `pkg` (o app que abre); `isAvailable` esconde itens cujo app/hardware não existe. `DockNavigator.navigate`: na tela inicial abre na hora; dentro dos apps, RADIO/MUSIC/PHONE/BT_MUSIC/EQ passam por um `Splash` de 1 s. O app atual faz `finish()` ao trocar, menos o launcher.
+`HOME`, `NAVIGATION`, `RADIO`, `MUSIC`, `BT_MUSIC`, `PHONE`, `EQ`, `AUX`, `CAMERA_360`, `VIDEO`, `ZLINK`, `APPS`. `NAVIGATION` abre a tela de navegação do launcher (`Apps.ACTION_NAV_HOME`). Início e Apps são fixos. Cada item tem `pkg` (o app que abre); `isAvailable` esconde itens cujo app/hardware não existe. `DockNavigator.navigate`: na tela inicial abre na hora; dentro dos apps, RADIO/MUSIC/PHONE/BT_MUSIC/EQ passam por um `Splash` de 1 s. O app atual faz `finish()` ao trocar, menos o launcher.
 
 ## Regras
 

@@ -15,6 +15,7 @@ import android.util.Log;
 
 import com.acloud.newinterface.MusicBean;
 import com.k4811.common.bt.BtClient;
+import com.k4811.launcher.nav.MediaSessions;
 import com.k4811.common.music.MusicRemote;
 import com.k4811.common.system.NwdConstants;
 
@@ -26,7 +27,8 @@ import com.k4811.common.system.NwdConstants;
  */
 public final class HomeSession {
 
-    public enum Kind { NONE, RADIO, USB, BT }
+    /** APP = player de música de outro app (Spotify, YouTube Music…), pela MediaSession dele. */
+    public enum Kind { NONE, RADIO, USB, BT, APP }
 
     public enum CallPhase { NONE, INCOMING, OUTGOING, ACTIVE }
 
@@ -50,12 +52,14 @@ public final class HomeSession {
         public final boolean btPlaying;
         public final boolean a2dpKnown;
         public final boolean a2dpConnected;
+        /** Player de outro app (Kind.APP); null se não há nenhum ou sem o acesso a notificações. */
+        public final MediaSessions.Track app;
 
         Snapshot(int source, Kind kind, CallPhase call, String callName, String callNumber,
                  String title, String artist, String album, boolean playing,
                  int positionMs, int durationMs, String mediaId, String path,
                  String btTitle, String btArtist, boolean btPlaying,
-                 boolean a2dpKnown, boolean a2dpConnected) {
+                 boolean a2dpKnown, boolean a2dpConnected, MediaSessions.Track app) {
             this.source = source;
             this.kind = kind;
             this.call = call;
@@ -74,6 +78,7 @@ public final class HomeSession {
             this.btPlaying = btPlaying;
             this.a2dpKnown = a2dpKnown;
             this.a2dpConnected = a2dpConnected;
+            this.app = app;
         }
     }
 
@@ -126,6 +131,8 @@ public final class HomeSession {
 
     private final Context context;
     private final BtClient bt;
+    /** Player de outro app (Spotify, YouTube Music…). */
+    private final MediaSessions apps;
     private final Handler main = new Handler(Looper.getMainLooper());
     private Listener listener;
     private boolean ourMusic;
@@ -162,6 +169,8 @@ public final class HomeSession {
     public HomeSession(Context context) {
         this.context = context.getApplicationContext();
         this.bt = new BtClient(context);
+        this.apps = new MediaSessions(context);
+        this.apps.setListener(this::publish);
     }
 
     public void setListener(Listener listener) {
@@ -174,6 +183,7 @@ public final class HomeSession {
         started = true;
         register();
         bt.connect();
+        apps.start();
         MusicRemote.query(context);
         readSource();
         publish();
@@ -190,6 +200,9 @@ public final class HomeSession {
         }
         MusicRemote.query(context);
         requestQuery();
+        // O acesso a notificações pode ter sido ligado enquanto a tela estava fora.
+        apps.start();
+        publish();
     }
 
     public void stop() {
@@ -207,6 +220,7 @@ public final class HomeSession {
         } catch (Exception ignored) {
         }
         bt.release();
+        apps.stop();
     }
 
     /** The screen set the source early (power, tuning, play) before the head unit's broadcast. */
@@ -226,6 +240,18 @@ public final class HomeSession {
             : button == USB_NEXT ? MusicRemote.CMD_NEXT : MusicRemote.CMD_TOGGLE);
         noteUsb();
         publish();
+    }
+
+    /** Comandos para o player de outro app: -1 anterior, 0 tocar/pausar, 1 próxima. */
+    public void appTransport(int what) {
+        if (what < 0) apps.previous();
+        else if (what > 0) apps.next();
+        else apps.playPause();
+    }
+
+    /** Abre o app do player de outro app; false se não há nenhum. */
+    public boolean openApp() {
+        return apps.openPlayer();
     }
 
     /** Estado enviado pelo app de música (MusicRemote.ACTION_STATE). */
@@ -314,17 +340,22 @@ public final class HomeSession {
         Kind kind = Kind.NONE;
         if (source == SOURCE_RADIO) kind = Kind.RADIO;
         else if (source == SOURCE_ANDROID) kind = musicKind();
+        // Sem a fonte da NWD (aparelho que não é a central): só o player de outro app.
+        else if (source < 0 && apps.track() != null) kind = Kind.APP;
         if (kind != Kind.NONE) lastKind = kind;
         return kind;
     }
 
     private Kind musicKind() {
+        // Outro app tocando (e nem o MP3 da suíte nem o Bluetooth): é ele que está no som.
+        MediaSessions.Track app = apps.track();
+        if (app != null && app.playing && !btPlaying && !(ourMusic && playing)) return Kind.APP;
         if (btPlaying && !ourMusic) return Kind.BT;
         if (ourMusic || usbOverrides) return Kind.USB;
         if (btPlaying) return Kind.BT;
         if (sawBt) return Kind.BT;
         if (sawUsb) return Kind.USB;
-        return Kind.NONE;
+        return app != null ? Kind.APP : Kind.NONE;
     }
 
     private void noteUsb() {
@@ -531,7 +562,7 @@ public final class HomeSession {
         l.onChanged(new Snapshot(
             source, resolveKind(), call, callName, callNumber,
             title, artist, album, playing, positionMs, durationMs, mediaId, path,
-            btTitle, btArtist, btPlaying, a2dpKnown, a2dpConnected));
+            btTitle, btArtist, btPlaying, a2dpKnown, a2dpConnected, apps.track()));
     }
 
     private static int readSourceExtra(Intent intent) {

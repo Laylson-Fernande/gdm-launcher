@@ -113,6 +113,18 @@
                 android:textSize="28sp" />
         </LinearLayout>
 
+        <!-- RAM and CPU in use (Settings › Show memory and CPU) -->
+        <TextView
+            android:id="@+id/sys_monitor"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="32dp"
+            android:includeFontPadding="false"
+            android:singleLine="true"
+            android:textColor="@color/text_soft"
+            android:textSize="22sp"
+            android:visibility="gone" />
+
         <!-- What is playing (Radio / MP3 / BT); hidden when nothing is -->
         <LinearLayout
             android:id="@+id/source_badge"

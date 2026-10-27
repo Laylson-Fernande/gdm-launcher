@@ -122,4 +122,12 @@
     <!-- Menu da borda de baixo (EdgeMenuService) -->
     <string name="overlay_back">Назад</string>
     <string name="overlay_home">Домой</string>
+    <!-- Tela de navegação (NavHomeActivity) -->
+    <string name="home_dock_nav">НАВИГАЦИЯ</string>
+    <string name="home_dock_nav_title">Экран навигации</string>
+    <string name="home_nav_open">Открыть навигацию</string>
+    <string name="home_nav_no_app">Нет приложения навигации</string>
+    <string name="home_nav_no_split">Разделение экрана недоступно</string>
+    <string name="home_nav_media_access">Разрешите доступ, чтобы видеть, что играет</string>
+    <string name="home_nav_media_allow">Разрешить</string>
 </resources>

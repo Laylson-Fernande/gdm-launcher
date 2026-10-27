@@ -42,4 +42,5 @@ android {
 
 dependencies {
     implementation(project(":common"))
+    implementation(project(":map"))
 }

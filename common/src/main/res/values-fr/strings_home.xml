@@ -120,4 +120,12 @@
     <!-- Menu da borda de baixo (EdgeMenuService) -->
     <string name="overlay_back">Retour</string>
     <string name="overlay_home">Accueil</string>
+    <!-- Tela de navegação (NavHomeActivity) -->
+    <string name="home_dock_nav">NAVIGATION</string>
+    <string name="home_dock_nav_title">Écran de navigation</string>
+    <string name="home_nav_open">Ouvrir la navigation</string>
+    <string name="home_nav_no_app">Aucune app de navigation installée</string>
+    <string name="home_nav_no_split">Écran partagé indisponible sur cet appareil</string>
+    <string name="home_nav_media_access">Autorisez l’accès pour voir ce qui joue</string>
+    <string name="home_nav_media_allow">Autoriser</string>
 </resources>

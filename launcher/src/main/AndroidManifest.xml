@@ -60,6 +60,33 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+        <!-- Tela de navegação: o app de navegação em tela dividida ao lado deste painel (com.k4811.launcher.action.NAV_HOME).
+             Redimensionável (com targetSdk < 24 o padrão é não ser, e isso desfaria a divisão) e numa tarefa própria. -->
+        <activity
+            android:name=".NavHomeActivity"
+            android:configChanges="fontScale|keyboard|keyboardHidden|locale|mcc|mnc|navigation|orientation|screenLayout|screenSize|smallestScreenSize|uiMode|density"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:resizeableActivity="true"
+            android:taskAffinity="com.k4811.launcher.nav"
+            android:windowSoftInputMode="stateAlwaysHidden|adjustNothing"
+            tools:targetApi="24">
+            <intent-filter>
+                <action android:name="com.k4811.launcher.action.NAV_HOME" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <!-- Só para o Android liberar a leitura dos players (Spotify, YouTube Music…) à tela de navegação,
+             depois que o usuário ligar o acesso a notificações. Não lê notificações. -->
+        <service
+            android:name="com.k4811.launcher.nav.MediaListener"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService" />
+            </intent-filter>
+        </service>
         <!-- Aviso de volume por cima dos apps. Exportado só para a prévia pelo adb (modo desenvolvedor). -->
         <service
             android:name="com.k4811.launcher.overlay.VolumeOverlayService"

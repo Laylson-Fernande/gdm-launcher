@@ -1,0 +1,331 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Mapa integrado (MapScreen): o MapView ocupa tudo e os controles ficam por cima, como no Waze.
+    No alto: a busca (sem rota) ou a faixa da próxima manobra (navegando). Embaixo: a prévia da rota
+    (Ir / Cancelar) ou a chegada (hora, tempo, distância, Encerrar). À direita: zoom e centralizar.
+    Feito para uma área de ~860×560 ao lado da música; serve também em tela cheia.
+-->
+<merge xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <com.k4811.map.MapView
+        android:id="@+id/map_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <!-- Busca -->
+    <LinearLayout
+        android:id="@+id/map_search_box"
+        android:layout_width="440dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:background="@drawable/panel"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="72dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingLeft="16dp"
+            android:paddingRight="8dp">
+
+            <com.k4811.common.ui.IconView
+                android:id="@+id/map_search_icon"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:clickable="false"
+                android:focusable="false" />
+
+            <EditText
+                android:id="@+id/map_search"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="12dp"
+                android:layout_weight="1"
+                android:background="@android:color/transparent"
+                android:hint="@string/map_search_hint"
+                android:imeOptions="actionSearch|flagNoExtractUi|flagNoFullscreen"
+                android:inputType="textPostalAddress"
+                android:singleLine="true"
+                android:textColor="@color/text"
+                android:textColorHint="@color/text_muted"
+                android:textSize="24sp" />
+
+            <com.k4811.common.ui.IconView
+                android:id="@+id/map_search_clear"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:contentDescription="@string/map_cancel"
+                android:visibility="gone" />
+        </LinearLayout>
+
+        <ScrollView
+            android:id="@+id/map_results_scroll"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone">
+
+            <LinearLayout
+                android:id="@+id/map_results"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingBottom="8dp" />
+        </ScrollView>
+    </LinearLayout>
+
+    <!-- Próxima manobra -->
+    <LinearLayout
+        android:id="@+id/map_banner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:background="@drawable/panel"
+        android:gravity="center_vertical"
+        android:minWidth="380dp"
+        android:orientation="horizontal"
+        android:padding="16dp"
+        android:visibility="gone">
+
+        <com.k4811.map.TurnIcon
+            android:id="@+id/map_turn"
+            android:layout_width="84dp"
+            android:layout_height="84dp" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="16dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/map_turn_distance"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:includeFontPadding="false"
+                android:textColor="@color/text"
+                android:textSize="44sp" />
+
+            <TextView
+                android:id="@+id/map_turn_street"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="2"
+                android:maxWidth="420dp"
+                android:textColor="@color/text_soft"
+                android:textSize="22sp" />
+        </LinearLayout>
+
+        <!-- "Depois:" a manobra seguinte, quando vem logo em seguida. -->
+        <LinearLayout
+            android:id="@+id/map_then"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/map_then"
+                android:textColor="@color/text_muted"
+                android:textSize="16sp" />
+
+            <com.k4811.map.TurnIcon
+                android:id="@+id/map_then_turn"
+                android:layout_width="40dp"
+                android:layout_height="40dp" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Aviso curto (calculando, sem internet…) -->
+    <TextView
+        android:id="@+id/map_message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal|top"
+        android:layout_marginTop="104dp"
+        android:background="@drawable/pill"
+        android:paddingBottom="10dp"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:paddingTop="10dp"
+        android:textColor="@color/text"
+        android:textSize="20sp"
+        android:visibility="gone" />
+
+    <!-- Zoom e centralizar -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right|center_vertical"
+        android:layout_marginRight="16dp"
+        android:orientation="vertical">
+
+        <com.k4811.common.ui.IconView
+            android:id="@+id/map_zoom_in"
+            android:layout_width="72dp"
+            android:layout_height="72dp"
+            android:contentDescription="@string/map_zoom_in" />
+
+        <com.k4811.common.ui.IconView
+            android:id="@+id/map_zoom_out"
+            android:layout_width="72dp"
+            android:layout_height="72dp"
+            android:layout_marginTop="12dp"
+            android:contentDescription="@string/map_zoom_out" />
+
+        <com.k4811.common.ui.IconView
+            android:id="@+id/map_recenter"
+            android:layout_width="72dp"
+            android:layout_height="72dp"
+            android:layout_marginTop="12dp"
+            android:contentDescription="@string/map_recenter"
+            android:visibility="invisible" />
+    </LinearLayout>
+
+    <!-- Embaixo à esquerda: próximo alerta (radar, lombada…), placa de limite e velocidade -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="left|bottom"
+        android:layout_margin="16dp"
+        android:gravity="left"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:id="@+id/map_alert"
+            android:layout_width="wrap_content"
+            android:layout_height="72dp"
+            android:layout_marginBottom="12dp"
+            android:background="@drawable/panel"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingLeft="14dp"
+            android:paddingRight="20dp"
+            android:visibility="gone">
+
+            <com.k4811.map.RoadSign
+                android:id="@+id/map_alert_icon"
+                android:layout_width="44dp"
+                android:layout_height="44dp" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="12dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/map_alert_distance"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:includeFontPadding="false"
+                    android:singleLine="true"
+                    android:textColor="@color/text"
+                    android:textSize="26sp" />
+
+                <TextView
+                    android:id="@+id/map_alert_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:maxWidth="220dp"
+                    android:singleLine="true"
+                    android:textColor="@color/text_muted"
+                    android:textSize="17sp" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <com.k4811.map.RoadSign
+            android:id="@+id/map_limit"
+            android:layout_width="84dp"
+            android:layout_height="84dp"
+            android:layout_marginBottom="12dp"
+            android:contentDescription="@string/map_speed_limit"
+            android:visibility="gone" />
+
+        <!-- Velocidade -->
+        <TextView
+            android:id="@+id/map_speed"
+            android:layout_width="84dp"
+            android:layout_height="84dp"
+            android:background="@drawable/panel"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:textColor="@color/text"
+            android:textSize="30sp"
+            android:visibility="gone" />
+    </LinearLayout>
+
+    <!-- Prévia da rota ou navegação -->
+    <LinearLayout
+        android:id="@+id/map_bottom"
+        android:layout_width="wrap_content"
+        android:layout_height="96dp"
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/panel"
+        android:gravity="center_vertical"
+        android:minWidth="460dp"
+        android:orientation="horizontal"
+        android:paddingLeft="24dp"
+        android:paddingRight="12dp"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/map_bottom_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxWidth="300dp"
+                android:singleLine="true"
+                android:textColor="@color/text"
+                android:textSize="28sp" />
+
+            <TextView
+                android:id="@+id/map_bottom_detail"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxWidth="300dp"
+                android:singleLine="true"
+                android:textColor="@color/text_muted"
+                android:textSize="20sp" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/map_secondary"
+            android:layout_width="wrap_content"
+            android:layout_height="64dp"
+            android:layout_marginLeft="16dp"
+            android:background="@drawable/line_button"
+            android:gravity="center"
+            android:paddingLeft="22dp"
+            android:paddingRight="22dp"
+            android:textColor="@color/text"
+            android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/map_primary"
+            android:layout_width="wrap_content"
+            android:layout_height="64dp"
+            android:layout_marginLeft="12dp"
+            android:background="@drawable/pill"
+            android:gravity="center"
+            android:minWidth="120dp"
+            android:paddingLeft="26dp"
+            android:paddingRight="26dp"
+            android:textColor="@color/text"
+            android:textSize="22sp" />
+    </LinearLayout>
+</merge>

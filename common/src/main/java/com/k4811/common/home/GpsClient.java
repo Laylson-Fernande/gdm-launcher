@@ -21,6 +21,8 @@ public final class GpsClient {
     public static final float MOVING_KMH = 3f;
     private static final long INTERVAL_MS = 1000;
     private static final long STALE_MS = 5000;
+    /** Deslocamento mínimo para calcular o rumo entre duas posições. */
+    private static final float MIN_MOVE_M = 2f;
     private static final String TAG = "K4811Gps";
 
     public interface Listener {
@@ -38,7 +40,7 @@ public final class GpsClient {
         /** Degrees from north (0–360); NaN if unknown or stopped. */
         public final float bearing;
 
-        Fix(Location l, Location previous) {
+        Fix(Location l, Location previous, float lastHeading) {
             latitude = l.getLatitude();
             longitude = l.getLongitude();
             altitude = l.hasAltitude() ? l.getAltitude() : Double.NaN;
@@ -46,8 +48,12 @@ public final class GpsClient {
             boolean derive = dt > 0 && dt <= STALE_MS;
             if (l.hasSpeed()) speedKmh = l.getSpeed() * 3.6f;
             else speedKmh = derive ? previous.distanceTo(l) / (dt / 1000f) * 3.6f : Float.NaN;
-            float heading = l.hasBearing() ? l.getBearing()
-                : derive ? (previous.bearingTo(l) + 360f) % 360f : Float.NaN;
+            // Sem rumo do GPS: o da posição anterior para esta, se o carro andou o bastante para ele
+            // valer (o mesmo ponto repetido daria "norte"); senão o último rumo conhecido.
+            float heading;
+            if (l.hasBearing()) heading = l.getBearing();
+            else if (derive && previous.distanceTo(l) >= MIN_MOVE_M) heading = (previous.bearingTo(l) + 360f) % 360f;
+            else heading = lastHeading;
             bearing = moving() ? heading : Float.NaN;
         }
 
@@ -63,13 +69,19 @@ public final class GpsClient {
     private boolean available = true;
     private long lastFixAt;
     private Location previous;
+    private float lastHeading = Float.NaN;
 
     private final LocationListener updates = new LocationListener() {
         @Override
         public void onLocationChanged(Location location) {
             lastFixAt = System.currentTimeMillis();
-            Fix fix = new Fix(location, previous);
-            previous = location;
+            Fix fix = new Fix(location, previous, lastHeading);
+            // A posição de referência para o rumo só anda quando o carro anda.
+            if (previous == null || location.hasBearing() || previous.distanceTo(location) >= MIN_MOVE_M
+                || location.getTime() - previous.getTime() > STALE_MS) {
+                previous = location;
+            }
+            if (!Float.isNaN(fix.bearing)) lastHeading = fix.bearing;
             if (listener != null) listener.onGps(fix);
         }
 

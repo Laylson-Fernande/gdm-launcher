@@ -17,7 +17,7 @@ Leia antes o [`AGENTS.md`](../AGENTS.md) e o [`common/SPEC.md`](../common/SPEC.m
 
 | Activity | Conteúdo |
 |---|---|
-| `SettingsActivity` | painéis numa coluna lateral: Principais (idioma, dia/noite, voltímetro, apagar a tela), Customizar (tema, fonte, atalhos para as duas telas abaixo), Assistências (câmera de ré, navegação), Sistema (launcher padrão, barra da NWD, bipe, volume ao ligar, brilho, "Sobre"), Áudio (escondido), Avançado (só modo desenvolvedor, com senha) |
+| `SettingsActivity` | painéis numa coluna lateral: Principais (idioma, dia/noite, voltímetro, memória e CPU, apagar a tela), Customizar (tema, fonte, atalhos para as duas telas abaixo; tela de navegação: abrir, mapa integrado/app externo/automático, lado da música, voz, alertas de radar, limite de velocidade, outros avisos da via, período dos dados das vias (com o estado lido de `K4811/nav/roads/state.json`), app de navegação, informação, acesso à música), Assistências (câmera de ré, navegação), Sistema (launcher padrão, barra da NWD, bipe, volume ao ligar, brilho, "Sobre"), Áudio (escondido), Avançado (só modo desenvolvedor, com senha) |
 | `HomeSettingsActivity` | mapa da tela inicial (`HomeMapView`): tocar no módulo e depois na área; escolher a imagem da pasta `K4811/` |
 | `DockSettingsActivity` | ícones do dock (até 5) e nome do Z-Link |
 | `AdvancedActivity` | região do rádio, freio de mão, ligar com qualquer tecla, props de áudio/microfone, menus da NWD, câmera 360 |

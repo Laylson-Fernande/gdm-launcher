@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Mapa integrado e navegação (módulo map). -->
+<resources>
+    <string name="map_act_depart">出発します</string>
+    <string name="map_act_straight">直進です</string>
+    <string name="map_act_slight_left">やや左方向です</string>
+    <string name="map_act_left">左折です</string>
+    <string name="map_act_sharp_left">鋭角に左折です</string>
+    <string name="map_act_slight_right">やや右方向です</string>
+    <string name="map_act_right">右折です</string>
+    <string name="map_act_sharp_right">鋭角に右折です</string>
+    <string name="map_act_uturn">Uターンです</string>
+    <string name="map_act_keep_left">左側を進みます</string>
+    <string name="map_act_keep_right">右側を進みます</string>
+    <string name="map_act_ramp_left">左側のランプに入ります</string>
+    <string name="map_act_ramp_right">右側のランプに入ります</string>
+    <string name="map_act_exit_left">左側の出口です</string>
+    <string name="map_act_exit_right">右側の出口です</string>
+    <string name="map_act_merge">合流します</string>
+    <string name="map_act_roundabout">ロータリーに入ります</string>
+    <string name="map_act_roundabout_exit">ロータリーで%1$d番目の出口です</string>
+    <string name="map_act_arrive">目的地に到着しました</string>
+    <string name="map_onto">%1$s、%2$s方面</string>
+    <string name="map_voice_in">%1$s先、%2$s</string>
+    <string name="map_voice_meters">%1$dメートル</string>
+    <string name="map_voice_km">%1$sキロ</string>
+    <string name="map_search_hint">どこへ行きますか？</string>
+    <string name="map_searching">検索中…</string>
+    <string name="map_no_results">見つかりませんでした</string>
+    <string name="map_search_error">検索に失敗しました</string>
+    <string name="map_offline">インターネットなし：検索と新しいルートは使えません</string>
+    <string name="map_route_error">ルートを計算できませんでした</string>
+    <string name="map_calculating">ルートを計算中…</string>
+    <string name="map_recalculating">ルートを再計算しています</string>
+    <string name="map_go">出発</string>
+    <string name="map_end">終了</string>
+    <string name="map_cancel">キャンセル</string>
+    <string name="map_arrival">到着 %1$s</string>
+    <string name="map_recent">最近</string>
+    <string name="map_waiting_gps">GPSを待っています…</string>
+    <string name="map_dropped_pin">地図上の地点</string>
+    <string name="map_recenter">現在地に戻る</string>
+    <string name="map_zoom_in">拡大</string>
+    <string name="map_zoom_out">縮小</string>
+    <string name="map_then">その後</string>
+    <string name="map_speed_limit">制限速度</string>
+    <string name="map_alert_camera">速度取締機</string>
+    <string name="map_alert_red_light">信号無視取締機</string>
+    <string name="map_alert_bump">減速帯</string>
+    <string name="map_alert_toll">料金所</string>
+    <string name="map_alert_rail">踏切</string>
+    <string name="map_say_camera">%1$s先、速度取締機</string>
+    <string name="map_say_camera_limit">%1$s先、速度取締機、制限%2$dキロ</string>
+    <string name="map_say_red_light">%1$s先、信号無視取締機</string>
+    <string name="map_say_slow_down">速度を落としてください</string>
+</resources>

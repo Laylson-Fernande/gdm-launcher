@@ -19,7 +19,7 @@ public class IconView extends View {
     public enum Icon {
         MENU, DIAG, POWER, EXIT, RADIO, CHEVRON_LEFT, CHEVRON_RIGHT, SKIP_PREV, SKIP_NEXT, KEYBOARD,
         MUSIC, BLUETOOTH, EQUALIZER, PLAY, PAUSE, PHONE, APPS, FAN, SETTINGS, HOME, BATTERY, VOLUME, VOLUME_MUTE, SCREEN_OFF, PLUS, MINUS,
-        AUX, CAMERA_360, VIDEO, PHONE_LINK, CARPLAY, ANDROID_AUTO,
+        AUX, CAMERA_360, VIDEO, PHONE_LINK, CARPLAY, ANDROID_AUTO, NAVIGATION, SEARCH, CLOSE, LOCATE,
         STEREO, TOWER_FAR, SUN, MOON, HELP
     }
 
@@ -392,6 +392,34 @@ public class IconView extends View {
                 path.lineTo(20.5f, 20.5f);
                 path.lineTo(12, 16);
                 path.lineTo(3.5f, 20.5f);
+                path.close();
+                c.drawPath(path, stroke);
+                break;
+            case SEARCH:
+                // Lupa: lente e cabo.
+                c.drawCircle(10.5f, 10.5f, 6.5f, stroke);
+                c.drawLine(15.3f, 15.3f, 20.5f, 20.5f, stroke);
+                break;
+            case CLOSE:
+                c.drawLine(5.5f, 5.5f, 18.5f, 18.5f, stroke);
+                c.drawLine(18.5f, 5.5f, 5.5f, 18.5f, stroke);
+                break;
+            case LOCATE:
+                // Mira de "centralizar": círculo, ponto e quatro traços.
+                c.drawCircle(12, 12, 7, stroke);
+                c.drawCircle(12, 12, 2.6f, fill);
+                c.drawLine(12, 2, 12, 5, stroke);
+                c.drawLine(12, 19, 12, 22, stroke);
+                c.drawLine(2, 12, 5, 12, stroke);
+                c.drawLine(19, 12, 22, 12, stroke);
+                break;
+            case NAVIGATION:
+                // Seta de navegação inclinada, apontando para o canto de cima à direita.
+                path.reset();
+                path.moveTo(20.5f, 3.5f);
+                path.lineTo(13.5f, 20.5f);
+                path.lineTo(11, 13);
+                path.lineTo(3.5f, 10.5f);
                 path.close();
                 c.drawPath(path, stroke);
                 break;

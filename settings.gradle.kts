@@ -16,6 +16,8 @@ rootProject.name = "GdmK4811AppSuite"
 
 // Módulo comum (dock, Ui, configurações em /sdcard/nwd-configs) e um módulo por app.
 include(":common")
+// Mapa e navegação (OpenStreetMap), usado pela tela de navegação do launcher.
+include(":map")
 include(":launcher")
 include(":car-setting")
 include(":radio")

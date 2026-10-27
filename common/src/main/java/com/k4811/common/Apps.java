@@ -22,6 +22,8 @@ public final class Apps {
 
     /** Gaveta de apps do launcher. */
     public static final String ACTION_APPS = "com.k4811.launcher.action.APPS";
+    /** Tela de navegação do launcher (mapa em tela dividida, música e informação). */
+    public static final String ACTION_NAV_HOME = "com.k4811.launcher.action.NAV_HOME";
 
     /**
      * Enviado por um app antes de virar a fonte de áudio. Os players do suíte pausam ao receber,

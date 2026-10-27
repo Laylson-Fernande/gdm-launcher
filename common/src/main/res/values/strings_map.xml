@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Mapa integrado e navegação (módulo map). -->
+<resources>
+    <string name="map_attribution" translatable="false">© OpenStreetMap</string>
+    <string name="map_meters" translatable="false">%1$d m</string>
+    <string name="map_km" translatable="false">%1$s km</string>
+    <string name="map_minutes" translatable="false">%1$d min</string>
+    <string name="map_hours" translatable="false">%1$d h %2$02d</string>
+    <string name="map_act_depart">Head out</string>
+    <string name="map_act_straight">Continue straight</string>
+    <string name="map_act_slight_left">Bear left</string>
+    <string name="map_act_left">Turn left</string>
+    <string name="map_act_sharp_left">Turn sharp left</string>
+    <string name="map_act_slight_right">Bear right</string>
+    <string name="map_act_right">Turn right</string>
+    <string name="map_act_sharp_right">Turn sharp right</string>
+    <string name="map_act_uturn">Make a U-turn</string>
+    <string name="map_act_keep_left">Keep left</string>
+    <string name="map_act_keep_right">Keep right</string>
+    <string name="map_act_ramp_left">Take the ramp on the left</string>
+    <string name="map_act_ramp_right">Take the ramp on the right</string>
+    <string name="map_act_exit_left">Take the exit on the left</string>
+    <string name="map_act_exit_right">Take the exit on the right</string>
+    <string name="map_act_merge">Merge</string>
+    <string name="map_act_roundabout">Enter the roundabout</string>
+    <string name="map_act_roundabout_exit">At the roundabout, take exit %1$d</string>
+    <string name="map_act_arrive">You have arrived</string>
+    <string name="map_onto">%1$s onto %2$s</string>
+    <string name="map_voice_in">In %1$s, %2$s</string>
+    <string name="map_voice_meters">%1$d meters</string>
+    <string name="map_voice_km">%1$s kilometers</string>
+    <string name="map_search_hint">Where to?</string>
+    <string name="map_searching">Searching…</string>
+    <string name="map_no_results">Nothing found</string>
+    <string name="map_search_error">Search failed</string>
+    <string name="map_offline">No internet: search and new routes are unavailable</string>
+    <string name="map_route_error">Couldn’t calculate the route</string>
+    <string name="map_calculating">Calculating route…</string>
+    <string name="map_recalculating">Recalculating route</string>
+    <string name="map_go">Go</string>
+    <string name="map_end">End</string>
+    <string name="map_cancel">Cancel</string>
+    <string name="map_arrival">Arrival %1$s</string>
+    <string name="map_recent">Recent</string>
+    <string name="map_waiting_gps">Waiting for GPS…</string>
+    <string name="map_dropped_pin">Point on the map</string>
+    <string name="map_recenter">Recenter</string>
+    <string name="map_zoom_in">Zoom in</string>
+    <string name="map_zoom_out">Zoom out</string>
+    <string name="map_then">Then</string>
+    <string name="map_speed_limit">Speed limit</string>
+    <string name="map_alert_camera">Speed camera</string>
+    <string name="map_alert_red_light">Red light camera</string>
+    <string name="map_alert_bump">Speed bump</string>
+    <string name="map_alert_toll">Toll booth</string>
+    <string name="map_alert_rail">Railway crossing</string>
+    <string name="map_say_camera">Speed camera in %1$s</string>
+    <string name="map_say_camera_limit">Speed camera in %1$s, limit %2$d</string>
+    <string name="map_say_red_light">Red light camera in %1$s</string>
+    <string name="map_say_slow_down">Slow down, you are over the limit</string>
+    <string name="map_alert_with_limit" translatable="false">%1$s · %2$d km/h</string>
+</resources>

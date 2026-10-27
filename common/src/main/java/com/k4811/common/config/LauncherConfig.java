@@ -53,6 +53,16 @@ public final class LauncherConfig {
     /** Antigo liga/desliga do menu da borda; só lido quando ainda não há {@link #KEY_EDGE_MENU_SIDE}. */
     private static final String KEY_EDGE_MENU = "edge_menu";
     private static final String KEY_EDGE_MENU_SIDE = "edge_menu_side";
+    private static final String KEY_NAV_APP = "nav_app";
+    private static final String KEY_NAV_INFO = "nav_info";
+    private static final String KEY_NAV_MODE = "nav_mode";
+    private static final String KEY_NAV_PANEL_RIGHT = "nav_panel_right";
+    private static final String KEY_NAV_VOICE = "nav_voice";
+    private static final String KEY_NAV_CAMERAS = "nav_cameras";
+    private static final String KEY_NAV_SPEED_LIMIT = "nav_speed_limit";
+    private static final String KEY_NAV_ROAD_ALERTS = "nav_road_alerts";
+    private static final String KEY_NAV_DATA_DAYS = "nav_data_days";
+    private static final String KEY_SYS_MONITOR = "show_sys_monitor";
 
     /** Launcher original da NWD (valor de fábrica de persist.nwd.launcher.default). */
     public static final String ORIGINAL_LAUNCHER = "com.android.launcher";
@@ -222,6 +232,15 @@ public final class LauncherConfig {
         return put(KEY_VOLTMETER, on);
     }
 
+    /** Uso de RAM e CPU ao lado do voltímetro. */
+    public static boolean showSysMonitor(Context c) {
+        return bool(KEY_SYS_MONITOR, true);
+    }
+
+    public static boolean setShowSysMonitor(Context c, boolean on) {
+        return put(KEY_SYS_MONITOR, on);
+    }
+
     /** Sol/lua ao lado do voltímetro (lua = farol aceso). */
     public static boolean showDayNight(Context c) {
         return bool(KEY_DAY_NIGHT, true);
@@ -317,6 +336,115 @@ public final class LauncherConfig {
 
     public static boolean setEdgeMenuSide(Context c, int side) {
         return put(KEY_EDGE_MENU_SIDE, side);
+    }
+
+    // ------------------------------------------------------------------ tela de navegação
+
+    /** O que a tela de navegação mostra acima da música, na ordem das Configurações. */
+    public static final String NAV_INFO_CLOCK = "clock";
+    public static final String NAV_INFO_SPEED = "speed";
+    public static final String NAV_INFO_NONE = "none";
+    public static final String[] NAV_INFOS = {NAV_INFO_CLOCK, NAV_INFO_SPEED, NAV_INFO_NONE};
+
+    /** Mapa da tela de navegação, na ordem das Configurações. */
+    public static final String NAV_MODE_INTEGRATED = "integrated";
+    public static final String NAV_MODE_EXTERNAL = "external";
+    public static final String NAV_MODE_AUTO = "auto";
+    public static final String[] NAV_MODES = {NAV_MODE_INTEGRATED, NAV_MODE_EXTERNAL, NAV_MODE_AUTO};
+
+    /** Mapa integrado (OpenStreetMap), app externo em tela dividida ou automático (integrado sem internet). */
+    public static String navMode(Context c) {
+        String id = string(KEY_NAV_MODE, NAV_MODE_AUTO);
+        for (String known : NAV_MODES) {
+            if (known.equals(id)) return id;
+        }
+        return NAV_MODE_AUTO;
+    }
+
+    public static boolean setNavMode(Context c, String id) {
+        return put(KEY_NAV_MODE, id);
+    }
+
+    /** No mapa integrado, a música e a informação à direita (o mapa à esquerda). Padrão: à esquerda. */
+    public static boolean navPanelRight(Context c) {
+        return bool(KEY_NAV_PANEL_RIGHT, false);
+    }
+
+    public static boolean setNavPanelRight(Context c, boolean right) {
+        return put(KEY_NAV_PANEL_RIGHT, right);
+    }
+
+    /** Instruções por voz no mapa integrado. */
+    public static boolean navVoice(Context c) {
+        return bool(KEY_NAV_VOICE, true);
+    }
+
+    public static boolean setNavVoice(Context c, boolean on) {
+        return put(KEY_NAV_VOICE, on);
+    }
+
+    /** Alertas de radar (tela e voz) no mapa integrado. */
+    public static boolean navCameras(Context c) {
+        return bool(KEY_NAV_CAMERAS, true);
+    }
+
+    public static boolean setNavCameras(Context c, boolean on) {
+        return put(KEY_NAV_CAMERAS, on);
+    }
+
+    /** Placa com o limite de velocidade da via no mapa integrado. */
+    public static boolean navSpeedLimit(Context c) {
+        return bool(KEY_NAV_SPEED_LIMIT, true);
+    }
+
+    public static boolean setNavSpeedLimit(Context c, boolean on) {
+        return put(KEY_NAV_SPEED_LIMIT, on);
+    }
+
+    /** Avisos de lombada, pedágio e passagem de nível no mapa integrado. */
+    public static boolean navRoadAlerts(Context c) {
+        return bool(KEY_NAV_ROAD_ALERTS, true);
+    }
+
+    public static boolean setNavRoadAlerts(Context c, boolean on) {
+        return put(KEY_NAV_ROAD_ALERTS, on);
+    }
+
+    /** De quantos em quantos dias os dados das vias (radares, limites) são conferidos, na ordem das Configurações. */
+    public static final int[] NAV_DATA_DAYS = {1, 7, 30};
+
+    public static int navDataDays(Context c) {
+        int d = integer(KEY_NAV_DATA_DAYS, 7);
+        for (int known : NAV_DATA_DAYS) {
+            if (known == d) return d;
+        }
+        return 7;
+    }
+
+    public static boolean setNavDataDays(Context c, int days) {
+        return put(KEY_NAV_DATA_DAYS, days);
+    }
+
+    /** Package do app de navegação escolhido; null = automático (ver NavApps). */
+    public static String navApp(Context c) {
+        return string(KEY_NAV_APP, null);
+    }
+
+    public static boolean setNavApp(Context c, String pkg) {
+        return put(KEY_NAV_APP, pkg);
+    }
+
+    /** Informação acima da música ({@link #NAV_INFOS}); relógio por padrão. */
+    public static String navInfo(Context c) {
+        String id = string(KEY_NAV_INFO, NAV_INFO_CLOCK);
+        for (String known : NAV_INFOS) {
+            if (known.equals(id)) return id;
+        }
+        return NAV_INFO_CLOCK;
+    }
+
+    public static boolean setNavInfo(Context c, String id) {
+        return put(KEY_NAV_INFO, id);
     }
 
     /** Caminho da imagem do módulo Imagem (ver HomeImage); null se nenhuma foi escolhida. */

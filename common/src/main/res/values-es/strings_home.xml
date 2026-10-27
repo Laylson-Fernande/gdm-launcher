@@ -120,4 +120,12 @@
     <!-- Menu da borda de baixo (EdgeMenuService) -->
     <string name="overlay_back">Atrás</string>
     <string name="overlay_home">Inicio</string>
+    <!-- Tela de navegação (NavHomeActivity) -->
+    <string name="home_dock_nav">NAVEGACIÓN</string>
+    <string name="home_dock_nav_title">Pantalla de navegación</string>
+    <string name="home_nav_open">Abrir navegación</string>
+    <string name="home_nav_no_app">Ninguna app de navegación instalada</string>
+    <string name="home_nav_no_split">Pantalla dividida no disponible en esta unidad</string>
+    <string name="home_nav_media_access">Permite el acceso para ver lo que suena</string>
+    <string name="home_nav_media_allow">Permitir</string>
 </resources>
