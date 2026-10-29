@@ -589,6 +589,18 @@ public final class RoadDataBuilder {
             n = 0;
         }
 
+        /** Como {@link #sortedUnique()}, sem mexer na ordem desta lista. */
+        long[] sortedUniqueCopy() {
+            long[] c = Arrays.copyOf(a, n);
+            Arrays.sort(c);
+            int m = 0;
+            for (int i = 0; i < c.length; i++) if (m == 0 || c[i] != c[m - 1]) c[m++] = c[i];
+            if (m == c.length) return c;
+            long[] out = Arrays.copyOf(c, m);
+            c = null;
+            return out;
+        }
+
         long[] sortedUnique() {
             Arrays.sort(a, 0, n);
             int m = 0;

@@ -1,6 +1,7 @@
 # Dados das vias do mapa integrado (radares, limites de velocidade, lombadas, pedágios,
-# passagens de nível): gera os quadrados a partir do OpenStreetMap (Geofabrik) e publica no
-# GitHub Pages do repositório, em <owner>.github.io/<repo>/roads/v1/. O launcher baixa daí
+# passagens de nível) e mapa offline (ruas, água, prédios…): gera os quadrados a partir do
+# OpenStreetMap (Geofabrik) e publica no GitHub Pages do repositório, em
+# <owner>.github.io/<repo>/roads/v1/ e …/maps/v1/. O launcher baixa daí
 # (ver tools/road-data/README.md). Pré-requisito: Settings → Pages → Source: GitHub Actions.
 name: Road data
 
@@ -57,6 +58,32 @@ jobs:
           Format: tools/road-data/README.md in the source repository.
           TXT
           du -sh site/roads
+
+      # Mapa offline (ruas, água, prédios…), desenhado pelo app: maps/v1/. O Brasil inteiro usa
+      # ~5 GB de memória e gera ~380 MB (o runner tem 16 GB).
+      - name: Build offline map
+        run: |
+          set -euo pipefail
+          java -Xmx13g -cp build/road-data MapDataBuilder region.osm.pbf site/maps "$SOURCE"
+          cat > site/maps/README.txt <<'TXT'
+          Offline map for the K4811 head unit (streets, water, parks, buildings, railways,
+          boundaries, place names), drawn by the app. Generated from OpenStreetMap data.
+          (c) OpenStreetMap contributors. Data available under the Open Database License (ODbL) 1.0:
+          https://www.openstreetmap.org/copyright
+          Format: tools/road-data/README.md in the source repository.
+          TXT
+          du -sh site/maps
+
+      # O GitHub Pages aceita até 1 GB publicado.
+      - name: Check site size
+        run: |
+          set -euo pipefail
+          MB=$(du -sm site | cut -f1)
+          echo "site: ${MB} MB"
+          if [ "$MB" -gt 1000 ]; then
+            echo "::error::O site passou de 1 GB (limite do GitHub Pages). Veja tools/road-data/README.md (Tamanho)."
+            exit 1
+          fi
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
