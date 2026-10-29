@@ -17,6 +17,8 @@ import java.util.regex.Pattern;
 /**
  * Busca de endereços e lugares pelo Nominatim ({@link MapConfig#search}). A política do serviço
  * pede no máximo 1 busca por segundo e nada de autocompletar: busca só quando o motorista confirma.
+ * As sugestões enquanto digita vêm do índice baixado ({@link com.k4811.map.search.PlaceIndex}) e, com
+ * internet, do Photon ({@link #suggest}).
  * Bloqueia: chamar fora da thread principal.
  *
  * <b>Número da casa.</b> O Nominatim só acha o número se ele estiver no OpenStreetMap (no Brasil,
@@ -98,6 +100,43 @@ public final class Places {
         Place p = place(o, null);
         // O ponto é onde o motorista tocou, não o do endereço achado.
         return p == null ? null : new Place(p.name, p.detail, lat, lon);
+    }
+
+    /**
+     * Sugestões enquanto digita, pelo Photon ({@link MapConfig#suggest}, feito para autocompletar): nome,
+     * ou rua e número, com bairro e cidade. Vazio se o serviço estiver desligado no nav.config.json.
+     */
+    public static List<Place> suggest(Context c, String query, double nearLat, double nearLon, String language)
+        throws Exception {
+        MapConfig cfg = MapConfig.get(c);
+        List<Place> out = new ArrayList<>();
+        if (cfg.suggest.isEmpty()) return out;
+        StringBuilder url = new StringBuilder(cfg.suggest);
+        url.append("?limit=6&q=").append(URLEncoder.encode(query, "UTF-8"));
+        if (!Double.isNaN(nearLat)) url.append(String.format(Locale.US, "&lat=%.4f&lon=%.4f", nearLat, nearLon));
+        // O Photon só tem estes idiomas; nos outros, os nomes vêm como estão no mapa.
+        if ("en".equals(language) || "de".equals(language) || "fr".equals(language)) url.append("&lang=").append(language);
+        JSONArray features = new JSONObject(Net.get(url.toString(), cfg.userAgent)).optJSONArray("features");
+        if (features == null) return out;
+        for (int i = 0; i < features.length(); i++) {
+            JSONObject f = features.getJSONObject(i);
+            JSONObject p = f.optJSONObject("properties");
+            JSONArray xy = f.optJSONObject("geometry") == null ? null : f.getJSONObject("geometry").optJSONArray("coordinates");
+            if (p == null || xy == null || xy.length() < 2) continue;
+            String street = p.optString("street", "");
+            String house = p.optString("housenumber", "");
+            String name = p.optString("name", "");
+            if (name.isEmpty()) name = house.isEmpty() ? street : street + ", " + house;
+            if (name.isEmpty()) continue;
+            List<String> parts = new ArrayList<>();
+            for (String k : new String[]{"street", "district", "locality", "city", "state"}) {
+                String v = p.optString(k, "");
+                if (!v.isEmpty() && !name.startsWith(v) && !parts.contains(v)) parts.add(v);
+            }
+            if (!house.isEmpty() && !street.isEmpty() && name.startsWith(street)) parts.remove(street);
+            out.add(new Place(name, join(parts), xy.getDouble(1), xy.getDouble(0)));
+        }
+        return out;
     }
 
     private static List<Place> query(Context c, String query, double nearLat, double nearLon, String language,
@@ -193,6 +232,25 @@ public final class Places {
     private static boolean hasExact(List<Place> list) {
         for (Place p : list) if (!p.approximate && p.number == null) return true;
         return false;
+    }
+
+    /** {@code first} e depois os de {@code then} que não repetem um lugar (~100 m e o mesmo nome), até {@code limit}. */
+    public static List<Place> merge(List<Place> first, List<Place> then, int limit) {
+        List<Place> out = new ArrayList<>();
+        for (Place p : first) if (out.size() < limit) out.add(p);
+        for (Place p : then) {
+            if (out.size() >= limit) break;
+            boolean dup = false;
+            for (Place o : out) {
+                if (Math.abs(o.lat - p.lat) < 1e-3 && Math.abs(o.lon - p.lon) < 1e-3
+                    && com.k4811.map.search.Text.normalize(o.name).equals(com.k4811.map.search.Text.normalize(p.name))) {
+                    dup = true;
+                    break;
+                }
+            }
+            if (!dup) out.add(p);
+        }
+        return out;
     }
 
     private static boolean near(List<Place> list, Place p) {

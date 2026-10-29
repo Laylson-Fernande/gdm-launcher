@@ -1,17 +1,26 @@
 package com.k4811.map.road;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.Bundle;
+import android.os.Looper;
 import android.os.Process;
 import android.util.Log;
 
+import com.k4811.common.Apps;
 import com.k4811.common.config.LauncherConfig;
 import com.k4811.common.config.NwdConfigs;
 import com.k4811.map.MapConfig;
 import com.k4811.map.geo.Geo;
+import com.k4811.map.route.GraphStore;
 import com.k4811.map.route.Route;
+import com.k4811.map.search.PlaceIndex;
 import com.k4811.map.tiles.Tiles;
 import com.k4811.map.vector.MapStore;
 
@@ -37,14 +46,19 @@ import java.util.concurrent.Executors;
 import java.util.zip.CRC32;
 
 /**
- * Mantém atualizados, quando há internet, os dois pacotes baixados do servidor: os dados das vias
- * (radares, limites de velocidade…, {@link #get}) e o mapa offline ({@link #maps}: ruas, água,
- * prédios…, desenhado pelo app). As mesmas regras para os dois:
+ * Mantém atualizados, quando há internet, os pacotes baixados do servidor: os dados das vias
+ * (radares, limites de velocidade…, {@link #get}), o mapa offline ({@link #maps}: ruas, água,
+ * prédios…, desenhado pelo app), o grafo de ruas da rota sem internet ({@link #graph}) e o índice de
+ * endereços da busca sem internet ({@link #places}). As mesmas regras para todos:
  * <ul>
- * <li><b>Raio:</b> os quadrados num raio de {@value #AREA_KM} km do carro, conferidos a cada
- * período escolhido nas Configurações (1, 7 ou 30 dias) ou quando o carro se afasta
- * {@value #AREA_MOVE_KM} km do centro da última conferência.</li>
+ * <li><b>Raio:</b> os quadrados no raio escolhido nas Configurações ({@code nav_data_km}, 25 a
+ * 500 km, padrão 100) em volta do carro, conferidos a cada período escolhido (1, 7 ou 30 dias),
+ * quando o carro se afasta 30% do raio do centro da última conferência ou quando o raio muda.</li>
  * <li><b>Rota:</b> ao calcular uma rota, os quadrados por onde ela passa (inclusive fora do raio).</li>
+ * <li><b>Carga inicial:</b> {@link #start} (launcher ao abrir o processo, boot, atualização do app,
+ * internet conectou e um alarme de hora em hora) confere o raio em volta da última posição
+ * conhecida, sem precisar abrir o mapa. Sem conferência completa ainda, ela é feita logo; se o
+ * processo morrer no meio, a próxima continua de onde parou (o que já está no disco não é baixado de novo).</li>
  * </ul>
  * Conferir = baixar o {@code index.json} do servidor (CRC e tamanho de cada quadrado) e baixar só
  * os quadrados que mudaram. Sem internet, nada acontece e o mapa usa o que já está no disco (os
@@ -52,17 +66,24 @@ import java.util.zip.CRC32;
  *
  * O mapa offline também baixa os quadrados de 2° da visão geral ({@code o<x>_<y>}) do raio e da rota.
  *
- * Estado em {@code /sdcard/K4811/nav/roads/state.json} e {@code …/maps/state.json} (lidos pelo car-setting):
+ * Estado em {@code /sdcard/K4811/nav/<pacote>/state.json} ({@code roads}, {@code maps}, {@code graph},
+ * {@code places}; lidos pelo car-setting):
  * {@code cells} (quadrado → "crc:tamanho" do que está no disco), {@code bytes}, {@code updated}
  * (última conferência completa), {@code data_generated} (quando o servidor gerou os dados),
- * {@code area_lat/area_lon/area_time} e {@code index_etag}.
+ * {@code area_lat/area_lon/area_time/area_km} e {@code index_etag}.
  */
 public final class RoadSync {
 
-    private static final String TAG_ROADS = "K4811Road";
-    private static final String TAG_MAPS = "K4811MapData";
-    static final int AREA_KM = 100;
-    static final int AREA_MOVE_KM = 30;
+    // Pacotes.
+    private static final int ROADS = 0;
+    private static final int MAPS = 1;
+    private static final int GRAPH = 2;
+    private static final int PLACES = 3;
+    private static final String[] TAGS = {"K4811Road", "K4811MapData", "K4811Route", "K4811Places"};
+    /** Raio das conferências antigas, sem {@code area_km} no state.json. */
+    private static final int OLD_AREA_KM = 100;
+    /** Os quadrados salvos no state.json a cada tantos baixados (o car-setting mostra o progresso). */
+    private static final int SAVE_EVERY = 20;
     private static final long DAY_MS = 24L * 60 * 60 * 1000;
     /** Depois de uma falha (rede), espera isso antes de tentar de novo. */
     private static final long RETRY_MS = 10L * 60 * 1000;
@@ -73,11 +94,11 @@ public final class RoadSync {
     /** Baixando o mapa, os tiles na tela são refeitos no máximo a cada tanto. */
     private static final long REDRAW_MS = 5000;
 
-    private static RoadSync roads;
-    private static RoadSync maps;
+    private static final RoadSync[] instances = new RoadSync[4];
 
     private final Context app;
-    /** Este é o mapa offline (senão, os dados das vias). */
+    private final int kind;
+    /** Este é o mapa offline (tem a visão geral e refaz os tiles). */
     private final boolean isMap;
     private final String TAG;
     private long lastRedraw;
@@ -97,6 +118,7 @@ public final class RoadSync {
     private volatile double areaLat = Double.NaN;
     private volatile double areaLon = Double.NaN;
     private volatile long areaTime;
+    private volatile int areaKm = OLD_AREA_KM;
     private volatile long lastFailure;
     private volatile boolean areaQueued;
     /** O state.json já foi lido (antes disso, área e prazos ainda não são conhecidos). */
@@ -105,43 +127,136 @@ public final class RoadSync {
     /** Quadrados da última rota: não saem na limpeza de espaço. */
     private final Set<String> routeCells = Collections.synchronizedSet(new HashSet<String>());
 
+    private static synchronized RoadSync of(Context c, int kind) {
+        if (instances[kind] == null) instances[kind] = new RoadSync(c.getApplicationContext(), kind);
+        return instances[kind];
+    }
+
     /** Dados das vias (radares, limites, lombadas…). */
-    public static synchronized RoadSync get(Context c) {
-        if (roads == null) roads = new RoadSync(c.getApplicationContext(), false);
-        return roads;
+    public static RoadSync get(Context c) {
+        return of(c, ROADS);
     }
 
     /** Mapa offline (ruas, água, prédios…). */
-    public static synchronized RoadSync maps(Context c) {
-        if (maps == null) maps = new RoadSync(c.getApplicationContext(), true);
-        return maps;
+    public static RoadSync maps(Context c) {
+        return of(c, MAPS);
     }
 
-    /** Posição atual para os dois pacotes (ver {@link #area}). */
+    /** Grafo de ruas da rota sem internet ({@link com.k4811.map.route.OfflineRouter}). */
+    public static RoadSync graph(Context c) {
+        return of(c, GRAPH);
+    }
+
+    /** Índice de endereços da busca sem internet ({@link com.k4811.map.search.PlaceIndex}). */
+    public static RoadSync places(Context c) {
+        return of(c, PLACES);
+    }
+
+    /** Posição atual para todos os pacotes (ver {@link #area}). */
     public static void areaAll(Context c, double lat, double lon) {
-        get(c).area(lat, lon);
-        maps(c).area(lat, lon);
+        for (int k = 0; k < instances.length; k++) of(c, k).area(lat, lon);
     }
 
-    /** Rota calculada, para os dois pacotes (ver {@link #route}). */
+    /** Rota calculada, para todos os pacotes (ver {@link #route}). */
     public static void routeAll(Context c, Route r) {
-        get(c).route(r);
-        maps(c).route(r);
+        for (int k = 0; k < instances.length; k++) of(c, k).route(r);
     }
 
-    private RoadSync(Context app, boolean isMap) {
+    /**
+     * Sem o mapa aberto (processo do launcher nasceu, boot, app atualizado, internet conectou,
+     * alarme): agenda a conferência de hora em hora e confere já o raio de todos os pacotes em volta
+     * da última posição conhecida. Sem posição nenhuma (instalação nova), pede uma ao GPS. Quem
+     * decide se há trabalho é {@link #area}: fora do prazo, não baixa nada.
+     */
+    public static void start(Context c) {
+        Context app = c.getApplicationContext();
+        schedule(app);
+        if (!MapConfig.online(app)) return;
+        double[] p = lastKnown(app);
+        if (p != null) areaAll(app, p[0], p[1]);
+        else requestFix(app);
+    }
+
+    private static void schedule(Context app) {
+        try {
+            AlarmManager am = (AlarmManager) app.getSystemService(Context.ALARM_SERVICE);
+            Intent i = new Intent(Apps.ACTION_NAV_DATA_CHECK).setClass(app, RoadSyncReceiver.class);
+            PendingIntent pi = PendingIntent.getBroadcast(app, 0, i, PendingIntent.FLAG_UPDATE_CURRENT);
+            // Sem acordar a central: com o carro desligado não há o que baixar.
+            if (am != null) am.setInexactRepeating(AlarmManager.RTC, System.currentTimeMillis() + AlarmManager.INTERVAL_HOUR,
+                AlarmManager.INTERVAL_HOUR, pi);
+        } catch (RuntimeException e) {
+            Log.w("K4811Road", "alarme: " + e);
+        }
+    }
+
+    private static boolean fixRequested;
+
+    /** Uma posição do GPS só para a carga inicial (instalação nova, mapa nunca aberto). */
+    private static synchronized void requestFix(Context app) {
+        if (fixRequested) return;
+        try {
+            LocationManager lm = (LocationManager) app.getSystemService(Context.LOCATION_SERVICE);
+            if (lm == null || !lm.isProviderEnabled(LocationManager.GPS_PROVIDER)) return;
+            lm.requestSingleUpdate(LocationManager.GPS_PROVIDER, new LocationListener() {
+                @Override
+                public void onLocationChanged(Location l) {
+                    synchronized (RoadSync.class) {
+                        fixRequested = false;
+                    }
+                    areaAll(app, l.getLatitude(), l.getLongitude());
+                }
+
+                @Override
+                public void onStatusChanged(String provider, int status, Bundle extras) {
+                }
+
+                @Override
+                public void onProviderEnabled(String provider) {
+                }
+
+                @Override
+                public void onProviderDisabled(String provider) {
+                }
+            }, Looper.getMainLooper());
+            fixRequested = true;
+        } catch (RuntimeException e) {
+            Log.w("K4811Road", "GPS: " + e);
+        }
+    }
+
+    private RoadSync(Context app, int kind) {
         this.app = app;
-        this.isMap = isMap;
-        TAG = isMap ? TAG_MAPS : TAG_ROADS;
+        this.kind = kind;
+        this.isMap = kind == MAPS;
+        TAG = TAGS[kind];
         worker.execute(this::loadState);
     }
 
     private File dir() {
-        return isMap ? MapStore.dir() : RoadStore.dir();
+        switch (kind) {
+            case MAPS:
+                return MapStore.dir();
+            case GRAPH:
+                return GraphStore.dir();
+            case PLACES:
+                return PlaceIndex.dir();
+            default:
+                return RoadStore.dir();
+        }
     }
 
     private String baseUrl(MapConfig cfg) {
-        return isMap ? cfg.mapData : cfg.roadData;
+        switch (kind) {
+            case MAPS:
+                return cfg.mapData;
+            case GRAPH:
+                return cfg.graphData;
+            case PLACES:
+                return cfg.placeData;
+            default:
+                return cfg.roadData;
+        }
     }
 
     // ------------------------------------------------------------------ gatilhos
@@ -151,26 +266,31 @@ public final class RoadSync {
      * período venceu ou se o carro se afastou. A conta é barata; o trabalho vai para o worker.
      */
     public void area(double lat, double lon) {
-        if (Double.isNaN(lat) || areaQueued || !loaded) return;
+        if (Double.isNaN(lat) || areaQueued) return;
+        if (!loaded) {
+            // Processo recém-criado (receiver, alarme): confere depois de ler o state.json (mesmo worker).
+            worker.execute(() -> area(lat, lon));
+            return;
+        }
         long now = System.currentTimeMillis();
         if (now - lastFailure < RETRY_MS) return;
-        boolean due = areaTime == 0 || now - areaTime >= periodMs() || now < areaTime
-            || Double.isNaN(areaLat) || Geo.distance(lat, lon, areaLat, areaLon) > AREA_MOVE_KM * 1000;
+        int km = LauncherConfig.navDataKm(app);
+        boolean due = areaTime == 0 || now - areaTime >= periodMs() || now < areaTime || areaKm != km
+            || Double.isNaN(areaLat) || Geo.distance(lat, lon, areaLat, areaLon) > moveKm(km) * 1000;
         if (!due || !enabled() || !MapConfig.online(app)) return;
         areaQueued = true;
         worker.execute(() -> {
             try {
-                syncArea(lat, lon);
+                syncArea(lat, lon, km);
             } finally {
                 areaQueued = false;
             }
         });
     }
 
-    /** Sem GPS à mão (internet acabou de conectar): usa a última posição conhecida. */
-    public void areaFromLastKnown() {
-        double[] p = lastKnown();
-        if (p != null) area(p[0], p[1]);
+    /** Distância que o carro anda do centro da última conferência até conferir de novo: 30% do raio. */
+    private static int moveKm(int km) {
+        return Math.max(8, km * 3 / 10);
     }
 
     /** Rota calculada: baixa o que falta dos quadrados por onde ela passa. */
@@ -187,7 +307,8 @@ public final class RoadSync {
     }
 
     private boolean enabled() {
-        if (isMap) return LauncherConfig.navOfflineMap(app);
+        // Mapa, rota e busca sem internet: a mesma opção ("Mapa sem conexão").
+        if (kind != ROADS) return LauncherConfig.navOfflineMap(app);
         return LauncherConfig.navCameras(app) || LauncherConfig.navSpeedLimit(app) || LauncherConfig.navRoadAlerts(app);
     }
 
@@ -197,18 +318,20 @@ public final class RoadSync {
 
     // ------------------------------------------------------------------ trabalho (worker)
 
-    private void syncArea(double lat, double lon) {
-        List<String> wanted = cellsAround(lat, lon, AREA_KM);
-        if (isMap) wanted.addAll(0, overviewAround(lat, lon, AREA_KM));
-        Log.i(TAG, "raio: " + wanted.size() + " quadrados em volta de " + lat + "," + lon);
+    private void syncArea(double lat, double lon, int km) {
+        List<String> wanted = cellsAround(lat, lon, km);
+        if (isMap) wanted.addAll(0, overviewAround(lat, lon, km));
+        Log.i(TAG, "raio de " + km + " km: " + wanted.size() + " quadrados em volta de " + lat + "," + lon);
         if (sync(wanted)) {
             areaLat = lat;
             areaLon = lon;
             areaTime = System.currentTimeMillis();
+            areaKm = km;
             try {
                 state.put("area_lat", lat);
                 state.put("area_lon", lon);
                 state.put("area_time", areaTime);
+                state.put("area_km", km);
                 state.put("updated", areaTime);
             } catch (JSONException ignored) {
             }
@@ -245,7 +368,7 @@ public final class RoadSync {
             if (index == null || stale) fetchIndex(cfg);
             JSONObject remote = index.optJSONObject("cells");
             JSONObject local = state.optJSONObject("cells");
-            int downloaded = 0;
+            int downloaded = 0, failed = 0, failedInRow = 0;
             for (String name : wanted) {
                 String want = remote == null ? null : remote.optString(name, null);
                 String have = local.optString(name, null);
@@ -256,21 +379,37 @@ public final class RoadSync {
                 }
                 if (want.equals(have) && file(name).isFile()) continue;
                 try {
-                    download(cfg, name, want);
-                } catch (StaleIndex e) {
-                    // Dados publicados de novo depois do índice que temos: índice novo e mais uma vez.
-                    fetchIndex(cfg);
-                    remote = index.optJSONObject("cells");
-                    want = remote == null ? null : remote.optString(name, null);
-                    if (want == null || want.equals(have)) continue;
-                    download(cfg, name, want);
+                    try {
+                        download(cfg, name, want);
+                    } catch (StaleIndex e) {
+                        // Dados publicados de novo depois do índice que temos: índice novo e mais uma vez.
+                        fetchIndex(cfg);
+                        remote = index.optJSONObject("cells");
+                        want = remote == null ? null : remote.optString(name, null);
+                        if (want == null || want.equals(have)) continue;
+                        download(cfg, name, want);
+                    }
+                } catch (IOException e) {
+                    // Um quadrado que falhou (503 passageiro do servidor) não segura os outros; a
+                    // conferência fica incompleta e é refeita depois. Várias seguidas: a rede caiu.
+                    Log.w(TAG, "quadrado " + name + ": " + e);
+                    failed++;
+                    if (++failedInRow >= 3) throw e;
+                    continue;
                 }
+                failedInRow = 0;
                 downloaded++;
+                if (downloaded % SAVE_EVERY == 0) saveState();
                 redraw(false);
             }
             saveState();
             if (downloaded > 0) redraw(true);
-            Log.i(TAG, "conferido: " + wanted.size() + " quadrados, " + downloaded + " baixados");
+            Log.i(TAG, "conferido: " + wanted.size() + " quadrados, " + downloaded + " baixados"
+                + (failed > 0 ? ", " + failed + " com erro" : ""));
+            if (failed > 0) {
+                lastFailure = System.currentTimeMillis();
+                return false;
+            }
             return true;
         } catch (Exception e) {
             Log.w(TAG, "sincronizar: " + e, e);
@@ -332,8 +471,12 @@ public final class RoadSync {
     }
 
     private void invalidate(String name) {
-        if (isMap) {
+        if (kind == MAPS) {
             MapStore.get().invalidate(name);
+        } else if (kind == GRAPH) {
+            GraphStore.get().invalidate(name);
+        } else if (kind == PLACES) {
+            PlaceIndex.get().invalidate(name);
         } else {
             int[] xy = xy(name);
             RoadStore.get().invalidate(xy[0], xy[1]);
@@ -358,7 +501,9 @@ public final class RoadSync {
 
     /** Passou do espaço máximo: apaga os quadrados mais longe do centro do raio (fora da rota). */
     private void prune() {
-        long limit = isMap ? MapConfig.get(app).mapDataBytes : MapConfig.get(app).roadDataBytes;
+        MapConfig cfg = MapConfig.get(app);
+        long limit = kind == MAPS ? cfg.mapDataBytes : kind == GRAPH ? cfg.graphDataBytes
+            : kind == PLACES ? cfg.placeDataBytes : cfg.roadDataBytes;
         JSONObject local = state.optJSONObject("cells");
         long total = 0;
         List<String> names = new ArrayList<>();
@@ -370,10 +515,11 @@ public final class RoadSync {
         }
         if (total > limit && !Double.isNaN(areaLat)) {
             final double lat = areaLat, lon = areaLon;
+            final int km = areaKm;
             Collections.sort(names, (a, b) -> Double.compare(cellDistance(b, lat, lon), cellDistance(a, lat, lon)));
             for (String name : names) {
                 if (total <= limit * 9 / 10) break;
-                if (routeCells.contains(name) || cellDistance(name, lat, lon) <= AREA_KM * 1000) continue;
+                if (routeCells.contains(name) || cellDistance(name, lat, lon) <= km * 1000) continue;
                 total -= size(local.optString(name));
                 delete(name);
             }
@@ -496,6 +642,7 @@ public final class RoadSync {
         }
         indexChecked = state.optLong("index_checked", 0);
         areaTime = state.optLong("area_time", 0);
+        areaKm = state.optInt("area_km", OLD_AREA_KM);
         if (state.has("area_lat")) {
             areaLat = state.optDouble("area_lat", Double.NaN);
             areaLon = state.optDouble("area_lon", Double.NaN);
@@ -555,7 +702,7 @@ public final class RoadSync {
     }
 
     /** Última posição: a do GPS do Android ou, sem ela, onde o mapa estava da última vez. */
-    private double[] lastKnown() {
+    private static double[] lastKnown(Context app) {
         try {
             LocationManager lm = (LocationManager) app.getSystemService(Context.LOCATION_SERVICE);
             Location l = lm == null ? null : lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);

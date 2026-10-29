@@ -28,8 +28,11 @@
     <string name="map_searching">正在搜索…</string>
     <string name="map_no_results">未找到结果</string>
     <string name="map_search_error">搜索失败</string>
-    <string name="map_offline">无网络：无法搜索或规划新路线</string>
+    <string name="map_offline">无网络，且没有此区域的离线数据</string>
     <string name="map_route_error">无法计算路线</string>
+    <string name="map_route_offline">已在无网络状态下计算路线</string>
+    <string name="map_route_usual">常走的路线</string>
+    <string name="map_route_fastest">最快</string>
     <string name="map_calculating">正在计算路线…</string>
     <string name="map_recalculating">正在重新规划路线</string>
     <string name="map_go">出发</string>

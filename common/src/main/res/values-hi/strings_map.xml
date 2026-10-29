@@ -28,8 +28,11 @@
     <string name="map_searching">खोज रहे हैं…</string>
     <string name="map_no_results">कुछ नहीं मिला</string>
     <string name="map_search_error">खोज विफल रही</string>
-    <string name="map_offline">इंटरनेट नहीं: खोज और नए रास्ते उपलब्ध नहीं</string>
+    <string name="map_offline">इंटरनेट नहीं और इस इलाके का ऑफ़लाइन डेटा भी नहीं</string>
     <string name="map_route_error">रास्ता नहीं निकाल सके</string>
+    <string name="map_route_offline">रास्ता बिना इंटरनेट के निकाला गया</string>
+    <string name="map_route_usual">आपका रोज़ का रास्ता</string>
+    <string name="map_route_fastest">सबसे तेज़</string>
     <string name="map_calculating">रास्ता निकाल रहे हैं…</string>
     <string name="map_recalculating">रास्ता फिर से निकाल रहे हैं</string>
     <string name="map_go">चलें</string>

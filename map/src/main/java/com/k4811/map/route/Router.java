@@ -26,20 +26,37 @@ public final class Router {
      */
     public static Route route(Context c, double fromLat, double fromLon, double heading,
                               double toLat, double toLon, String destName) throws Exception {
+        return routes(c, fromLat, fromLon, heading, toLat, toLon, destName, 1).get(0);
+    }
+
+    /** A rota e, se o servidor achar, até {@code max - 1} alternativas (a primeira é a dele, a melhor). */
+    public static List<Route> routes(Context c, double fromLat, double fromLon, double heading,
+                                     double toLat, double toLon, String destName, int max) throws Exception {
         MapConfig cfg = MapConfig.get(c);
         StringBuilder url = new StringBuilder(cfg.route);
         url.append(String.format(Locale.US, "%.6f,%.6f;%.6f,%.6f", fromLon, fromLat, toLon, toLat));
-        url.append("?overview=full&geometries=polyline6&steps=true&alternatives=false");
+        url.append("?overview=full&geometries=polyline6&steps=true&alternatives=")
+            .append(max > 1 ? String.valueOf(max - 1) : "false");
         if (!Double.isNaN(heading)) {
             url.append(String.format(Locale.US, "&bearings=%d,60;", Math.round((heading + 360) % 360)));
         }
         JSONObject json = new JSONObject(Net.get(url.toString(), cfg.userAgent));
         if (!"Ok".equals(json.optString("code"))) throw new java.io.IOException(json.optString("code"));
-        JSONObject r = json.getJSONArray("routes").getJSONObject(0);
+        JSONArray all = json.getJSONArray("routes");
+        List<Route> out = new ArrayList<>();
+        for (int k = 0; k < all.length() && out.size() < max; k++) {
+            Route r = parse(all.getJSONObject(k), toLat, toLon, destName);
+            if (r != null) out.add(r);
+        }
+        if (out.isEmpty()) throw new java.io.IOException("empty route");
+        return out;
+    }
+
+    private static Route parse(JSONObject r, double toLat, double toLon, String destName) throws Exception {
         double[][] pts = decode(r.getString("geometry"));
         double[] lat = pts[0];
         double[] lon = pts[1];
-        if (lat.length < 2) throw new java.io.IOException("empty route");
+        if (lat.length < 2) return null;
 
         List<Route.Step> steps = new ArrayList<>();
         JSONArray legs = r.getJSONArray("legs");

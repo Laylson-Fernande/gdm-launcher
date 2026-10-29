@@ -9,14 +9,21 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <!-- Cache de tiles, mapas offline e destinos recentes em /sdcard/K4811/nav. -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <!-- Conferir os dados baixados ao ligar a central. -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application>
-        <!-- Internet conectou: confere os dados das vias (radares, limites) se o período venceu. -->
+        <!-- Dados baixados (vias, mapa offline, rota e endereços): carga inicial e conferência
+             periódica sem o mapa aberto (ver RoadSync.start). Exportado para o car-setting pedir
+             a conferência (NAV_DATA_CHECK); o pedido só confere o prazo, não força download. -->
         <receiver
             android:name="com.k4811.map.road.RoadSyncReceiver"
-            android:exported="false">
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+                <action android:name="com.k4811.action.NAV_DATA_CHECK" />
             </intent-filter>
         </receiver>
     </application>

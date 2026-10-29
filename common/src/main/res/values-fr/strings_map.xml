@@ -28,8 +28,11 @@
     <string name="map_searching">Recherche…</string>
     <string name="map_no_results">Aucun résultat</string>
     <string name="map_search_error">La recherche a échoué</string>
-    <string name="map_offline">Pas d’internet : recherche et nouveaux itinéraires indisponibles</string>
+    <string name="map_offline">Pas d’internet ni de données hors ligne pour cette zone</string>
     <string name="map_route_error">Impossible de calculer l’itinéraire</string>
+    <string name="map_route_offline">Itinéraire calculé sans internet</string>
+    <string name="map_route_usual">Votre trajet habituel</string>
+    <string name="map_route_fastest">La plus rapide</string>
     <string name="map_calculating">Calcul de l’itinéraire…</string>
     <string name="map_recalculating">Recalcul de l’itinéraire</string>
     <string name="map_go">Partir</string>

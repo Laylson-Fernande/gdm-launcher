@@ -62,6 +62,12 @@ public final class Apps {
     public static final String ACTION_MEMORY_QUERY = "com.k4811.action.MEMORY_QUERY";
     /** Encerra o app da suíte do {@code setPackage} (para os serviços e o processo; {@code system/AppMemory}). */
     public static final String ACTION_QUIT = "com.k4811.action.QUIT";
+    /**
+     * Pede ao launcher que confira já os dados baixados do mapa (vias, mapa offline, rota,
+     * endereços): mandado pelo car-setting ao mudar o raio, o período ou o mapa offline, e pelo
+     * alarme do próprio launcher ({@code map/.../road/RoadSync.start}). Sem extras.
+     */
+    public static final String ACTION_NAV_DATA_CHECK = "com.k4811.action.NAV_DATA_CHECK";
 
     /**
      * Rota do app de navegação (o Waze modificado do projeto recompile-optimized publica; a tela de

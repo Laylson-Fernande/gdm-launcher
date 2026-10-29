@@ -1,7 +1,8 @@
 # Dados das vias do mapa integrado (radares, limites de velocidade, lombadas, pedágios,
-# passagens de nível) e mapa offline (ruas, água, prédios…): gera os quadrados a partir do
-# OpenStreetMap (Geofabrik) e publica no GitHub Pages do repositório, em
-# <owner>.github.io/<repo>/roads/v1/ e …/maps/v1/. O launcher baixa daí
+# passagens de nível), mapa offline (ruas, água, prédios…), grafo da rota sem internet e índice
+# de endereços da busca sem internet: gera os quadrados a partir do OpenStreetMap (Geofabrik) e
+# do CNEFE do IBGE e publica no GitHub Pages do repositório, em
+# <owner>.github.io/<repo>/roads/v1/, …/maps/v1/, …/graph/v1/ e …/places/v1/. O launcher baixa daí
 # (ver tools/road-data/README.md). Pré-requisito: Settings → Pages → Source: GitHub Actions.
 name: Road data
 
@@ -73,6 +74,54 @@ jobs:
           Format: tools/road-data/README.md in the source repository.
           TXT
           du -sh site/maps
+
+      # Rota sem internet: grafo de ruas (graph/v1/).
+      - name: Build routing graph
+        run: |
+          set -euo pipefail
+          java -Xmx12g -cp build/road-data RouteDataBuilder region.osm.pbf site/graph "$SOURCE"
+          cat > site/graph/README.txt <<'TXT'
+          Street graph for offline routing on the K4811 head unit. Generated from OpenStreetMap data.
+          (c) OpenStreetMap contributors. Data available under the Open Database License (ODbL) 1.0:
+          https://www.openstreetmap.org/copyright
+          Format: tools/road-data/README.md in the source repository.
+          TXT
+          du -sh site/graph
+
+      # Endereços com número da casa do CNEFE 2022 (IBGE): um .zip por UF, ~3,7 GB. Não muda (é do
+      # Censo 2022), então fica no cache do Actions e só é baixado uma vez.
+      - name: Restore CNEFE cache
+        id: cnefe
+        uses: actions/cache@v4
+        with:
+          path: cnefe
+          key: cnefe-2022-v1
+
+      - name: Download CNEFE
+        if: steps.cnefe.outputs.cache-hit != 'true'
+        run: |
+          set -euo pipefail
+          mkdir -p cnefe
+          BASE=https://ftp.ibge.gov.br/Cadastro_Nacional_de_Enderecos_para_Fins_Estatisticos/Censo_Demografico_2022/Arquivos_CNEFE/CSV/UF
+          for uf in 11_RO 12_AC 13_AM 14_RR 15_PA 16_AP 17_TO 21_MA 22_PI 23_CE 24_RN 25_PB 26_PE 27_AL 28_SE \
+                    29_BA 31_MG 32_ES 33_RJ 35_SP 41_PR 42_SC 43_RS 50_MS 51_MT 52_GO 53_DF; do
+            curl -fsSL --retry 5 --retry-delay 10 -o "cnefe/${uf}.zip" "${BASE}/${uf}.zip"
+          done
+          du -sh cnefe
+
+      # Busca sem internet: endereços, números de casa, lugares (places/v1/).
+      - name: Build place index
+        run: |
+          set -euo pipefail
+          java -Xmx13g -cp build/road-data PlaceDataBuilder region.osm.pbf site/places "$SOURCE + IBGE CNEFE 2022" cnefe
+          cat > site/places/README.txt <<'TXT'
+          Address and place index for offline search on the K4811 head unit. Generated from
+          OpenStreetMap data, (c) OpenStreetMap contributors, Open Database License (ODbL) 1.0
+          (https://www.openstreetmap.org/copyright), and from the CNEFE 2022 address register
+          (Cadastro Nacional de Enderecos para Fins Estatisticos), (c) IBGE, Censo Demografico 2022.
+          Format: tools/road-data/README.md in the source repository.
+          TXT
+          du -sh site/places
 
       # O GitHub Pages aceita até 1 GB publicado.
       - name: Check site size

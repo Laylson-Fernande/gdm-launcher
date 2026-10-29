@@ -24,6 +24,10 @@ import com.k4811.map.geo.Geo;
 import com.k4811.map.route.Route;
 import com.k4811.map.tiles.Tiles;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 /**
  * Mapa OpenStreetMap desenhado à mão: tiles (com zoom fracionado e rotação), a rota, o destino e a
  * seta do carro. Sem bibliotecas.
@@ -53,6 +57,9 @@ public class MapView extends View implements Tiles.Listener {
 
         /** O rumo do mapa (graus, o que fica para cima) mudou: a bússola gira junto. */
         void onBearingChanged(float bearing);
+
+        /** Toque perto de uma das rotas alternativas da prévia ({@link #setAlternatives}). */
+        void onRouteTap(Route r);
     }
 
     private static final float MIN_ZOOM = 3;
@@ -147,6 +154,8 @@ public class MapView extends View implements Tiles.Listener {
     private float flingY;
 
     private Route route;
+    /** Prévia com mais de uma rota: as outras, desenhadas em cinza por baixo da escolhida. */
+    private List<Route> alternatives = Collections.emptyList();
     private int routeFrom;
     private double destX = Double.NaN;
     private double destY;
@@ -158,6 +167,8 @@ public class MapView extends View implements Tiles.Listener {
     private final Paint emptyPaint = new Paint();
     private final Paint casingPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint routePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final Paint altCasing = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final Paint altPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint carPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint carEdge = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint pinPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -210,6 +221,12 @@ public class MapView extends View implements Tiles.Listener {
         routePaint.setStyle(Paint.Style.STROKE);
         routePaint.setStrokeCap(Paint.Cap.ROUND);
         routePaint.setColor(0xFF3D8BFF);
+        altCasing.setStyle(Paint.Style.STROKE);
+        altCasing.setStrokeCap(Paint.Cap.ROUND);
+        altCasing.setColor(0xFF5F6B7A);
+        altPaint.setStyle(Paint.Style.STROKE);
+        altPaint.setStrokeCap(Paint.Cap.ROUND);
+        altPaint.setColor(0xFFA9B7C9);
         carPaint.setColor(0xFF3D8BFF);
         carEdge.setColor(0xFFFFFFFF);
         carEdge.setStyle(Paint.Style.STROKE);
@@ -265,6 +282,14 @@ public class MapView extends View implements Tiles.Listener {
             public boolean onDoubleTap(MotionEvent e) {
                 markManualZoom();
                 zoomAround(follow ? getWidth() / 2f : e.getX(), follow ? getHeight() * anchorY : e.getY(), 1);
+                return true;
+            }
+
+            @Override
+            public boolean onSingleTapConfirmed(MotionEvent e) {
+                Route hit = alternativeAt(e.getX(), e.getY());
+                if (hit == null || listener == null) return false;
+                listener.onRouteTap(hit);
                 return true;
             }
 
@@ -569,6 +594,43 @@ public class MapView extends View implements Tiles.Listener {
         invalidate();
     }
 
+    /** As outras rotas da prévia (vazia ou null: nenhuma). */
+    public void setAlternatives(List<Route> list) {
+        alternatives = list == null ? Collections.<Route>emptyList() : list;
+        for (Route r : alternatives) if (lines.length < r.size() * 4) lines = new float[r.size() * 4];
+        invalidate();
+    }
+
+    /** A alternativa a até ~28 dp do toque (a mais perto), ou null. */
+    private Route alternativeAt(float x, float y) {
+        if (alternatives.isEmpty()) return null;
+        float ax = getWidth() / 2f, ay = getHeight() * anchorY;
+        Route best = null;
+        double bestD = 28 * dp;
+        for (Route r : alternatives) {
+            float px = Float.NaN, py = 0;
+            for (int i = 0; i < r.size(); i++) {
+                toScreen(r.wx[i], r.wy[i], ax, ay, pt);
+                if (!Float.isNaN(px)) {
+                    double d = segmentDistance(x, y, px, py, pt[0], pt[1]);
+                    if (d < bestD) {
+                        bestD = d;
+                        best = r;
+                    }
+                }
+                px = pt[0];
+                py = pt[1];
+            }
+        }
+        return best;
+    }
+
+    private static double segmentDistance(float x, float y, float ax, float ay, float bx, float by) {
+        double dx = bx - ax, dy = by - ay, len2 = dx * dx + dy * dy;
+        double t = len2 <= 0 ? 0 : Math.max(0, Math.min(1, ((x - ax) * dx + (y - ay) * dy) / len2));
+        return Math.hypot(x - (ax + dx * t), y - (ay + dy * t));
+    }
+
     /** A rota antes deste ponto já foi percorrida e some do desenho. */
     public void setRouteProgress(int fromIndex) {
         if (fromIndex == routeFrom) return;
@@ -590,11 +652,15 @@ public class MapView extends View implements Tiles.Listener {
         double maxX = 0;
         double minY = 1;
         double maxY = 0;
-        for (int i = 0; i < r.size(); i++) {
-            minX = Math.min(minX, r.wx[i]);
-            maxX = Math.max(maxX, r.wx[i]);
-            minY = Math.min(minY, r.wy[i]);
-            maxY = Math.max(maxY, r.wy[i]);
+        List<Route> all = new ArrayList<>(alternatives);
+        all.add(r);
+        for (Route q : all) {
+            for (int i = 0; i < q.size(); i++) {
+                minX = Math.min(minX, q.wx[i]);
+                maxX = Math.max(maxX, q.wx[i]);
+                minY = Math.min(minY, q.wy[i]);
+                maxY = Math.max(maxY, q.wy[i]);
+            }
         }
         if (!Double.isNaN(carX)) {
             minX = Math.min(minX, carX);
@@ -780,8 +846,14 @@ public class MapView extends View implements Tiles.Listener {
     }
 
     private void drawRoute(Canvas canvas, float ax, float ay) {
+        // As alternativas por baixo, a escolhida por cima.
+        for (Route alt : alternatives) drawLine(canvas, alt, 0, ax, ay, altCasing, altPaint);
         Route rt = route;
         if (rt == null) return;
+        drawLine(canvas, rt, routeFrom, ax, ay, casingPaint, routePaint);
+    }
+
+    private void drawLine(Canvas canvas, Route rt, int start, float ax, float ay, Paint casing, Paint paint) {
         double scale = tilePx * Math.pow(2, zoom);
         double rad = Math.toRadians(-bearing);
         float cos = (float) Math.cos(rad);
@@ -799,7 +871,7 @@ public class MapView extends View implements Tiles.Listener {
         // Último ponto usado, no plano e na tela (a tela só vale se ele não foi cortado).
         float pfx = 0;
         float pfy = 0;
-        int from = Math.max(0, Math.min(routeFrom, rt.size() - 1));
+        int from = Math.max(0, Math.min(start, rt.size() - 1));
         for (int i = from; i < rt.size(); i++) {
             float dx = (float) ((rt.wx[i] - cx) * scale);
             float dy = (float) ((rt.wy[i] - cy) * scale);
@@ -859,8 +931,8 @@ public class MapView extends View implements Tiles.Listener {
             lines[count++] = sy;
         }
         if (count == 0) return;
-        canvas.drawLines(lines, 0, count, casingPaint);
-        canvas.drawLines(lines, 0, count, routePaint);
+        canvas.drawLines(lines, 0, count, casing);
+        canvas.drawLines(lines, 0, count, paint);
     }
 
     /** Ponto do plano (relativo à âncora) → tela (relativo à âncora), em {@code p}. */
@@ -1132,6 +1204,8 @@ public class MapView extends View implements Tiles.Listener {
         float k = Math.max(0.6f, Math.min(1.2f, (zoom - 10) / 7f));
         casingPaint.setStrokeWidth(13 * dp * k);
         routePaint.setStrokeWidth(8.5f * dp * k);
+        altCasing.setStrokeWidth(11 * dp * k);
+        altPaint.setStrokeWidth(7 * dp * k);
     }
 
     private void toScreen(double wx, double wy, float ax, float ay, float[] out) {

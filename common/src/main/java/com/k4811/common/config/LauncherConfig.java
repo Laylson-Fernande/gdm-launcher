@@ -70,6 +70,7 @@ public final class LauncherConfig {
     private static final String KEY_NAV_SPEED_LIMIT = "nav_speed_limit";
     private static final String KEY_NAV_ROAD_ALERTS = "nav_road_alerts";
     private static final String KEY_NAV_DATA_DAYS = "nav_data_days";
+    private static final String KEY_NAV_DATA_KM = "nav_data_km";
     private static final String KEY_NAV_AUTO_ZOOM = "nav_auto_zoom";
     private static final String KEY_NAV_PERSPECTIVE = "nav_perspective";
     private static final String KEY_NAV_OFFLINE_MAP = "nav_offline_map";
@@ -639,6 +640,21 @@ public final class LauncherConfig {
 
     public static boolean setNavDataDays(Context c, int days) {
         return put(KEY_NAV_DATA_DAYS, days);
+    }
+
+    /** Raio (km) em volta do carro dos dados baixados (vias, mapa, rota e endereços), na ordem das Configurações. */
+    public static final int[] NAV_DATA_KM = {25, 50, 100, 200, 300, 500};
+
+    public static int navDataKm(Context c) {
+        int km = integer(KEY_NAV_DATA_KM, 100);
+        for (int known : NAV_DATA_KM) {
+            if (known == km) return km;
+        }
+        return 100;
+    }
+
+    public static boolean setNavDataKm(Context c, int km) {
+        return put(KEY_NAV_DATA_KM, km);
     }
 
     /** Package do app de navegação escolhido; null = automático (ver NavApps). */

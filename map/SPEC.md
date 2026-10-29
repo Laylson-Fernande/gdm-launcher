@@ -33,14 +33,21 @@ Mapa e navegação feitos do zero sobre o OpenStreetMap, para a tela de navegaç
 | `vector/TileRenderer` | desenha um tile a partir das seções (áreas, prédios se ligados, rios, limites, trilhos, vias com contorno, pontes, túneis, nomes de lugares e de ruas); `coverage()` diz se a área do tile está toda baixada |
 | `vector/MapStyle` | cores (claro e escuro, fixas de mapa), larguras das vias por zoom e zoom de cada tipo |
 | `route/Router` | rota OSRM (`polyline6`, `steps=true`, `bearings` para não começar com retorno) |
-| `route/Places` | busca Nominatim (1 por segundo, só ao confirmar; caixa de ~100 km em volta; `addressdetails`). Número da casa digitado: resultados com ele primeiro; sem nenhum, busca de novo com o número antes da rua; a rua sem o número sai "aproximada" (aviso na linha: o ponto é o meio da rua). `reverse`: endereço do ponto do toque longo no mapa (rua e número), o jeito de acertar a casa que não está no mapa |
+| `route/Places` | busca Nominatim (1 por segundo, só ao confirmar; caixa de ~100 km em volta; `addressdetails`); `suggest`: sugestões enquanto digita pelo Photon; `merge`: junta listas sem repetir o lugar. Número da casa digitado: resultados com ele primeiro; sem nenhum, busca de novo com o número antes da rua; a rua sem o número sai "aproximada" (aviso na linha: o ponto é o meio da rua). `reverse`: endereço do ponto do toque longo no mapa (rua e número), o jeito de acertar a casa que não está no mapa |
 | `route/Route` | linha (lat/lon e mundo), distância acumulada, manobras (`Step`) |
+| `route/OfflineRouter` | rota calculada no aparelho, sem internet, sobre o grafo baixado (ver "Rota e busca sem internet") |
+| `route/GraphCell` | um quadrado do grafo de ruas, lido: nós, arestas (geometria, classe, mão única, rotatória, limite, nome), lista de arestas de cada nó, proibições de conversão |
+| `route/RouteHistory` | perfil de rotas preferidas: trechos por onde o carro passou (`K4811/nav/history.bin`), desconto no custo da rota e parte de uma rota pelas ruas de costume |
+| `route/GraphStore` | arquivos `K4811/nav/graph/cells/` e cache dos quadrados lidos (24 MB entre uma rota e outra) |
+| `search/PlaceIndex` | busca no índice de endereços baixado: sugestões enquanto digita e busca sem internet |
+| `search/PlaceCell` | um quadrado do índice, lido: ruas (com os números de casa), POIs, cidades, bairros |
+| `search/Text` | normalização dos textos (igual à do gerador): minúsculas, sem acento, abreviações por extenso |
 | `route/Navigator` | progresso na rota: projeção, próxima manobra, restante, saída da rota (3 posições a > 40 m + precisão), chegada (< 25 m), momentos dos avisos |
 | `route/Phrases` | textos das manobras e distâncias (strings `map_*` do common, 8 idiomas) |
 | `route/Voice` | `TextToSpeech` com `USAGE_ASSISTANCE_NAVIGATION_GUIDANCE` e foco `GAIN_TRANSIENT_MAY_DUCK`; `say` interrompe (manobras), `sayAfter` entra na fila (alertas); o foco só é devolvido ao fim da última frase |
 | `RoadSign` | placa do limite (círculo branco com borda vermelha, cores fixas de placa) ou ícone do alerta (radar, semáforo, lombada, cancela, cruz de ferrovia) |
-| `road/RoadSync` | mantém atualizados os dados das vias (`get`) e o mapa offline (`maps`), com as mesmas regras (abaixo); estado em `K4811/nav/roads/state.json` e `…/maps/state.json` |
-| `road/RoadSyncReceiver` | `CONNECTIVITY_CHANGE` no manifesto: internet conectou → confere o raio (posição da última vez) |
+| `road/RoadSync` | mantém atualizados os dados das vias (`get`), o mapa offline (`maps`), o grafo da rota sem internet (`graph`) e o índice de endereços (`places`), com as mesmas regras (abaixo); estado em `K4811/nav/<pacote>/state.json` |
+| `road/RoadSyncReceiver` | no manifesto: `CONNECTIVITY_CHANGE`, `BOOT_COMPLETED`, `MY_PACKAGE_REPLACED`, o alarme de hora em hora e `com.k4811.action.NAV_DATA_CHECK` (car-setting mudou o raio, o período ou o mapa offline) → `RoadSync.start` |
 | `road/RoadStore` | arquivos `K4811/nav/roads/cells/<cx>_<cy>.bin` e cache em memória dos quadrados lidos (até 12 MB) |
 | `road/RoadCell` | um quadrado lido: vias (limite por sentido, mão única) com índice de 32×32 baldes, e pontos de alerta |
 | `road/RoadWatcher` | thread própria: limite da via atual e próximo alerta, a cada posição; resultado na thread principal |
@@ -51,13 +58,18 @@ Mapa e navegação feitos do zero sobre o OpenStreetMap, para a tela de navegaç
 |---|---|---|
 | `tiles` | `https://tile.openstreetmap.org/{z}/{x}/{y}.png` | User-Agent próprio, cache, atribuição "© OpenStreetMap" sempre visível, nada de baixar em massa |
 | `route` | `https://routing.openstreetmap.de/routed-car/route/v1/driving/` (FOSSGIS, API OSRM) | uso leve |
-| `search` | `https://nominatim.openstreetmap.org/search` | no máximo 1 busca/s, sem autocompletar |
+| `search` | `https://nominatim.openstreetmap.org/search` | no máximo 1 busca/s, sem autocompletar (só ao confirmar) |
+| `suggest` | `https://photon.komoot.io/api/` | sugestões enquanto digita (o Photon é feito para isso): só com 3 letras ou mais e depois de 0,6 s sem digitar; vazio = só as do índice baixado |
 | `cache_mb` | 200 | tiles em `K4811/nav/cache/z/x/y.png`; acima do limite apaga os mais antigos até 80% |
 | `max_zoom` | 19 | acima disso amplia o último nível |
 | `road_data` | o do build (`BuildConfig.ROAD_DATA_URL`) | dados das vias; não é gravado no arquivo (só vale se alguém escrever à mão) |
 | `road_data_mb` | 300 | espaço dos dados das vias; ao passar, saem os quadrados mais longe (fora do raio e da rota) |
 | `map_data` | o dos dados das vias com `maps/v1/` no lugar de `roads/v1/` | mapa offline; não é gravado no arquivo |
 | `map_data_mb` | 1024 | espaço do mapa offline (100 km em volta de São Paulo ≈ 22 MB); mesma regra de limpeza |
+| `graph_data` | o dos dados das vias com `graph/v1/` no lugar de `roads/v1/` | grafo da rota sem internet; não é gravado no arquivo |
+| `graph_data_mb` | 600 | espaço do grafo (100 km em volta de Garanhuns ≈ 4,7 MB); mesma regra de limpeza |
+| `place_data` | o dos dados das vias com `places/v1/` | índice de endereços da busca sem internet; não é gravado no arquivo |
+| `place_data_mb` | 300 | espaço do índice (100 km em volta de Garanhuns ≈ 2,6 MB) |
 | `map_hide` | `["buildings", "paths", "green", "lines"]` | camadas do mapa offline que não são desenhadas (desempenho): `buildings` (prédios), `paths` (vias de serviço, calçadões, trilhas, caminhos), `casings` (contorno das vias), `green` (parques, matas, areia), `lines` (limites, trilhos, córregos), `road_names` (nomes das ruas), `antialias` (bordas suavizadas). Sem `buildings` nem `paths`, a seção de detalhe dos blocos nem é lida. Essas 4 camadas do padrão também não vêm mais nos dados (ver `tools/road-data/README.md`): tirá-las da lista só tem efeito com dados gerados de novo com elas Vale para os tiles desenhados depois da mudança (reabrir o launcher para refazer todos) |
 | `map_log_ms` | 400 | tile do mapa offline mais lento que isso vai para o log (`K4811MapData`); 0 = todos, para medir |
 
@@ -68,7 +80,8 @@ Para trocar de servidor (outro de tiles, OSRM próprio), basta editar o arquivo;
 Gerados toda semana do OpenStreetMap por `tools/road-data` (workflow `road-data.yml`) e publicados no GitHub Pages do repositório, em quadrados de 0,25° (~28 km): `index.json` (CRC e tamanho de cada quadrado) e `cells/<cx>_<cy>.bin`. Formato em [`tools/road-data/README.md`](../tools/road-data/README.md).
 
 - **Endereço:** `BuildConfig.ROAD_DATA_URL`, montado no `build.gradle.kts` da raiz a partir do repositório do GitHub (`GITHUB_REPOSITORY` no CI, remote `origin` no PC, ou `-ProadDataUrl=`). Vazio = não baixa nada.
-- **Raio (`RoadSync.area`):** os quadrados a até 100 km do carro, conferidos quando vence o período das Configurações (`nav_data_days`: 1, 7 ou 30 dias) ou quando o carro se afasta 30 km do centro da última conferência. Gatilhos: cada posição do GPS com o mapa aberto, e o `RoadSyncReceiver` quando a internet conecta.
+- **Raio (`RoadSync.area`):** os quadrados a até `nav_data_km` do carro (25, 50, 100, 200, 300 ou 500 km; padrão 100), conferidos quando vence o período das Configurações (`nav_data_days`: 1, 7 ou 30 dias), quando o carro se afasta 30% do raio (mínimo 8 km) do centro da última conferência ou quando o raio muda (`area_km` no `state.json`). Vale para os 4 pacotes (vias, mapa, grafo, endereços). Gatilhos: cada posição do GPS com o mapa aberto e `RoadSync.start` (abaixo).
+- **Carga inicial e conferência sem o mapa aberto (`RoadSync.start`):** chamado pelo `LauncherApp.onCreate` (o processo do launcher nasce logo depois de instalar, ao ir para a tela inicial) e pelo `RoadSyncReceiver` (boot, app atualizado, internet conectou, alarme `RTC` de hora em hora que ele mesmo agenda, pedido do car-setting). Confere em volta da última posição conhecida (GPS do Android ou onde o mapa estava); sem nenhuma, pede uma posição ao GPS (`requestSingleUpdate`). Sem conferência completa ainda (`area_time` = 0), baixa tudo do raio na hora. O `state.json` é gravado a cada 20 quadrados, então se o processo morrer no meio, a próxima conferência continua de onde parou. Um quadrado que falha (ex.: 503 do GitHub Pages) não para os outros; a conferência fica incompleta e é refeita depois de 10 min; 3 falhas seguidas = rede caiu, para.
 - **Rota (`RoadSync.route`):** ao calcular uma rota (prévia ou recálculo), os quadrados por onde ela passa, com margem de ~2 km, mesmo fora do raio.
 - **Conferir:** baixa o `index.json` (no máximo 1 vez por dia, com `If-None-Match`) e só os quadrados cujo CRC mudou. Os quadrados não têm data dentro, então o mesmo dado gera o mesmo arquivo. CRC do arquivo diferente do índice = publicação no meio: baixa o índice de novo e tenta mais uma vez.
 - **Sem internet:** nada é tentado; usa o que está no disco (nada é apagado por idade). Falha de rede espera 10 min antes de tentar de novo.
@@ -92,7 +105,7 @@ Gerados toda semana do OpenStreetMap por `tools/road-data` (workflow `road-data.
 
 O app desenha o próprio mapa a partir de dados baixados (gerador `tools/road-data/MapDataBuilder`, formato e conteúdo em [`tools/road-data/README.md`](../tools/road-data/README.md)), porque a política dos tiles do OpenStreetMap proíbe baixar áreas para uso offline. Opção `nav_offline_map` (padrão ligado).
 
-- **Download:** o mesmo `RoadSync` dos dados das vias (instância `maps`), com as mesmas regras: raio de 100 km pelo período de `nav_data_days` ou ao se afastar 30 km, quadrados ao longo da rota calculada, índice com CRC e só o que mudou. Baixa também os quadrados de 2° da visão geral do raio e da rota. A cada ~5 s de download, os tiles na tela são refeitos com o que chegou.
+- **Download:** o mesmo `RoadSync` dos dados das vias (instância `maps`), com as mesmas regras: raio de `nav_data_km` pelo período de `nav_data_days` ou ao se afastar 30% do raio, quadrados ao longo da rota calculada, índice com CRC e só o que mudou. Baixa também os quadrados de 2° da visão geral do raio e da rota. A cada ~5 s de download, os tiles na tela são refeitos com o que chegou.
 - **Níveis:** zooms 7–9 da visão geral (2°), 10–12 da seção simplificada do quadrado, 13+ dos blocos 8×8 (~3,5 km); prédios, vias de serviço e caminhos ficam numa seção à parte do bloco, lida só do zoom 15 em diante (e só se uma dessas camadas está ligada).
 - **Camadas:** prédios, vias pequenas (serviço, calçadões, trilhas, caminhos), verde (parques, matas, areia) e linhas (limites, trilhos, córregos) não são desenhados por padrão (`map_hide`), para aliviar a central, e o gerador também não os põe nos dados (`MapDataBuilder.omitted`); ficam ruas, nomes, água, mar e rios. Arquivos sem as seções de detalhe terminam nos blocos (65 seções); a seção que falta é lida como vazia. Abaixo do zoom 7, só os tiles da internet.
 - **Quando usa:** com a área do tile toda baixada (todo quadrado que o índice do servidor tem está no disco), sempre o mapa próprio. Com parte baixada, o tile da internet/cache; sem ele, o próprio com o que houver. Sem nada baixado, como antes.
@@ -108,10 +121,35 @@ O app desenha o próprio mapa a partir de dados baixados (gerador `tools/road-da
 - Animação a ~30 qps só enquanto algo se mexe (`Choreographer`, espera de 20 ms entre quadros); posição repetida não anima; janela invisível (tela atrás de outra) não pede quadros.
 - Rota: pontos a menos de 2,5 dp do anterior são pulados e trechos inteiros fora da tela não vão para o desenho.
 
+## Busca
+
+- **Enquanto digita:** a lista mostra sugestões a cada letra (0,15 s depois da última): as do índice de endereços baixado, na hora; com internet e 3 letras ou mais, 0,6 s depois da última letra, as do Photon entram depois das 5 primeiras do índice. Uma letra nova cancela as anteriores. Ao abrir a busca, o índice em volta já começa a ser lido.
+- **Confirmar (Enter):** com internet, o Nominatim (regras acima) e o índice completando; sem internet, só o índice. Sem resultado e sem índice baixado perto: "Sem internet e sem dados offline desta área".
+- **Índice** (`PlaceIndex`): cada palavra digitada precisa ser o começo de uma palavra do nome, do bairro ou da cidade (pelo menos uma no nome), sem acento e com as abreviações por extenso ("fran bran" acha "Rua Francisco Branco"; "av" = "avenida"). Pontua o tipo (cidade, bairro, POI, rua), as palavras que batem no nome e a distância. O mesmo nome na mesma cidade a menos de ~2 km aparece uma vez. Lê os quadrados baixados até 100 km, do mais perto, até ~16 MB em memória (o quadrado do centro de São Paulo sozinho ocupa ~15 MB: lá a busca fica nos ~28 km em volta). Os nomes originais ficam em bytes e só os mostrados viram texto. Lugares importantes (museu, parque, hospital, shopping, estação, aeroporto, universidade, estádio, áreas grandes) vêm antes de lojas com o mesmo nome; o nome curto ou a sigla do OSM entra entre parênteses ("Museu de Arte de São Paulo (MASP)").
+- **Número da casa:** o último número da busca (que não começa nem faz parte do nome, como "Rua 7 de Setembro"). Na rua com números conhecidos (CNEFE e OSM), o ponto é interpolado entre os dois números vizinhos (erro de até ~25 m); fora da faixa conhecida por mais de 30, ou rua sem números, sai "aproximado" (o ponto da rua, com o aviso).
+
+## Rota e busca sem internet
+
+Dois pacotes baixados como os dados das vias (`RoadSync`, mesmas regras de raio, rota e espaço), ligados com a opção `nav_offline_map` (a mesma do mapa offline). Gerados por `tools/road-data` (`RouteDataBuilder` e `PlaceDataBuilder`, formatos no README de lá).
+
+- **Quando:** sem internet, a rota (prévia e recálculo) é sempre a do aparelho. Com internet, a do OSRM; se ela falhar, a do aparelho. A rota do aparelho mostra "Rota calculada sem internet".
+- **Cálculo (`OfflineRouter`):** A* pelo tempo, sobre os quadrados do grafo baixados (lidos conforme a busca avança; quadrado que falta é como se não tivesse rua). Tempo de cada aresta = comprimento ÷ velocidade (por classe: 100, 80, 65, 55, 45, 35, 25, 10, 12 km/h de motorway a service, ligações 45; com limite conhecido, 85% dele, até 1,4× a da classe) e um custo por conversão (esquerda 3–8 s, direita 1–4 s, retorno 90 s). Respeita mão única e as proibições de conversão (quando a aresta de chegada está no quadrado do cruzamento). Estimativa a 100 km/h. Longe (6 km) da partida e do destino, só vias de `unclassified` para cima. Limite de 1,5 milhão de nós (rota grande demais = erro).
+- **Partida e destino:** o ponto da rua mais perto (até 300 m); na partida, com o rumo do carro, prefere a rua no mesmo sentido, e sair no sentido contrário custa 45 s (retorno).
+- **Manobras:** em cada cruzamento entre dois trechos, se há outra saída possível (vias de serviço não contam): conversão a partir de 35°, troca de nome ("BR 423 - Rodovia X" e "Rodovia X" são a mesma), bifurcação (outra saída a menos de 50°, do mesmo porte, com troca de nome), entrada e saída de pista (ligações; sem nome, o da via aonde levam), rotatória com o número da saída. Mesmos tipos e modificadores do OSRM, então voz, faixa e ícones não mudam.
+- **Tempo:** no PC, Garanhuns → Parque Euclides Dourado (2 km) em 60 ms, → Caruaru (100 km) em 0,1 s, → Recife (230 km) em 0,2 s; centro de São Paulo → Campinas (98 km) em 0,4 s, → Morumbi (12 km) em 0,1 s. No emulador, os recálculos levaram 3–20 ms. Não medido na central.
+
+## Rotas preferidas e alternativas
+
+- **Perfil** (`RouteHistory`, `K4811/nav/history.bin`, só no aparelho; apagar o arquivo zera): com a tela de navegação aberta ou navegando, cada posição do GPS com o carro andando é casada com o trecho do grafo baixado mais perto (até 20 m, no sentido do deslocamento desde a posição anterior; índice espacial de 32×32 baldes por quadrado do grafo). O trecho entra na viagem com duas posições seguidas nele, ou uma só a até 8 m. Cada trecho conta uma vez por viagem; a viagem acaba ao sair da tela sem navegar, ao encerrar a rota com a tela fora ou depois de 10 min sem posição, e é gravada também a cada 10 min. Identidade do trecho: as coordenadas das duas pontas e o número de pontos (não muda quando os dados são gerados de novo, a não ser que a rua mude no OSM). Sem uso há um ano, o trecho sai. Sem o grafo baixado no lugar, nada é registrado.
+- **Na rota do aparelho:** trecho do perfil custa menos (8% com uma viagem, até 25% com muitas), então a rota de costume ganha de uma pouco mais rápida. O tempo mostrado é sempre o real (sem o desconto), com as conversões.
+- **Opções na prévia** (até 3): com internet, as do OSRM (`alternatives`) completadas pelas do aparelho, sem repetir caminho (mais de 75% das amostras a menos de 25 m de uma rota da lista), com o tempo posto na escala do OSRM; sem internet, as do aparelho: a melhor, a mais rápida sem o perfil (se for outra) e as que aparecem deixando os trechos já achados 60% mais caros (mais a cada repetição), se tiverem menos de 75% em comum e no máximo 40% a mais de tempo. Recalculando, só a melhor.
+- **Qual vem primeiro:** a de menor tempo "sentido": tempo × (1 − 0,15 × parte da rota pelas ruas de costume).
+- **Tela:** cartões acima da prévia (tempo, distância e, nas outras, a diferença para a escolhida pelos minutos mostrados, "+1 min · +200 m"; marcas "Seu caminho de costume", parte ≥ 40% e a maior, e "Mais rápida"). Tocar no cartão ou na linha cinza no mapa escolhe; a escolhida fica azul, as outras cinza por baixo.
+
 ## Offline
 
 - Mapa: o mapa offline (acima) no raio de 100 km e ao longo das rotas já calculadas com internet; fora disso, os tiles do cache em disco e os de arquivos `.mbtiles` em `K4811/nav/` (SQLite com PNG/JPG, numeração TMS), lidos antes da internet.
-- Sem internet não há busca nem rota nova; uma rota já calculada continua guiando (sem recálculo).
+- Busca e rota: com o índice de endereços e o grafo baixados (acima), no raio de 100 km e ao longo das rotas já calculadas com internet. Fora disso, sem internet, não há busca nem rota nova; uma rota já calculada continua guiando.
 
 ## Regras
 
@@ -121,7 +159,7 @@ O app desenha o próprio mapa a partir de dados baixados (gerador `tools/road-da
 
 ## Lacunas
 
-- Sem rota nem busca offline (exigiria grafo de ruas e índice de endereços no aparelho).
+- Rota sem internet: sem trânsito, sem faixas, proibições de conversão só com nó no meio, e as vias pequenas só perto da partida e do destino (numa rota longa, um atalho por ruas residenciais no meio do caminho não é considerado). Busca sem internet: só até 100 km do carro e com o que foi baixado; números de casa onde o CNEFE ou o OSM têm.
 - Sem faixas, trânsito nem alertas de comunidade (radar móvel, acidente): o OpenStreetMap não tem esses dados.
 - Radares e limites valem o que a comunidade mapeou: fora das cidades grandes muitas vias não têm limite, e radar não mapeado não aparece.
 - Sem rota, o alerta usa um cone pela direção do carro: em curvas fechadas ou em pistas paralelas pode errar.

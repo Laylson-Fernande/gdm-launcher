@@ -33,8 +33,11 @@
     <string name="map_searching">Searching…</string>
     <string name="map_no_results">Nothing found</string>
     <string name="map_search_error">Search failed</string>
-    <string name="map_offline">No internet: search and new routes are unavailable</string>
+    <string name="map_offline">No internet and no offline data for this area</string>
     <string name="map_route_error">Couldn’t calculate the route</string>
+    <string name="map_route_offline">Route calculated without internet</string>
+    <string name="map_route_usual">Your usual way</string>
+    <string name="map_route_fastest">Fastest</string>
     <string name="map_calculating">Calculating route…</string>
     <string name="map_recalculating">Recalculating route</string>
     <string name="map_go">Go</string>

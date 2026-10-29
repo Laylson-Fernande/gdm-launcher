@@ -28,8 +28,11 @@
     <string name="map_searching">検索中…</string>
     <string name="map_no_results">見つかりませんでした</string>
     <string name="map_search_error">検索に失敗しました</string>
-    <string name="map_offline">インターネットなし：検索と新しいルートは使えません</string>
+    <string name="map_offline">インターネットがなく、この地域のオフラインデータもありません</string>
     <string name="map_route_error">ルートを計算できませんでした</string>
+    <string name="map_route_offline">インターネットなしでルートを計算しました</string>
+    <string name="map_route_usual">いつもの道</string>
+    <string name="map_route_fastest">最速</string>
     <string name="map_calculating">ルートを計算中…</string>
     <string name="map_recalculating">ルートを再計算しています</string>
     <string name="map_go">出発</string>

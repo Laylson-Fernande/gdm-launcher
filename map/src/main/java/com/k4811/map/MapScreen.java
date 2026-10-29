@@ -7,6 +7,8 @@ import android.location.LocationManager;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Process;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.text.format.DateFormat;
 import android.util.AttributeSet;
 import android.util.TypedValue;
@@ -28,17 +30,22 @@ import com.k4811.common.ui.IconView;
 import com.k4811.common.ui.ThemeDrawables;
 import com.k4811.common.ui.Touch;
 import com.k4811.common.ui.Ui;
+import com.k4811.map.route.GraphStore;
 import com.k4811.map.route.Navigator;
+import com.k4811.map.route.OfflineRouter;
 import com.k4811.map.route.Phrases;
 import com.k4811.map.route.Places;
 import com.k4811.map.route.Route;
+import com.k4811.map.route.RouteHistory;
 import com.k4811.map.route.Router;
 import com.k4811.map.road.RoadCell;
 import com.k4811.map.road.RoadSync;
 import com.k4811.map.road.RoadWatcher;
 import com.k4811.map.route.Voice;
+import com.k4811.map.search.PlaceIndex;
 import com.k4811.map.tiles.Tiles;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -50,8 +57,18 @@ import java.util.concurrent.Executors;
  * navegação com a próxima manobra, voz, recálculo ao sair da rota e chegada.
  *
  * Quem usa chama {@link #onStart()}/{@link #onStop()} (GPS, voz) e {@link #onBackPressed()}.
- * Sem internet: o mapa vem do cache e dos .mbtiles; busca e rota nova ficam indisponíveis, mas uma
- * navegação já calculada continua (sem recálculo).
+ *
+ * Enquanto o motorista digita, a lista mostra sugestões: primeiro as do índice de endereços baixado
+ * ({@link PlaceIndex}, na hora) e, com internet, as do Photon (depois de uma pausa na digitação). Confirmar
+ * (Enter) busca no Nominatim, junto com o índice.
+ *
+ * Sem internet: o mapa, a busca e a rota (cálculo e recálculo) usam os dados baixados ({@link PlaceIndex},
+ * {@link OfflineRouter}); com internet, a rota é a do OSRM e, se ele falhar, a do aparelho.
+ *
+ * Na prévia, até 3 opções de rota (as alternativas do OSRM ou as calculadas aqui), em cartões com tempo,
+ * distância e a diferença para a escolhida; tocar no cartão ou na linha cinza escolhe. As ruas por onde
+ * o carro passa vão para o perfil de rotas preferidas ({@link RouteHistory}): a sugerida é a de menor
+ * tempo, com o caminho de costume valendo até 15% mais rápido.
  *
  * Com os dados das vias baixados (ver {@link RoadSync}): placa do limite de velocidade, velocidade em
  * vermelho acima dele e o próximo alerta (radar, lombada, pedágio, passagem de nível), com voz nos radares.
@@ -88,6 +105,32 @@ public class MapScreen extends FrameLayout implements GpsClient.Listener, MapVie
         t.setDaemon(true);
         return t;
     });
+    /** Sugestões enquanto digita (índice baixado e Photon): fila própria, para não esperar uma rota. */
+    private final ExecutorService suggestions = Executors.newSingleThreadExecutor(r -> {
+        Thread t = new Thread(r, "K4811MapSuggest");
+        t.setDaemon(true);
+        return t;
+    });
+    /** Pausa na digitação antes das sugestões do índice e, com internet, das do Photon. */
+    private static final long LOCAL_DELAY_MS = 150;
+    private static final long ONLINE_DELAY_MS = 600;
+    private static final int RESULTS = 8;
+    private volatile int suggestGen;
+    /** Perfil de rotas preferidas (registro dos trechos): fila própria, um trabalho curto por posição. */
+    private final ExecutorService history = Executors.newSingleThreadExecutor(r -> {
+        Thread t = new Thread(() -> {
+            Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND);
+            r.run();
+        }, "K4811MapHistory");
+        t.setDaemon(true);
+        return t;
+    });
+    /** Opções de rota na prévia (a primeira é a sugerida) e a parte de cada uma pelas ruas de costume. */
+    private static final int MAX_ROUTES = 3;
+    private List<Route> options;
+    private double[] optionShares;
+    private int chosen;
+    private final LinearLayout routesBar;
     private final MapView map;
     private final EditText search;
     private final IconView searchClear;
@@ -179,6 +222,7 @@ public class MapScreen extends FrameLayout implements GpsClient.Listener, MapVie
         primary = (TextView) findViewById(R.id.map_primary);
         secondary = (TextView) findViewById(R.id.map_secondary);
         bottomStar = (IconView) findViewById(R.id.map_bottom_star);
+        routesBar = (LinearLayout) findViewById(R.id.map_routes);
         bottomStar.setOnClickListener(v -> toggleFavorite(destination, bottomStar));
         alert = findViewById(R.id.map_alert);
         alertIcon = (RoadSign) findViewById(R.id.map_alert_icon);
@@ -214,6 +258,27 @@ public class MapScreen extends FrameLayout implements GpsClient.Listener, MapVie
             if (focus) openSearch();
         });
         search.setOnClickListener(v -> openSearch());
+        search.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if (!search.hasFocus()) return;
+                String text = s.toString().trim();
+                if (text.isEmpty()) {
+                    suggestGen++;
+                    showRecents();
+                } else {
+                    suggest(text);
+                }
+            }
+        });
         search.setOnEditorActionListener((v, actionId, event) -> {
             boolean enter = event != null && event.getKeyCode() == KeyEvent.KEYCODE_ENTER
                 && event.getAction() == KeyEvent.ACTION_DOWN;
@@ -297,8 +362,15 @@ public class MapScreen extends FrameLayout implements GpsClient.Listener, MapVie
         // Navegando, o GPS e a voz continuam com a tela fora (como no Waze); o mapa só não é desenhado.
         if (state != State.NAVIGATE) {
             gps.stop();
-            // Fora da tela e sem navegar: devolve a memória dos tiles (ficam no cache em disco).
+            // Sem navegar, o GPS para: a viagem acaba e os trechos vão para o perfil de rotas.
+            history.execute(() -> RouteHistory.get().endTrip());
+            // Fora da tela e sem navegar: devolve a memória dos tiles (ficam no cache em disco) e dos
+            // dados da busca e da rota.
             Tiles.get(getContext()).trimMemory();
+            suggestions.execute(() -> {
+                PlaceIndex.get().trimMemory();
+                GraphStore.get().trimMemory();
+            });
         }
         saveCamera();
         // Navegando, a voz continua pronta para quando a tela voltar; fora disso, libera o motor.
@@ -363,6 +435,11 @@ public class MapScreen extends FrameLayout implements GpsClient.Listener, MapVie
             renderNavigation();
         }
         updateFocus();
+        // Perfil de rotas preferidas: as ruas por onde o carro passa (posição do GPS, não a da rota).
+        if (fix.moving()) {
+            double rawLat = fix.latitude, rawLon = fix.longitude;
+            history.execute(() -> RouteHistory.get().record(rawLat, rawLon, 0));
+        }
         map.setMyLocation(lat, lon, heading, mps);
         speed.setVisibility(fix.moving() || state == State.NAVIGATE ? VISIBLE : GONE);
         speed.setText(String.valueOf(fix.moving() ? Math.round(fix.speedKmh) : 0));
@@ -372,7 +449,7 @@ public class MapScreen extends FrameLayout implements GpsClient.Listener, MapVie
             boolean onRoute = state == State.NAVIGATE && navigator != null && navigator.onRoute();
             roads.update(lat, lon, heading, mps, onRoute ? navigator.traveled() : Double.NaN);
         }
-        // Raio de 100 km dos dados das vias e do mapa offline: confere se venceu ou se o carro se afastou.
+        // Raio dos dados baixados (vias, mapa, rota, endereços): confere se venceu ou se o carro se afastou.
         RoadSync.areaAll(getContext(), fix.latitude, fix.longitude);
     }
 
@@ -529,9 +606,62 @@ public class MapScreen extends FrameLayout implements GpsClient.Listener, MapVie
         if (search.getText().length() == 0) showRecents();
         search.requestFocus();
         keyboard(true);
+        // O índice de endereços em volta já vai sendo lido: a primeira sugestão sai sem espera.
+        double lat = nearLat(), lon = nearLon();
+        suggestions.execute(() -> PlaceIndex.get().warm(lat, lon));
+    }
+
+    private double nearLat() {
+        return map.hasLocation() ? map.carLat() : map.centerLat();
+    }
+
+    private double nearLon() {
+        return map.hasLocation() ? map.carLon() : map.centerLon();
+    }
+
+    /**
+     * Sugestões para o que já foi digitado: as do índice baixado e, com internet e depois de uma pausa
+     * maior, as do Photon somadas a elas. Uma letra nova cancela as anteriores ({@link #suggestGen}).
+     */
+    private void suggest(String text) {
+        int gen = ++suggestGen;
+        double lat = nearLat(), lon = nearLon();
+        String lang = LauncherConfig.language(getContext());
+        main.postDelayed(() -> {
+            if (gen != suggestGen) return;
+            suggestions.execute(() -> {
+                if (gen != suggestGen) return;
+                List<Places.Place> local = PlaceIndex.get().search(text, lat, lon, RESULTS);
+                main.post(() -> {
+                    if (gen == suggestGen && search.hasFocus()) showResults(local);
+                });
+            });
+        }, LOCAL_DELAY_MS);
+        if (text.length() < 3) return;
+        main.postDelayed(() -> {
+            if (gen != suggestGen || !MapConfig.online(getContext())) return;
+            suggestions.execute(() -> {
+                if (gen != suggestGen) return;
+                List<Places.Place> online;
+                try {
+                    online = Places.suggest(getContext(), text, lat, lon, lang);
+                } catch (Exception e) {
+                    android.util.Log.w("K4811Map", "sugestões: " + e);
+                    return;
+                }
+                List<Places.Place> local = PlaceIndex.get().search(text, lat, lon, RESULTS);
+                List<Places.Place> merged = Places.merge(local.subList(0, Math.min(5, local.size())), online, RESULTS);
+                merged = Places.merge(merged, local, RESULTS);
+                List<Places.Place> show = merged;
+                main.post(() -> {
+                    if (gen == suggestGen && search.hasFocus()) showResults(show);
+                });
+            });
+        }, ONLINE_DELAY_MS);
     }
 
     private void closeSearch() {
+        suggestGen++;
         resultsScroll.setVisibility(GONE);
         results.removeAllViews();
         searchClear.setVisibility(GONE);
@@ -562,22 +692,26 @@ public class MapScreen extends FrameLayout implements GpsClient.Listener, MapVie
     private void runSearch(String query) {
         if (query.isEmpty()) return;
         keyboard(false);
-        if (!MapConfig.online(getContext())) {
-            showMessage(R.string.map_offline);
-            return;
-        }
-        showMessage(R.string.map_searching);
+        suggestGen++; // as sugestões que ainda viriam não substituem o resultado
         int gen = ++requestGen;
-        double nearLat = map.hasLocation() ? map.carLat() : map.centerLat();
-        double nearLon = map.hasLocation() ? map.carLon() : map.centerLon();
+        double nearLat = nearLat();
+        double nearLon = nearLon();
         String lang = LauncherConfig.language(getContext());
+        boolean online = MapConfig.online(getContext());
+        if (online) showMessage(R.string.map_searching);
         net.execute(() -> {
+            // O índice baixado sempre; com internet, o Nominatim na frente (e o índice completando).
+            List<Places.Place> local = PlaceIndex.get().search(query, nearLat, nearLon, RESULTS);
             List<Places.Place> found = null;
-            try {
-                found = Places.search(getContext(), query, nearLat, nearLon, lang);
-            } catch (Exception e) {
-                android.util.Log.w("K4811Map", "busca: " + e);
+            if (online) {
+                try {
+                    found = Places.merge(Places.search(getContext(), query, nearLat, nearLon, lang), local, RESULTS);
+                } catch (Exception e) {
+                    android.util.Log.w("K4811Map", "busca: " + e);
+                }
             }
+            if (found == null && (!local.isEmpty() || !online)) found = local;
+            boolean noData = !online && local.isEmpty() && !PlaceIndex.get().hasData(nearLat, nearLon);
             List<Places.Place> list = found;
             main.post(() -> {
                 if (gen != requestGen) return;
@@ -586,7 +720,8 @@ public class MapScreen extends FrameLayout implements GpsClient.Listener, MapVie
                     return;
                 }
                 hideMessageNow();
-                if (list.isEmpty()) showMessage(R.string.map_no_results);
+                if (noData) showMessage(R.string.map_offline);
+                else if (list.isEmpty()) showMessage(R.string.map_no_results);
                 showResults(list);
             });
         });
@@ -711,11 +846,7 @@ public class MapScreen extends FrameLayout implements GpsClient.Listener, MapVie
     private void calculate(boolean reroute) {
         Places.Place p = destination;
         if (p == null) return;
-        if (!MapConfig.online(getContext())) {
-            showMessage(R.string.map_offline);
-            if (reroute) rerouting = false;
-            return;
-        }
+        boolean online = MapConfig.online(getContext());
         boolean fromCar = map.hasLocation();
         double fromLat = fromCar ? map.carLat() : map.centerLat();
         double fromLon = fromCar ? map.carLon() : map.centerLon();
@@ -723,22 +854,48 @@ public class MapScreen extends FrameLayout implements GpsClient.Listener, MapVie
         showMessage(reroute ? R.string.map_recalculating : R.string.map_calculating);
         if (reroute && voice != null) voice.say(getContext().getString(R.string.map_recalculating));
         int gen = ++requestGen;
+        // Na prévia, até 3 opções; recalculando, só a melhor.
+        int max = reroute ? 1 : MAX_ROUTES;
         net.execute(() -> {
-            Route r = null;
-            try {
-                r = Router.route(getContext(), fromLat, fromLon, heading, p.lat, p.lon, p.name);
-            } catch (Exception e) {
-                android.util.Log.w("K4811Map", "rota: " + e);
+            List<Route> list = new ArrayList<>();
+            if (online) {
+                try {
+                    list.addAll(Router.routes(getContext(), fromLat, fromLon, heading, p.lat, p.lon, p.name, max));
+                } catch (Exception e) {
+                    android.util.Log.w("K4811Map", "rota: " + e);
+                }
             }
-            Route result = r;
+            // Sem internet (ou o serviço falhou): as rotas calculadas aqui, com o grafo baixado.
+            boolean offline = list.isEmpty();
+            boolean noData = false;
+            if (offline) {
+                try {
+                    list.addAll(OfflineRouter.routes(fromLat, fromLon, heading, p.lat, p.lon, p.name, max));
+                } catch (OfflineRouter.NoData e) {
+                    noData = true;
+                    android.util.Log.w("K4811Map", "rota offline: sem dados (" + e.getMessage() + ")");
+                } catch (Exception e) {
+                    android.util.Log.w("K4811Map", "rota offline: " + e);
+                }
+            }
+            double[] usual = new double[list.size()];
+            if (!reroute && !list.isEmpty()) {
+                if (!offline) addLocal(list, fromLat, fromLon, heading, p);
+                usual = shares(list);
+                sortByPreference(list, usual);
+            }
+            boolean missing = noData;
+            double[] shares = usual;
             main.post(() -> {
                 if (gen != requestGen) return;
                 rerouting = false;
-                if (result == null) {
-                    showMessage(R.string.map_route_error);
+                if (list.isEmpty()) {
+                    showMessage(missing && !online ? R.string.map_offline : R.string.map_route_error);
                     return;
                 }
                 hideMessageNow();
+                if (offline) showMessage(R.string.map_route_offline);
+                Route result = list.get(0);
                 route = result;
                 map.setRoute(result);
                 // Dados das vias dos quadrados por onde a rota passa (inclusive fora do raio de 100 km).
@@ -748,10 +905,103 @@ public class MapScreen extends FrameLayout implements GpsClient.Listener, MapVie
                     if (roads != null) roads.setRoute(result);
                     renderNavigation();
                 } else {
+                    options = list;
+                    optionShares = shares;
                     showPreview();
                 }
             });
         });
+    }
+
+    /**
+     * Com internet: completa as opções do OSRM com as calculadas aqui, com o grafo baixado. O OSRM quase
+     * não dá alternativas em trajetos curtos, e não conhece o perfil de rotas preferidas: o caminho de
+     * costume calculado aqui entra (no lugar da última, se faltar espaço) se usar bem mais as ruas de
+     * costume. Rota que repete um caminho já na lista não entra. O tempo das daqui vai para a escala do
+     * OSRM (a razão entre o tempo da primeira do OSRM e o da mais rápida daqui).
+     */
+    private void addLocal(List<Route> list, double fromLat, double fromLon, double heading, Places.Place p) {
+        List<Route> local;
+        try {
+            local = OfflineRouter.routes(fromLat, fromLon, heading, p.lat, p.lon, p.name, MAX_ROUTES);
+        } catch (Exception e) {
+            return; // sem o grafo aqui: fica só o que o servidor mandou
+        }
+        Route fastest = local.get(0);
+        for (Route r : local) if (r.duration < fastest.duration) fastest = r;
+        double k = fastest.duration > 0 ? list.get(0).duration / fastest.duration : 1;
+        RouteHistory history = RouteHistory.get();
+        double bestShare = 0;
+        for (Route r : list) bestShare = Math.max(bestShare, history.share(r));
+        for (int i = 0; i < local.size(); i++) {
+            Route mine = local.get(i);
+            boolean usual = i == 0 && !history.isEmpty() && history.share(mine) >= 0.5
+                && history.share(mine) >= bestShare + 0.15;
+            if (list.size() >= MAX_ROUTES && !usual) break;
+            boolean same = false;
+            for (Route r : list) same |= similar(mine, r);
+            if (same) continue;
+            if (list.size() >= MAX_ROUTES) list.remove(list.size() - 1);
+            list.add(new Route(mine.lat, mine.lon, mine.steps, mine.distance, mine.duration * k,
+                mine.destLat, mine.destLon, mine.destName));
+        }
+    }
+
+    /** Mais de 75% de {@code a} (amostras a cada ~40 m) passa a menos de 25 m de {@code b}: o mesmo caminho. */
+    private static boolean similar(Route a, Route b) {
+        int samples = 0, near = 0;
+        double total = a.along[a.size() - 1];
+        int i = 1;
+        for (double d = 20; d < total; d += 40) {
+            while (i < a.size() - 1 && a.along[i] < d) i++;
+            double t = (d - a.along[i - 1]) / Math.max(1e-6, a.along[i] - a.along[i - 1]);
+            double lat = a.lat[i - 1] + (a.lat[i] - a.lat[i - 1]) * t;
+            double lon = a.lon[i - 1] + (a.lon[i] - a.lon[i - 1]) * t;
+            samples++;
+            if (distanceTo(b, lat, lon) < 25) near++;
+        }
+        return samples == 0 || near > samples * 0.75;
+    }
+
+    /** Distância (m) do ponto até a linha da rota. */
+    private static double distanceTo(Route r, double lat, double lon) {
+        double k = Math.cos(Math.toRadians(lat)) * 111320, m = 110574;
+        double best = Double.MAX_VALUE;
+        for (int j = 1; j < r.size(); j++) {
+            double ax = (r.lon[j - 1] - lon) * k, ay = (r.lat[j - 1] - lat) * m;
+            double bx = (r.lon[j] - lon) * k, by = (r.lat[j] - lat) * m;
+            double t = com.k4811.map.geo.Geo.project(0, 0, ax, ay, bx, by);
+            best = Math.min(best, Math.hypot(ax + (bx - ax) * t, ay + (by - ay) * t));
+        }
+        return best;
+    }
+
+    /** Parte de cada rota pelas ruas de costume (0 a 1). */
+    private static double[] shares(List<Route> list) {
+        double[] out = new double[list.size()];
+        for (int i = 0; i < out.length; i++) out[i] = RouteHistory.get().share(list.get(i));
+        return out;
+    }
+
+    /**
+     * A primeira opção é a de menor tempo "sentido": o caminho de costume vale até 15% mais rápido do que
+     * é (o motorista prefere a rua que conhece, se a diferença é pequena).
+     */
+    private static void sortByPreference(List<Route> list, double[] usual) {
+        int best = 0;
+        double bestCost = Double.MAX_VALUE;
+        for (int i = 0; i < list.size(); i++) {
+            double cost = list.get(i).duration * (1 - 0.15 * usual[i]);
+            if (cost < bestCost) {
+                bestCost = cost;
+                best = i;
+            }
+        }
+        if (best == 0) return;
+        list.add(0, list.remove(best));
+        double v = usual[best];
+        System.arraycopy(usual, 0, usual, 1, best);
+        usual[0] = v;
     }
 
     private void showPreview() {
@@ -760,7 +1010,6 @@ public class MapScreen extends FrameLayout implements GpsClient.Listener, MapVie
         banner.setVisibility(GONE);
         bottom.setVisibility(VISIBLE);
         bottomTitle.setText(destination.name);
-        bottomDetail.setText(phrases.duration(route.duration) + "  ·  " + phrases.distance(route.distance));
         primary.setText(R.string.map_go);
         primary.setOnClickListener(v -> startNavigation());
         bottomStar.setVisibility(VISIBLE);
@@ -775,12 +1024,111 @@ public class MapScreen extends FrameLayout implements GpsClient.Listener, MapVie
         secondary.setText(R.string.map_cancel);
         secondary.setOnClickListener(v -> endRoute());
         map.setNavigating(false);
-        post(() -> map.showWholeRoute(route, dp(16), bottom.getHeight() + dp(32)));
+        choose(0, true);
+    }
+
+    /** Escolhe a opção {@code i} da prévia: ela fica azul, as outras cinza, e os cartões mostram a diferença. */
+    private void choose(int i, boolean fit) {
+        if (options == null || i < 0 || i >= options.size()) return;
+        chosen = i;
+        route = options.get(i);
+        map.setRoute(route);
+        List<Route> others = new ArrayList<>(options);
+        others.remove(i);
+        map.setAlternatives(others);
+        bottomDetail.setText(phrases.duration(route.duration) + "  ·  " + phrases.distance(route.distance));
+        renderRouteCards();
+        RoadSync.routeAll(getContext(), route);
+        if (fit) post(() -> map.showWholeRoute(route, dp(16), bottom.getHeight() + routesBar.getHeight() + dp(40)));
+    }
+
+    /** Cartões das opções de rota (só com mais de uma): tempo, distância, diferença para a escolhida e marcas. */
+    private void renderRouteCards() {
+        routesBar.removeAllViews();
+        if (options == null || options.size() < 2 || state != State.PREVIEW) {
+            routesBar.setVisibility(GONE);
+            return;
+        }
+        int fastest = 0, usual = -1;
+        for (int i = 0; i < options.size(); i++) {
+            if (options.get(i).duration < options.get(fastest).duration) fastest = i;
+            if (optionShares[i] >= 0.4 && (usual < 0 || optionShares[i] > optionShares[usual])) usual = i;
+        }
+        Route sel = options.get(chosen);
+        for (int i = 0; i < options.size(); i++) {
+            Route r = options.get(i);
+            boolean selected = i == chosen;
+            LinearLayout card = new LinearLayout(getContext());
+            card.setOrientation(LinearLayout.VERTICAL);
+            card.setPadding(dp(18), dp(10), dp(18), dp(10));
+            card.setBackground(ThemeDrawables.drawable(getContext(), selected ? R.drawable.pill : R.drawable.panel));
+            card.setActivated(selected);
+            TextView time = text(phrases.duration(r.duration), 24, Ui.TEXT);
+            time.setTypeface(Ui.semiBold(getContext()));
+            card.addView(time);
+            String detail = phrases.distance(r.distance);
+            String d = selected ? "" : diff(r, sel);
+            if (!d.isEmpty()) detail += "  ·  " + d;
+            card.addView(text(detail, 16, Ui.TEXT_MUTED));
+            String tag = i == usual ? getContext().getString(R.string.map_route_usual)
+                : i == fastest ? getContext().getString(R.string.map_route_fastest) : null;
+            if (tag != null) card.addView(text(tag, 15, Ui.ACCENT));
+            int index = i;
+            card.setOnClickListener(v -> choose(index, false));
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT);
+            if (i > 0) lp.leftMargin = dp(10);
+            routesBar.addView(card, lp);
+        }
+        Ui.applyFont(routesBar);
+        routesBar.setVisibility(VISIBLE);
+    }
+
+    /**
+     * "+3 min · +1,2 km" (ou "−") de {@code r} em relação a {@code base}: pelos minutos mostrados nos
+     * cartões (3 min e 4 min dão "+1 min"); o que não muda (menos de 1 min, menos de 50 m) fica de fora.
+     */
+    private String diff(Route r, Route base) {
+        long min = minutes(r.duration) - minutes(base.duration);
+        double m = r.distance - base.distance;
+        StringBuilder b = new StringBuilder();
+        if (min != 0) {
+            b.append(min > 0 ? "+" : "−").append(getContext().getString(R.string.map_minutes, (int) Math.abs(min)));
+        }
+        if (Math.abs(m) >= 50) {
+            if (b.length() > 0) b.append("  ·  ");
+            b.append(m > 0 ? "+" : "−").append(phrases.distance(Math.abs(m)));
+        }
+        return b.toString();
+    }
+
+    /** Minutos como o {@link Phrases#duration} mostra. */
+    private static long minutes(double seconds) {
+        return Math.max(1, Math.round(seconds / 60.0));
+    }
+
+    private TextView text(String s, int sp, int color) {
+        TextView t = new TextView(getContext());
+        t.setText(s);
+        t.setTextSize(TypedValue.COMPLEX_UNIT_SP, sp);
+        t.setTextColor(color);
+        t.setSingleLine(true);
+        return t;
+    }
+
+    @Override
+    public void onRouteTap(Route r) {
+        if (state != State.PREVIEW || options == null) return;
+        int i = options.indexOf(r);
+        if (i >= 0) choose(i, false);
     }
 
     private void startNavigation() {
         if (route == null) return;
         state = State.NAVIGATE;
+        options = null;
+        map.setAlternatives(null);
+        routesBar.setVisibility(GONE);
         navigator = new Navigator(route, this);
         if (roads != null) roads.setRoute(route);
         searchBox.setVisibility(GONE);
@@ -805,6 +1153,9 @@ public class MapScreen extends FrameLayout implements GpsClient.Listener, MapVie
         destination = null;
         rerouting = false;
         map.setRoute(null);
+        map.setAlternatives(null);
+        options = null;
+        routesBar.setVisibility(GONE);
         map.setDestination(Double.NaN, Double.NaN);
         map.setNavigating(false);
         NavProgress.clear();
@@ -817,6 +1168,7 @@ public class MapScreen extends FrameLayout implements GpsClient.Listener, MapVie
         hideMessageNow();
         if (!started) {
             gps.stop();
+            history.execute(() -> RouteHistory.get().endTrip());
             if (voice != null) {
                 voice.shutdown();
                 voice = null;

@@ -36,16 +36,22 @@ public final class MapConfig {
     public static final String DEFAULT_TILES = "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
     public static final String DEFAULT_ROUTE = "https://routing.openstreetmap.de/routed-car/route/v1/driving/";
     public static final String DEFAULT_SEARCH = "https://nominatim.openstreetmap.org/search";
+    /** Sugestões enquanto digita (Photon, feito para isso; o Nominatim não permite autocompletar). */
+    public static final String DEFAULT_SUGGEST = "https://photon.komoot.io/api/";
     private static final int DEFAULT_CACHE_MB = 200;
     private static final int DEFAULT_MAX_ZOOM = 19;
     private static final int DEFAULT_ROAD_DATA_MB = 300;
     private static final int DEFAULT_MAP_DATA_MB = 1024;
+    private static final int DEFAULT_GRAPH_DATA_MB = 600;
+    private static final int DEFAULT_PLACE_DATA_MB = 300;
     /** Camadas do mapa offline que ficam de fora por padrão (desempenho na central). */
     private static final String[] DEFAULT_MAP_HIDE = {"buildings", "paths", "green", "lines"};
 
     public final String tiles;
     public final String route;
     public final String search;
+    /** Sugestões enquanto digita, com internet ("suggest"; vazio = só as do índice baixado). */
+    public final String suggest;
     public final long cacheBytes;
     public final int maxZoom;
     /**
@@ -61,6 +67,12 @@ public final class MapConfig {
      */
     public final String mapData;
     public final long mapDataBytes;
+    /** Grafo de ruas da rota sem internet: {@code graph/v1/} no servidor dos dados das vias ("graph_data"). */
+    public final String graphData;
+    public final long graphDataBytes;
+    /** Índice de endereços da busca sem internet: {@code places/v1/} ("place_data"). */
+    public final String placeData;
+    public final long placeDataBytes;
     /**
      * Camadas do mapa offline que não são desenhadas ("map_hide" no arquivo, lista): {@code buildings}
      * (prédios), {@code paths} (vias de serviço, calçadões, trilhas e caminhos), {@code casings}
@@ -80,6 +92,7 @@ public final class MapConfig {
         tiles = j.optString("tiles", DEFAULT_TILES);
         route = j.optString("route", DEFAULT_ROUTE);
         search = j.optString("search", DEFAULT_SEARCH);
+        suggest = j.optString("suggest", DEFAULT_SUGGEST).trim();
         cacheBytes = Math.max(20, j.optInt("cache_mb", DEFAULT_CACHE_MB)) * 1024L * 1024L;
         maxZoom = Math.max(10, Math.min(20, j.optInt("max_zoom", DEFAULT_MAX_ZOOM)));
         String road = j.optString("road_data", BuildConfig.ROAD_DATA_URL).trim();
@@ -89,6 +102,10 @@ public final class MapConfig {
         String map = j.optString("map_data", derived).trim();
         mapData = map.isEmpty() || map.endsWith("/") ? map : map + "/";
         mapDataBytes = Math.max(50, j.optInt("map_data_mb", DEFAULT_MAP_DATA_MB)) * 1024L * 1024L;
+        graphData = slash(j.optString("graph_data", sibling(roadData, "graph")).trim());
+        graphDataBytes = Math.max(50, j.optInt("graph_data_mb", DEFAULT_GRAPH_DATA_MB)) * 1024L * 1024L;
+        placeData = slash(j.optString("place_data", sibling(roadData, "places")).trim());
+        placeDataBytes = Math.max(20, j.optInt("place_data_mb", DEFAULT_PLACE_DATA_MB)) * 1024L * 1024L;
         Set<String> hide = new HashSet<>();
         JSONArray h = j.optJSONArray("map_hide");
         if (h == null) Collections.addAll(hide, DEFAULT_MAP_HIDE);
@@ -96,6 +113,15 @@ public final class MapConfig {
         mapHide = Collections.unmodifiableSet(hide);
         mapLogMs = Math.max(0, j.optInt("map_log_ms", 400));
         this.userAgent = userAgent;
+    }
+
+    /** O pacote {@code name/v1/} no mesmo servidor dos dados das vias ({@code …/roads/v1/}); "" se não der. */
+    private static String sibling(String roadData, String name) {
+        return roadData.endsWith("roads/v1/") ? roadData.substring(0, roadData.length() - 9) + name + "/v1/" : "";
+    }
+
+    private static String slash(String url) {
+        return url.isEmpty() || url.endsWith("/") ? url : url + "/";
     }
 
     public static File dir() {

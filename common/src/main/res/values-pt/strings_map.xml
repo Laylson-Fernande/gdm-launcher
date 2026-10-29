@@ -28,8 +28,11 @@
     <string name="map_searching">Buscando…</string>
     <string name="map_no_results">Nada encontrado</string>
     <string name="map_search_error">A busca falhou</string>
-    <string name="map_offline">Sem internet: busca e novas rotas indisponíveis</string>
+    <string name="map_offline">Sem internet e sem dados offline desta área</string>
     <string name="map_route_error">Não foi possível calcular a rota</string>
+    <string name="map_route_offline">Rota calculada sem internet</string>
+    <string name="map_route_usual">Seu caminho de costume</string>
+    <string name="map_route_fastest">Mais rápida</string>
     <string name="map_calculating">Calculando a rota…</string>
     <string name="map_recalculating">Recalculando a rota</string>
     <string name="map_go">Ir</string>

@@ -207,6 +207,16 @@
             android:visibility="gone" />
     </LinearLayout>
 
+    <!-- Prévia com mais de uma rota: um cartão por opção (tempo, distância, diferença), acima da prévia -->
+    <LinearLayout
+        android:id="@+id/map_routes"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_marginBottom="124dp"
+        android:orientation="horizontal"
+        android:visibility="gone" />
+
     <!-- Prévia da rota ou navegação -->
     <LinearLayout
         android:id="@+id/map_bottom"

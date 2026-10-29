@@ -28,8 +28,11 @@
     <string name="map_searching">Поиск…</string>
     <string name="map_no_results">Ничего не найдено</string>
     <string name="map_search_error">Поиск не удался</string>
-    <string name="map_offline">Нет интернета: поиск и новые маршруты недоступны</string>
+    <string name="map_offline">Нет интернета и офлайн-данных для этого района</string>
     <string name="map_route_error">Не удалось построить маршрут</string>
+    <string name="map_route_offline">Маршрут построен без интернета</string>
+    <string name="map_route_usual">Ваш обычный путь</string>
+    <string name="map_route_fastest">Самый быстрый</string>
     <string name="map_calculating">Построение маршрута…</string>
     <string name="map_recalculating">Перестраиваю маршрут</string>
     <string name="map_go">Поехали</string>

@@ -1,6 +1,6 @@
 # Dados das vias (radares, limites de velocidade) e mapa offline
 
-Geradores dos dados que o mapa integrado baixa: `RoadDataBuilder` (limite de velocidade da via, radares, lombadas, pedágios e passagens de nível; ver `map/SPEC.md`, "Dados das vias") e `MapDataBuilder` (o mapa offline, abaixo). Leem um recorte do OpenStreetMap (`.osm.pbf`) e gravam quadrados de 0,25° (~28 km) que o launcher baixa aos poucos.
+Geradores dos dados que o mapa integrado baixa: `RoadDataBuilder` (limite de velocidade da via, radares, lombadas, pedágios e passagens de nível; ver `map/SPEC.md`, "Dados das vias"), `MapDataBuilder` (o mapa offline), `RouteDataBuilder` (o grafo de ruas da rota sem internet) e `PlaceDataBuilder` (o índice de endereços da busca sem internet, com o CNEFE do IBGE), descritos abaixo. Leem um recorte do OpenStreetMap (`.osm.pbf`) e gravam quadrados de 0,25° (~28 km) que o launcher baixa aos poucos.
 
 Java puro, sem bibliotecas: o leitor de `.pbf` (`Pbf.java`) decodifica o protobuf à mão. Não faz parte do build dos apps.
 
@@ -120,8 +120,95 @@ Tipos: 1 motorway, 2 trunk, 3 primary, 4 secondary, 5 tertiary, 6 unclassified/r
 
 ### Tamanho
 
-O GitHub Pages aceita até 1 GB publicado; dados das vias + mapa do Brasil dão ~446 MB (outubro de 2026; ~855 MB com todas as camadas), e o workflow falha antes de publicar se passar de 1.000 MB. O que mais pesa: ruas residenciais (~235 MB antes do deflate), prédios (~195 MB), matas (~180 MB). Se o OSM crescer além do limite: aumentar a simplificação das matas (`tolerance`), tirar matas da seção de detalhe, ou gerar um recorte menor (região da Geofabrik no `region` do workflow).
+O GitHub Pages aceita até 1 GB publicado; dados das vias (64 MB) + mapa (382 MB) + grafo da rota (220 MB) + índice de endereços (179 MB) do Brasil dão ~845 MB (outubro de 2026), e o workflow falha antes de publicar se passar de 1.000 MB. Se faltar espaço: aumentar o erro aceito na interpolação dos números (`NUMBER_ERROR_M`, 50 m tira ~30% dos números) ou a simplificação do grafo (`TOLERANCE_E6`). O que mais pesa: ruas residenciais (~235 MB antes do deflate), prédios (~195 MB), matas (~180 MB). Se o OSM crescer além do limite: aumentar a simplificação das matas (`tolerance`), tirar matas da seção de detalhe, ou gerar um recorte menor (região da Geofabrik no `region` do workflow).
+
+## Grafo da rota sem internet (`RouteDataBuilder`)
+
+As ruas como grafo, para o app calcular e recalcular a rota sem internet (`map/.../route/OfflineRouter`, ver `map/SPEC.md`, "Rota e busca sem internet").
+
+```bash
+java -Xmx12g -cp build/road-data RouteDataBuilder brazil-latest.osm.pbf site/graph "Geofabrik brazil 2026-10-25"
+```
+
+| Recorte | Tempo (PC) | Memória | Saída |
+|---|---|---|---|
+| Nordeste (444 MB) | 36 s | ~1,4 GB | 2.199 quadrados, 64 MB; 100 km em volta de Garanhuns = 56 quadrados, 4,7 MB |
+| Brasil (2,1 GB) | ~2,5 min | ~3,4 GB | 8.670 quadrados, 220 MB (maior: centro de São Paulo, 1,8 MB); 13,6 milhões de arestas, 115 mil proibições de conversão |
+
+**O que entra:** `highway=motorway…tertiary` (e `_link`), `unclassified`, `road`, `residential`, `living_street` e `service` (menos `parking_aisle`, `driveway`, `drive-through` e `emergency_access`), sem `access`/`motor_vehicle`/`motorcar`/`vehicle` = `no`, `private`, `agricultural`, `forestry`. Mão única (`oneway`, rotatória e `motorway` implicam), rotatória (`junction=roundabout/circular`), pedágio (`toll=yes`), limite (`maxspeed`), nome (`name`, ou `ref`). Proibições de conversão (relações `type=restriction`, `no_*`/`only_*`, só com nó no meio).
+
+**Nós:** as pontas das vias e os nós usados por mais de uma via (cruzamentos). Cada via é cortada neles em arestas; a geometria do meio é simplificada (Douglas-Peucker, ~2,4 m).
+
+**Quadrados:** os mesmos de 0,25°. Cada nó fica no quadrado da coordenada dele; a aresta vai no quadrado de cada ponta (duas vezes, se cruza a borda). A ponta que fica no outro quadrado é guardada pela coordenada, e o app acha o nó lá pela coordenada: assim um quadrado baixado numa semana se liga ao vizinho baixado em outra.
+
+**Formato** (`K4RT`, versão 1 byte, hoje 1, e o resto em deflate):
+
+```
+int cx, int cy
+varint nNomes; por nome: varint tamanho, UTF-8
+varint nNós; por nó (ordenados por lat e depois lon): lat, lon em 1e-6 grau, zigzag varint,
+  o primeiro relativo ao canto sudoeste do quadrado e os outros ao anterior
+varint nArestas; por aresta:
+  ponta A e ponta B: varint (índice do nó × 2) se o nó é deste quadrado,
+                     ou varint 1 e lat, lon (zigzag, relativas ao canto) se é de outro
+  byte classe (1 motorway, 2 trunk, 3 primary, 4 secondary, 5 tertiary, 6 unclassified/road, 7 residential,
+               8 living_street, 9 service; +16 nas _link)
+  byte flags (1 só de A para B, 2 só de B para A, 4 rotatória, 8 pedágio, 16 tem nome)
+  byte limite (km/h, 0 = desconhecido)
+  [varint nome, se flag 16]
+  varint nPontos do meio; lat, lon (zigzag), relativos ao ponto anterior (o primeiro, à ponta A)
+varint nProibições; por uma: varint nó, varint aresta de chegada, varint aresta de saída (índices deste
+  quadrado), byte tipo (0 proibida, 1 obrigatória)
+```
+
+Mudou o formato? Suba a versão nos dois lados (`RouteDataBuilder.FORMAT` e `GraphCell.FORMAT`).
+
+## Índice de endereços da busca sem internet (`PlaceDataBuilder`)
+
+Ruas (com os números de casa conhecidos), lugares (parques, escolas, hospitais, lojas…), bairros e cidades, para as sugestões enquanto digita e a busca sem internet (`map/.../search/PlaceIndex`).
+
+```bash
+java -Xmx13g -cp build/road-data PlaceDataBuilder brazil-latest.osm.pbf site/places "Geofabrik brazil 2026-10-25 + IBGE CNEFE 2022" cnefe
+```
+
+A pasta `cnefe` (opcional) tem os `.zip` por UF do **CNEFE 2022** do IBGE (Cadastro Nacional de Endereços para Fins Estatísticos, do Censo 2022: cada endereço do país com número e coordenada), como vêm de <https://ftp.ibge.gov.br/Cadastro_Nacional_de_Enderecos_para_Fins_Estatisticos/Censo_Demografico_2022/Arquivos_CNEFE/CSV/UF/> (~3,7 GB). O OpenStreetMap quase não tem números de casa no Brasil; o CNEFE tem. No workflow, os arquivos ficam no cache do Actions (não mudam).
+
+| Recorte | Tempo (PC) | Saída |
+|---|---|---|
+| Nordeste (444 MB) + CNEFE de Pernambuco | 34 s | 2.167 quadrados, 18,7 MB (sem o CNEFE, 11 MB); 100 km em volta de Garanhuns = 2,6 MB |
+| Brasil (2,1 GB) + CNEFE inteiro (111 milhões de linhas) | ~7 min, ~5 GB de memória | 9.969 quadrados, 179 MB (maior: centro de São Paulo, 3,3 MB); 3,1 milhões de ruas (22 milhões de números guardados), 1,7 milhão de POIs |
+
+**O que entra:**
+
+| Entrada | De onde |
+|---|---|
+| Rua | vias `highway=*` com nome; trechos com o mesmo nome a menos de ~330 m, no mesmo quadrado, viram uma rua (ponto: o meio do trecho mais longo) |
+| Números da rua | CNEFE (endereços com coordenada do endereço ou da face da quadra, `NV_GEO_COORD` 1 e 2) e `addr:street` + `addr:housenumber` do OSM, juntados à rua do OSM com o mesmo nome normalizado a até ~500 m; sem rua no OSM, a rua vem do CNEFE. Número repetido: a mediana. Ficam só os pontos necessários para a interpolação pelo número errar menos de 25 m |
+| POI | nós e vias do OSM com nome e `amenity`, `shop`, `leisure`, `tourism`, `office`, `healthcare`, `historic`, `craft`, `aeroway`, `public_transport`, `railway`, `natural`, `man_made`, `sport`, `club` (menos os valores que não são destino, ver `POI_SKIP`), ou `building`/`landuse` de tipos procurados (shopping, escola, hospital…); estabelecimentos de ensino, saúde e religiosos do CNEFE com nome. Repetidos (mesmo nome a menos de ~200 m) saem |
+| Cidade | `place=city` (0), `town` (1), `village`/`hamlet`/`isolated_dwelling` (2) |
+| Bairro | `place=suburb/neighbourhood/quarter/borough` |
+
+**Contexto** de cada entrada (bairro, cidade): o bairro do CNEFE na rua (o mais comum) ou o `place` de bairro mais perto (até ~2 km); a cidade é o `place` de cidade mais perto (city/town até ~25 km, village até ~6 km, com peso para a maior).
+
+**Nomes normalizados** (para juntar e buscar; igual no app, `Text.normalize`): minúsculas, sem acento, sem pontuação e com as abreviações por extenso (`r` → `rua`, `av` → `avenida`, `dr` → `doutor`, `pca` → `praca`…).
+
+**Formato** (`K4PL`, versão 1 byte, hoje 1, e o resto em deflate):
+
+```
+int cx, int cy
+varint nTextos; por texto: varint tamanho, UTF-8 (nomes, bairros e cidades)
+varint nEntradas; por entrada:
+  byte tipo (1 rua, 2 POI, 3 cidade, 4 bairro) | porte << 4 (cidade: 0 city, 1 town, 2 vila;
+       POI: importância 0 CNEFE, 1 nó, 2 via, 3 museu/parque/hospital/shopping/estação/aeroporto/
+       universidade/estádio ou área com mais de ~300 m de lado)
+  varint nome, varint bairro + 1 (0 = nenhum), varint cidade + 1 (0 = nenhuma)
+  lat, lon (zigzag, relativas ao canto sudoeste)
+  ruas: varint nNúmeros; por um: varint número − anterior, lat, lon (zigzag, relativos ao ponto anterior;
+        o primeiro, ao ponto da rua)
+```
+
+Mudou o formato? Suba a versão nos dois lados (`PlaceDataBuilder.FORMAT` e `PlaceCell.FORMAT`).
 
 ## Licença dos dados
 
-Os dados gerados são derivados do OpenStreetMap: © colaboradores do OpenStreetMap, sob a [ODbL 1.0](https://www.openstreetmap.org/copyright). A publicação leva um `README.txt` com essa atribuição, e o mapa mostra "© OpenStreetMap" sempre.
+Os dados gerados são derivados do OpenStreetMap: © colaboradores do OpenStreetMap, sob a [ODbL 1.0](https://www.openstreetmap.org/copyright). A publicação leva um `README.txt` com essa atribuição, e o mapa mostra "© OpenStreetMap" sempre. O índice de endereços usa também o CNEFE 2022 (© IBGE, Censo Demográfico 2022, dado público com citação da fonte), citado no `README.txt` de `places/`.
