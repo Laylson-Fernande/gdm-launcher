@@ -20,6 +20,8 @@ public class RemoteReceiver extends BroadcastReceiver {
             return;
         }
         if (!MusicRemote.ACTION_COMMAND.equals(action)) return;
+        int c = intent.getIntExtra(MusicRemote.EXTRA_CMD, MusicRemote.CMD_TOGGLE);
+        if (c == MusicRemote.CMD_RESUME && MusicPlaybackService.running() == null) return;
         Intent cmd = new Intent(context, MusicPlaybackService.class);
         cmd.setAction(MusicPlaybackService.ACTION_REMOTE);
         cmd.putExtra(MusicRemote.EXTRA_CMD, intent.getIntExtra(MusicRemote.EXTRA_CMD, MusicRemote.CMD_TOGGLE));

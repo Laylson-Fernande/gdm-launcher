@@ -1,5 +1,6 @@
 package com.k4811.cpumonitor;
 
+import android.content.Context;
 import android.app.Activity;
 import android.content.res.Configuration;
 import android.database.ContentObserver;
@@ -20,6 +21,12 @@ import com.k4811.common.ui.Ui;
  * drives the hardware. The fan blade follows {@code mcu_smart_fan_switch}.
  */
 public class FanActivity extends Activity {
+
+    /** Suite language in the screen context (survives window changes, see Ui.withLanguage). */
+    @Override
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(Ui.withLanguage(base));
+    }
 
     private static final String KEY_AUTO = "fan_auto_state";
     private static final String KEY_MANUAL = "fan_manual_state";

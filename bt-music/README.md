@@ -40,7 +40,7 @@ O áudio sai do celular. O app só conversa com o serviço de Bluetooth da NWD p
 
 Activity com o nome do original (`activity-alias`), para o sistema e outros apps continuarem abrindo este app pelo mesmo componente.
 
-**Retomar ao ligar o carro:** com `com.nwd.ACTION_BACKGROUND_MEDIA_PLAY` e `extra_app_id` = 15, o `BackgroundPlayReceiver` inicia o `BtResumeService`. Ele espera a conexão com o serviço de BT da NWD (até 10 s), pausa o MP3, avisa a central que a música BT é a fonte (app 15) e manda o "play forçado", como a tela faz ao conectar no A2DP. Depois para, sem abrir a tela. Ainda não testado na central.
+**Retomar ao ligar o carro:** com `com.nwd.ACTION_BACKGROUND_MEDIA_PLAY` e `extra_app_id` = 15, o `BackgroundPlayReceiver` inicia o `BtResumeService`. Ao ligar o carro o celular reconecta depois do serviço de BT: um play nessa hora se perdia, e o celular voltava a tocar sozinho sem som (só destravava pulando a faixa). Agora o serviço espera até 90 s o A2DP conectar ou o celular começar a tocar; aí pausa o MP3, avisa a central que a música BT é a fonte (app 15), tira o mudo da música BT e manda o "play forçado", conferindo de novo 4 s depois. Depois para, sem abrir a tela. A tela também pega a fonte e tira o mudo quando o A2DP conecta. Ainda não testado na central.
 
 ## Build e instalação
 

@@ -40,6 +40,12 @@ import java.util.Locale;
  */
 public class PhoneActivity extends Activity {
 
+    /** Suite language in the screen context (survives window changes, see Ui.withLanguage). */
+    @Override
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(Ui.withLanguage(base));
+    }
+
     private static final int TAB_DIAL = 0;
     private static final int TAB_CONTACTS = 1;
     private static final int TAB_LOGS = 2;

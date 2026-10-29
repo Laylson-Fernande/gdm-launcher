@@ -33,6 +33,7 @@ O serviço envia `com.k4811.action.MUSIC_STATE` a cada mudança (troca de faixa 
 ## Regras
 
 - Antes de tocar: `PlayerHandoff.beforeMp3` (pausa a música BT).
+- Foco de áudio: perda temporária (chamada) pausa e marca `pausedByFocus`; `cmd` 3 (`MusicRemote.CMD_RESUME`, mandado pelo telefone ao silenciar) só retoma nesse caso e não inicia o player. Perda com "pode abaixar" (voz da navegação) abaixa o MediaPlayer para `nav_media_percent` (`MixVolumes.duckVolume`); com targetSdk 19 o Android não abaixa sozinho.
 - A pausa pedida por outro app precisa soltar o foco de áudio **antes** de a fonte sair do Android, senão o sistema da NWD mata este app.
 - Estado do player em `MusicConfig` (mesmo esquema do `radio.config.json`: lê da memória, relê se o arquivo mudar, grava em segundo plano, não sobrescreve arquivo com erro). Na primeira vez importa os SharedPreferences antigos (`music_prefs`, `k4811_music`).
 - A lista só rola até a faixa atual quando a música troca ou começa a tocar; só a pasta da faixa atual fica aberta (as outras recolhem ao tocar no nome).

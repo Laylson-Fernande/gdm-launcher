@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.graphics.PixelFormat;
 import android.graphics.Point;
 import android.graphics.drawable.GradientDrawable;
@@ -18,28 +19,36 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.k4811.common.bt.BtClient;
+import com.k4811.common.music.MusicRemote;
 import com.k4811.common.ui.IconView;
 import com.k4811.common.ui.Ui;
 
 /**
  * Janela flutuante da chamada (papel do FloatBar do app original): um cartão no alto da tela, por
  * cima de qualquer app, com nome ou número, o estado (recebendo, efetuando, em conversa),
- * Atender e Desligar. Tocar no cartão abre o telefone. Some quando a chamada termina e enquanto a
- * tela do telefone está na frente (ela já mostra a chamada).
+ * Atender, Desligar e (recebendo) Silenciar. Tocar no cartão abre o telefone. Some quando a chamada
+ * termina e enquanto a tela do telefone está na frente (ela já mostra a chamada).
+ *
+ * Silenciar fecha o cartão, zera o volume do alto-falante do BT (o toque vem do serviço BT da NWD)
+ * e pede ao MP3 que volte a tocar se a chamada o pausou, sem recusar a chamada. O volume volta
+ * quando a chamada é atendida (no celular) ou termina; fica gravado nas preferências para voltar
+ * mesmo que o serviço morra no meio.
  *
  * A janela usa TYPE_SYSTEM_ALERT com SYSTEM_ALERT_WINDOW, concedida na instalação (targetSdk < 23).
  */
 public class CallFloatService extends Service {
     private static final String TAG = "K4811CallFloat";
     private static final String EXTRA_SUPPRESS = "suppress";
+    /** Volume do alto-falante do BT antes de silenciar (-1: nada a devolver). */
+    private static final String KEY_SPEAKER = "speaker_before_silence";
 
     private static final int NONE = 0;
     private static final int IN = 1;
     private static final int OUT = 2;
     private static final int ONLINE = 3;
 
-    /** Desenho em 1280×720: 700×220 a 48 do topo, centralizado (como o original). */
-    private static final int WIDTH_DP = 700;
+    /** Desenho em 1280×720: 780×220 a 48 do topo, centralizado (o original tem 700; cabe o Silenciar). */
+    private static final int WIDTH_DP = 780;
     private static final int HEIGHT_DP = 220;
     private static final int TOP_DP = 48;
 
@@ -49,12 +58,16 @@ public class CallFloatService extends Service {
     private TextView nameView;
     private TextView stateView;
     private TextView answerView;
+    private View silenceView;
     private float scale = 1f;
     private int state = NONE;
     private String name = "";
     private String number = "";
     /** A tela do telefone está na frente: o cartão fica escondido. */
     private boolean suppressed;
+    /** O usuário silenciou esta chamada: o cartão fica fechado enquanto ela toca. */
+    private boolean silenced;
+    private SharedPreferences prefs;
     private boolean receiverRegistered;
 
     /** Chamada começou (ou número/nome chegou): mostra ou atualiza o cartão. */
@@ -91,6 +104,8 @@ public class CallFloatService extends Service {
         Ui.applyThemeColors(this);
         bt = new BtClient(this);
         bt.connect();
+        prefs = getSharedPreferences("call", MODE_PRIVATE);
+        restoreSpeaker(null); // o serviço morreu com uma chamada silenciada
         IntentFilter f = new IntentFilter();
         for (String a : CALL_ACTIONS) f.addAction(a);
         registerReceiver(receiver, f);
@@ -127,7 +142,7 @@ public class CallFloatService extends Service {
         if (a == null) return;
         switch (a) {
             case "com.bt.ACTION_BT_INCOMING_CALL":
-                if (state == NONE) { name = ""; number = ""; }
+                if (state == NONE) { name = ""; number = ""; silenced = false; }
                 state = IN;
                 break;
             case "com.bt.ACTION_BT_OUTGOING_CALL":
@@ -136,6 +151,7 @@ public class CallFloatService extends Service {
                 break;
             case "com.bt.ACTION_BT_BEGIN_CALL_ONLINE":
                 state = ONLINE;
+                restoreSpeaker(null); // atendida no celular: precisa ouvir a conversa
                 break;
             case "com.bt.ACTION_BT_END_CALL":
                 state = NONE;
@@ -159,11 +175,14 @@ public class CallFloatService extends Service {
 
     private void render() {
         if (state == NONE) {
+            silenced = false;
             removeCard();
-            stopSelf();
+            restoreSpeaker(() -> {
+                if (state == NONE) stopSelf();
+            });
             return;
         }
-        if (suppressed) {
+        if (suppressed || (silenced && state == IN)) {
             removeCard();
             return;
         }
@@ -177,6 +196,33 @@ public class CallFloatService extends Service {
         if (!name.isEmpty() && !number.isEmpty()) sub = sub + "  ·  " + number;
         stateView.setText(sub);
         answerView.setVisibility(state == IN ? View.VISIBLE : View.GONE);
+        silenceView.setVisibility(state == IN ? View.VISIBLE : View.GONE);
+    }
+
+    /** Fecha o cartão e cala o toque sem recusar a chamada; o MP3 volta se a chamada o pausou. */
+    private void silence() {
+        if (state != IN) return;
+        silenced = true;
+        render();
+        bt.muteSpeaker(prev -> {
+            if (prev > 0 && prefs.getInt(KEY_SPEAKER, -1) < 0) prefs.edit().putInt(KEY_SPEAKER, prev).apply();
+            if (state != IN) restoreSpeaker(null); // atendida ou encerrada enquanto silenciava
+        });
+        MusicRemote.send(this, MusicRemote.CMD_RESUME);
+    }
+
+    /** Devolve o volume do alto-falante do BT guardado pelo {@link #silence}; depois roda {@code done}. */
+    private void restoreSpeaker(Runnable done) {
+        int v = prefs.getInt(KEY_SPEAKER, -1);
+        if (v < 0) {
+            if (done != null) done.run();
+            return;
+        }
+        prefs.edit().remove(KEY_SPEAKER).apply();
+        bt.setSpeakerVolume(v, r -> {
+            if (r < 0) prefs.edit().putInt(KEY_SPEAKER, v).apply();
+            if (done != null) done.run();
+        });
     }
 
     private int px(float dp) {
@@ -219,6 +265,13 @@ public class CallFloatService extends Service {
         answerView = button(R.string.media_phone_answer, Ui.SUCCESS);
         answerView.setOnClickListener(v -> bt.answer());
         root.addView(answerView, buttonLp());
+        IconView silence = new IconView(this).set(IconView.Icon.VOLUME_MUTE, IconView.Style.CIRCLE);
+        silence.setContentDescription(getString(R.string.media_phone_silence));
+        silence.setOnClickListener(v -> silence());
+        silenceView = silence;
+        LinearLayout.LayoutParams silenceLp = new LinearLayout.LayoutParams(px(72), px(72));
+        silenceLp.leftMargin = px(14);
+        root.addView(silence, silenceLp);
         TextView hangup = button(R.string.media_phone_hang_up, Ui.DANGER);
         hangup.setOnClickListener(v -> bt.hangup());
         root.addView(hangup, buttonLp());

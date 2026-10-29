@@ -2,6 +2,7 @@ package com.k4811.android.music.ui;
 
 import com.k4811.android.music.ui.music.MusicConfig;
 
+import android.content.Context;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.res.Configuration;
@@ -49,6 +50,12 @@ import java.util.concurrent.Executors;
 
 /** Our USB/SD music screen: current track, transport controls and list. */
 public class MusicActivity extends Activity {
+
+    /** Suite language in the screen context (survives window changes, see Ui.withLanguage). */
+    @Override
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(Ui.withLanguage(base));
+    }
 
     private final Handler handler = new Handler(Looper.getMainLooper());
     private final ExecutorService artLoader = Executors.newSingleThreadExecutor();

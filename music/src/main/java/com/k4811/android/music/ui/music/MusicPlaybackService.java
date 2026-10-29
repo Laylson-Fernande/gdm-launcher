@@ -13,6 +13,7 @@ import android.os.PowerManager;
 import android.util.Log;
 
 import com.k4811.android.music.ui.R;
+import com.k4811.common.audio.MixVolumes;
 import com.k4811.common.audio.PlayerHandoff;
 import com.k4811.common.music.MusicRemote;
 import com.k4811.common.system.NwdConstants;
@@ -73,6 +74,8 @@ public class MusicPlaybackService extends Service {
     /** Track (index) and position (ms) where the last session stopped, to pick up from there. */
     private int resumeIndex = -1;
     private int resumeMs;
+    /** Pausado por perda temporária de foco (ex.: chamada tocando): {@link MusicRemote#CMD_RESUME} retoma. */
+    private boolean pausedByFocus;
 
     private final Runnable progressTick = new Runnable() {
         @Override
@@ -94,9 +97,28 @@ public class MusicPlaybackService extends Service {
     private final AudioManager.OnAudioFocusChangeListener focusListener = focus -> {
         if (focus == AudioManager.AUDIOFOCUS_LOSS
             || focus == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT) {
+            boolean wasPlaying = state.playing;
             pauseInternal(false);
+            pausedByFocus = wasPlaying && focus == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT;
+        } else if (focus == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK) {
+            // Navegação falando: com targetSdk 19 o Android não abaixa sozinho (Configurações › Navegação).
+            setPlayerVolume(MixVolumes.duckVolume(this));
+        } else if (focus == AudioManager.AUDIOFOCUS_GAIN) {
+            setPlayerVolume(1f);
         }
     };
+
+    /** Volume do MediaPlayer (1 = normal; menos enquanto a navegação fala). */
+    private float playerVolume = 1f;
+
+    private void setPlayerVolume(float v) {
+        playerVolume = v;
+        if (player == null) return;
+        try {
+            player.setVolume(v, v);
+        } catch (Exception ignored) {
+        }
+    }
 
     @Override
     public void onCreate() {
@@ -121,7 +143,12 @@ public class MusicPlaybackService extends Service {
         }
         if (intent != null && ACTION_REMOTE.equals(intent.getAction())) {
             int cmd = intent.getIntExtra(MusicRemote.EXTRA_CMD, MusicRemote.CMD_TOGGLE);
-            if (cmd == MusicRemote.CMD_NEXT && !state.tracks.isEmpty()) next();
+            if (cmd == MusicRemote.CMD_RESUME) {
+                if (pausedByFocus && !state.playing) {
+                    Log.d(TAG, "Retomando: a chamada foi silenciada");
+                    toggle();
+                }
+            } else if (cmd == MusicRemote.CMD_NEXT && !state.tracks.isEmpty()) next();
             else if (cmd == MusicRemote.CMD_PREV && !state.tracks.isEmpty()) previous();
             else if (cmd == MusicRemote.CMD_TOGGLE || state.tracks.isEmpty()) toggle();
         }
@@ -348,6 +375,7 @@ public class MusicPlaybackService extends Service {
         player = mp;
         mp.setWakeMode(getApplicationContext(), PowerManager.PARTIAL_WAKE_LOCK);
         mp.setAudioStreamType(AudioManager.STREAM_MUSIC);
+        mp.setVolume(playerVolume, playerVolume);
         mp.setOnPreparedListener(p -> {
             state.durationMs = Math.max(0, p.getDuration());
             if (startMs > 0 && startMs < state.durationMs) {
@@ -411,6 +439,7 @@ public class MusicPlaybackService extends Service {
     }
 
     private void pauseInternal(boolean keepFocus) {
+        pausedByFocus = false;
         if (player != null) {
             try {
                 if (player.isPlaying()) player.pause();
@@ -497,6 +526,7 @@ public class MusicPlaybackService extends Service {
         int r = audio.requestAudioFocus(focusListener, AudioManager.STREAM_MUSIC,
             AudioManager.AUDIOFOCUS_GAIN);
         focusHeld = r == AudioManager.AUDIOFOCUS_REQUEST_GRANTED;
+        if (focusHeld) setPlayerVolume(1f);
         return focusHeld;
     }
 

@@ -1,5 +1,6 @@
 package com.k4811.radio;
 
+import android.content.Context;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
@@ -44,6 +45,12 @@ import java.util.concurrent.Executors;
  * (becomes the audio source). The user can turn it off with Power; "Sair" turns it off and goes home.
  */
 public class RadioActivity extends Activity implements RadioClient.Listener {
+
+    /** Suite language in the screen context (survives window changes, see Ui.withLanguage). */
+    @Override
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(Ui.withLanguage(base));
+    }
 
     private static final int PRESET_SLOTS = 12;
     /** How long Band must be held to start the automatic search. */

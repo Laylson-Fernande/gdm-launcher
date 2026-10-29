@@ -1,34 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Rádio estilizado: corpo arredondado, dial e antena. Área segura 72dp centrais. -->
+<!-- Nota musical (mesmo desenho do IconView do dock, grade 24 escalada x2 na área segura central). -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <!-- antena -->
-    <path
-        android:pathData="M40,40 L66,28"
-        android:strokeWidth="3"
-        android:strokeColor="#FFE9EBEE"
-        android:strokeLineCap="round" />
-    <!-- corpo -->
-    <path
-        android:fillColor="#FFE9EBEE"
-        android:pathData="M34,40 h40 a8,8 0 0 1 8,8 v24 a8,8 0 0 1 -8,8 h-40 a8,8 0 0 1 -8,-8 v-24 a8,8 0 0 1 8,-8 z" />
-    <!-- alto-falante -->
-    <path
-        android:fillColor="#FF0B0E13"
-        android:pathData="M44,60 m-9,0 a9,9 0 1 0 18,0 a9,9 0 1 0 -18,0" />
-    <!-- visor -->
-    <path
-        android:fillColor="#FF0B0E13"
-        android:pathData="M58,50 h16 v8 h-16 z" />
-    <!-- agulha -->
-    <path
-        android:fillColor="#FFE9EBEE"
-        android:pathData="M65,51 h2 v6 h-2 z" />
-    <!-- botões -->
-    <path
-        android:fillColor="#FF0B0E13"
-        android:pathData="M62,68 m-3,0 a3,3 0 1 0 6,0 a3,3 0 1 0 -6,0 M72,68 m-3,0 a3,3 0 1 0 6,0 a3,3 0 1 0 -6,0" />
+    <group
+        android:scaleX="2"
+        android:scaleY="2"
+        android:translateX="30"
+        android:translateY="30">
+        <path
+            android:pathData="M14.5,5 L14.5,16 M14.5,5 L20,7.2 L20,10.4 L14.5,8.2"
+            android:strokeWidth="2"
+            android:strokeColor="#FFE9EBEE"
+            android:strokeLineCap="round"
+            android:strokeLineJoin="round" />
+        <path
+            android:fillColor="#FFE9EBEE"
+            android:pathData="M6.5,17 a4,3 0 1,0 8,0 a4,3 0 1,0 -8,0" />
+    </group>
 </vector>

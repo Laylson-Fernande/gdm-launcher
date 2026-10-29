@@ -1,5 +1,6 @@
 package com.k4811.audioset;
 
+import android.content.Context;
 import android.app.Activity;
 import android.content.res.Configuration;
 import android.os.Bundle;
@@ -30,6 +31,12 @@ import java.util.Locale;
  * The unit's equalizer and sound field.
  */
 public class EqActivity extends Activity {
+
+    /** Suite language in the screen context (survives window changes, see Ui.withLanguage). */
+    @Override
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(Ui.withLanguage(base));
+    }
 
     private static final int TAB_EQ = 0;
     private static final int TAB_SITE = 1;

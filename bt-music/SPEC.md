@@ -19,7 +19,7 @@ Mostra a faixa do celular e manda play/pause/anterior/próxima. O áudio sai do 
 |---|---|
 | `BtMusicActivity` | tela; `claimSource` (`ACTION_APP_IN_OUT` app 15); escuta `com.bt.ACTION_A2DP_ESTABLISHED/RELEASE`, `ACTION_BT_MUSIC_PLAY/PAUSE`, `ACTION_AVRCP_MUSIC_ID3` (`extra_avrcp_id3_title/artist`), `ACTION_AVRCP_ESTABLISHED` |
 | `BackgroundPlayReceiver` | `com.nwd.ACTION_BACKGROUND_MEDIA_PLAY` com `extra_app_id` = 15 → `BtResumeService` |
-| `BtResumeService` | espera o BtClient conectar (até 10 s), `PlayerHandoff.beforeBt`, `claimSource`, `playControl(4)` (play forçado) e para |
+| `BtResumeService` | fica até 90 s esperando o celular: quando o A2DP conecta (`com.bt.ACTION_A2DP_ESTABLISHED`, ou `queryMusicInfo` a cada 2 s) ou o celular começa a tocar sozinho (`ACTION_BT_MUSIC_PLAY`), `PlayerHandoff.beforeBt`, pega a fonte (app 15), `setBtMusicMute(false)` e `playControl(4)` (play forçado); confere 4 s depois e para |
 
 `BtClient.playControl`: 0 play, 1 pause, 2 próxima, 3 anterior, 4 play forçado.
 

@@ -27,6 +27,12 @@ import com.k4811.common.ui.Ui;
  */
 public class BtMusicActivity extends Activity {
 
+    /** Suite language in the screen context (survives window changes, see Ui.withLanguage). */
+    @Override
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(Ui.withLanguage(base));
+    }
+
     private static final int BT_PLAY = 0;
     private static final int BT_PAUSE = 1;
     private static final int BT_NEXT = 2;
@@ -139,10 +145,13 @@ public class BtMusicActivity extends Activity {
             playing = musicPlaying;
             if (name != null && !name.isEmpty()) deviceName = name;
             if (pinCode != null) pin = pinCode;
-            // On A2DP connect, send a forced play once so audio starts.
-            if (connected && !wasConnected && !musicPlaying) {
+            // On A2DP connect, claim the source and unmute (the phone may already be playing on its
+            // own, with no sound until then), and send a forced play once so audio starts.
+            if (connected && !wasConnected) {
                 PlayerHandoff.beforeBt(this);
-                bt.playControl(BT_FORCE_PLAY);
+                claimSource();
+                bt.setMusicMute(false);
+                if (!musicPlaying) bt.playControl(BT_FORCE_PLAY);
             }
             render();
         });
@@ -226,6 +235,8 @@ public class BtMusicActivity extends Activity {
                 a2dp = true;
                 known = true;
                 PlayerHandoff.beforeBt(context);
+                claimSource();
+                bt.setMusicMute(false);
                 bt.playControl(BT_FORCE_PLAY);
                 bt.queryId3();
                 refresh();
