@@ -2,7 +2,8 @@
 <!--
     Mapa integrado (MapScreen): o MapView ocupa tudo e os controles ficam por cima, como no Waze.
     No alto: a busca (sem rota) ou a faixa da próxima manobra (navegando). Embaixo: a prévia da rota
-    (Ir / Cancelar) ou a chegada (hora, tempo, distância, Encerrar). À direita: zoom e centralizar.
+    (Ir / Cancelar) ou a chegada (hora, tempo, distância, Encerrar). À direita: alertas, bússola, zoom
+    e centralizar.
     Feito para uma área de ~860×560 ao lado da música; serve também em tela cheia.
 -->
 <merge xmlns:android="http://schemas.android.com/apk/res/android">
@@ -11,68 +12,6 @@
         android:id="@+id/map_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
-
-    <!-- Busca -->
-    <LinearLayout
-        android:id="@+id/map_search_box"
-        android:layout_width="440dp"
-        android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:background="@drawable/panel"
-        android:orientation="vertical">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="72dp"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:paddingLeft="16dp"
-            android:paddingRight="8dp">
-
-            <com.k4811.common.ui.IconView
-                android:id="@+id/map_search_icon"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
-                android:clickable="false"
-                android:focusable="false" />
-
-            <EditText
-                android:id="@+id/map_search"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_marginLeft="12dp"
-                android:layout_weight="1"
-                android:background="@android:color/transparent"
-                android:hint="@string/map_search_hint"
-                android:imeOptions="actionSearch|flagNoExtractUi|flagNoFullscreen"
-                android:inputType="textPostalAddress"
-                android:singleLine="true"
-                android:textColor="@color/text"
-                android:textColorHint="@color/text_muted"
-                android:textSize="24sp" />
-
-            <com.k4811.common.ui.IconView
-                android:id="@+id/map_search_clear"
-                android:layout_width="56dp"
-                android:layout_height="56dp"
-                android:contentDescription="@string/map_cancel"
-                android:visibility="gone" />
-        </LinearLayout>
-
-        <ScrollView
-            android:id="@+id/map_results_scroll"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:visibility="gone">
-
-            <LinearLayout
-                android:id="@+id/map_results"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:paddingBottom="8dp" />
-        </ScrollView>
-    </LinearLayout>
 
     <!-- Próxima manobra -->
     <LinearLayout
@@ -141,29 +80,36 @@
         </LinearLayout>
     </LinearLayout>
 
-    <!-- Aviso curto (calculando, sem internet…) -->
-    <TextView
-        android:id="@+id/map_message"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal|top"
-        android:layout_marginTop="104dp"
-        android:background="@drawable/pill"
-        android:paddingBottom="10dp"
-        android:paddingLeft="20dp"
-        android:paddingRight="20dp"
-        android:paddingTop="10dp"
-        android:textColor="@color/text"
-        android:textSize="20sp"
-        android:visibility="gone" />
-
-    <!-- Zoom e centralizar -->
+    <!-- Alertas (liga/desliga), bússola (direção do carro / norte para cima), zoom e centralizar -->
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="right|center_vertical"
         android:layout_marginRight="16dp"
         android:orientation="vertical">
+
+        <!-- Encerrar a rota quando a manobra e a chegada estão no painel ao lado (setRouteOutside). -->
+        <com.k4811.common.ui.IconView
+            android:id="@+id/map_end_route"
+            android:layout_width="72dp"
+            android:layout_height="72dp"
+            android:layout_marginBottom="12dp"
+            android:contentDescription="@string/map_end"
+            android:visibility="gone" />
+
+        <com.k4811.map.AlertsButton
+            android:id="@+id/map_alerts"
+            android:layout_width="72dp"
+            android:layout_height="72dp"
+            android:layout_marginBottom="12dp"
+            android:contentDescription="@string/map_alerts" />
+
+        <com.k4811.map.CompassButton
+            android:id="@+id/map_compass"
+            android:layout_width="72dp"
+            android:layout_height="72dp"
+            android:layout_marginBottom="12dp"
+            android:contentDescription="@string/map_compass" />
 
         <com.k4811.common.ui.IconView
             android:id="@+id/map_zoom_in"
@@ -287,7 +233,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
-                android:maxWidth="300dp"
+                android:maxWidth="250dp"
                 android:singleLine="true"
                 android:textColor="@color/text"
                 android:textSize="28sp" />
@@ -297,11 +243,20 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
-                android:maxWidth="300dp"
+                android:maxWidth="250dp"
                 android:singleLine="true"
                 android:textColor="@color/text_muted"
                 android:textSize="20sp" />
         </LinearLayout>
+
+        <!-- Prévia: salvar o destino nos favoritos -->
+        <com.k4811.common.ui.IconView
+            android:id="@+id/map_bottom_star"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:layout_marginLeft="8dp"
+            android:contentDescription="@string/map_favorite_add"
+            android:visibility="gone" />
 
         <TextView
             android:id="@+id/map_secondary"
@@ -328,4 +283,82 @@
             android:textColor="@color/text"
             android:textSize="22sp" />
     </LinearLayout>
+
+    <!-- Busca: depois dos outros controles, para a lista de resultados ficar por cima deles -->
+    <LinearLayout
+        android:id="@+id/map_search_box"
+        android:layout_width="440dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:background="@drawable/panel"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="72dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingLeft="16dp"
+            android:paddingRight="8dp">
+
+            <com.k4811.common.ui.IconView
+                android:id="@+id/map_search_icon"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:clickable="false"
+                android:focusable="false" />
+
+            <EditText
+                android:id="@+id/map_search"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="12dp"
+                android:layout_weight="1"
+                android:background="@android:color/transparent"
+                android:hint="@string/map_search_hint"
+                android:imeOptions="actionSearch|flagNoExtractUi|flagNoFullscreen"
+                android:inputType="textPostalAddress"
+                android:singleLine="true"
+                android:textColor="@color/text"
+                android:textColorHint="@color/text_muted"
+                android:textSize="24sp" />
+
+            <com.k4811.common.ui.IconView
+                android:id="@+id/map_search_clear"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:contentDescription="@string/map_cancel"
+                android:visibility="gone" />
+        </LinearLayout>
+
+        <ScrollView
+            android:id="@+id/map_results_scroll"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone">
+
+            <LinearLayout
+                android:id="@+id/map_results"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingBottom="8dp" />
+        </ScrollView>
+    </LinearLayout>
+
+    <!-- Aviso curto (calculando, sem internet…) -->
+    <TextView
+        android:id="@+id/map_message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal|top"
+        android:layout_marginTop="104dp"
+        android:background="@drawable/pill"
+        android:paddingBottom="10dp"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:paddingTop="10dp"
+        android:textColor="@color/text"
+        android:textSize="20sp"
+        android:visibility="gone" />
 </merge>

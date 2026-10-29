@@ -12,6 +12,8 @@ import com.k4811.common.config.NwdConfigs;
 import com.k4811.map.MapConfig;
 import com.k4811.map.geo.Geo;
 import com.k4811.map.route.Route;
+import com.k4811.map.tiles.Tiles;
+import com.k4811.map.vector.MapStore;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -35,7 +37,9 @@ import java.util.concurrent.Executors;
 import java.util.zip.CRC32;
 
 /**
- * Mantém os dados das vias (radares, limites de velocidade…) atualizados quando há internet:
+ * Mantém atualizados, quando há internet, os dois pacotes baixados do servidor: os dados das vias
+ * (radares, limites de velocidade…, {@link #get}) e o mapa offline ({@link #maps}: ruas, água,
+ * prédios…, desenhado pelo app). As mesmas regras para os dois:
  * <ul>
  * <li><b>Raio:</b> os quadrados num raio de {@value #AREA_KM} km do carro, conferidos a cada
  * período escolhido nas Configurações (1, 7 ou 30 dias) ou quando o carro se afasta
@@ -46,14 +50,17 @@ import java.util.zip.CRC32;
  * os quadrados que mudaram. Sem internet, nada acontece e o mapa usa o que já está no disco (os
  * dados velhos nunca são apagados por idade; só os mais longe saem quando passa do espaço máximo).
  *
- * Estado em {@code /sdcard/K4811/nav/roads/state.json} (também lido pelo car-setting):
+ * O mapa offline também baixa os quadrados de 2° da visão geral ({@code o<x>_<y>}) do raio e da rota.
+ *
+ * Estado em {@code /sdcard/K4811/nav/roads/state.json} e {@code …/maps/state.json} (lidos pelo car-setting):
  * {@code cells} (quadrado → "crc:tamanho" do que está no disco), {@code bytes}, {@code updated}
  * (última conferência completa), {@code data_generated} (quando o servidor gerou os dados),
  * {@code area_lat/area_lon/area_time} e {@code index_etag}.
  */
 public final class RoadSync {
 
-    private static final String TAG = "K4811Road";
+    private static final String TAG_ROADS = "K4811Road";
+    private static final String TAG_MAPS = "K4811MapData";
     static final int AREA_KM = 100;
     static final int AREA_MOVE_KM = 30;
     private static final long DAY_MS = 24L * 60 * 60 * 1000;
@@ -61,15 +68,24 @@ public final class RoadSync {
     private static final long RETRY_MS = 10L * 60 * 1000;
     /** Na rota: quadrados a menos disso da linha também entram (curvas perto da borda). */
     private static final double ROUTE_MARGIN_DEG = 0.02;
+    /** Quadrado da visão geral do mapa offline (graus). */
+    static final double OVERVIEW_DEG = 2.0;
+    /** Baixando o mapa, os tiles na tela são refeitos no máximo a cada tanto. */
+    private static final long REDRAW_MS = 5000;
 
-    private static RoadSync instance;
+    private static RoadSync roads;
+    private static RoadSync maps;
 
     private final Context app;
+    /** Este é o mapa offline (senão, os dados das vias). */
+    private final boolean isMap;
+    private final String TAG;
+    private long lastRedraw;
     private final ExecutorService worker = Executors.newSingleThreadExecutor(r -> {
         Thread t = new Thread(() -> {
             Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND);
             r.run();
-        }, "K4811RoadSync");
+        }, "K4811Sync");
         t.setDaemon(true);
         return t;
     });
@@ -89,14 +105,43 @@ public final class RoadSync {
     /** Quadrados da última rota: não saem na limpeza de espaço. */
     private final Set<String> routeCells = Collections.synchronizedSet(new HashSet<String>());
 
+    /** Dados das vias (radares, limites, lombadas…). */
     public static synchronized RoadSync get(Context c) {
-        if (instance == null) instance = new RoadSync(c.getApplicationContext());
-        return instance;
+        if (roads == null) roads = new RoadSync(c.getApplicationContext(), false);
+        return roads;
     }
 
-    private RoadSync(Context app) {
+    /** Mapa offline (ruas, água, prédios…). */
+    public static synchronized RoadSync maps(Context c) {
+        if (maps == null) maps = new RoadSync(c.getApplicationContext(), true);
+        return maps;
+    }
+
+    /** Posição atual para os dois pacotes (ver {@link #area}). */
+    public static void areaAll(Context c, double lat, double lon) {
+        get(c).area(lat, lon);
+        maps(c).area(lat, lon);
+    }
+
+    /** Rota calculada, para os dois pacotes (ver {@link #route}). */
+    public static void routeAll(Context c, Route r) {
+        get(c).route(r);
+        maps(c).route(r);
+    }
+
+    private RoadSync(Context app, boolean isMap) {
         this.app = app;
+        this.isMap = isMap;
+        TAG = isMap ? TAG_MAPS : TAG_ROADS;
         worker.execute(this::loadState);
+    }
+
+    private File dir() {
+        return isMap ? MapStore.dir() : RoadStore.dir();
+    }
+
+    private String baseUrl(MapConfig cfg) {
+        return isMap ? cfg.mapData : cfg.roadData;
     }
 
     // ------------------------------------------------------------------ gatilhos
@@ -142,6 +187,7 @@ public final class RoadSync {
     }
 
     private boolean enabled() {
+        if (isMap) return LauncherConfig.navOfflineMap(app);
         return LauncherConfig.navCameras(app) || LauncherConfig.navSpeedLimit(app) || LauncherConfig.navRoadAlerts(app);
     }
 
@@ -153,6 +199,7 @@ public final class RoadSync {
 
     private void syncArea(double lat, double lon) {
         List<String> wanted = cellsAround(lat, lon, AREA_KM);
+        if (isMap) wanted.addAll(0, overviewAround(lat, lon, AREA_KM));
         Log.i(TAG, "raio: " + wanted.size() + " quadrados em volta de " + lat + "," + lon);
         if (sync(wanted)) {
             areaLat = lat;
@@ -172,6 +219,7 @@ public final class RoadSync {
 
     private void syncRoute(Route r) {
         List<String> wanted = cellsAlong(r);
+        if (isMap) wanted.addAll(0, overviewAlong(r));
         routeCells.clear();
         routeCells.addAll(wanted);
         Log.i(TAG, "rota: " + wanted.size() + " quadrados");
@@ -184,7 +232,7 @@ public final class RoadSync {
     /** Confere o índice (se venceu) e baixa os quadrados que mudaram; false se a rede falhou. */
     private boolean sync(List<String> wanted) {
         MapConfig cfg = MapConfig.get(app);
-        if (cfg.roadData.isEmpty()) {
+        if (baseUrl(cfg).isEmpty()) {
             // Build sem endereço: não insiste a cada posição.
             lastFailure = System.currentTimeMillis();
             return false;
@@ -193,7 +241,7 @@ public final class RoadSync {
             long now = System.currentTimeMillis();
             boolean stale = now - indexChecked >= Math.min(periodMs(), DAY_MS) || now < indexChecked;
             // Índice ainda válido de antes (o processo reiniciou): usa a cópia do disco.
-            if (index == null && !stale) index = NwdConfigs.read(new File(RoadStore.dir(), "index.json"));
+            if (index == null && !stale) index = NwdConfigs.read(new File(dir(), "index.json"));
             if (index == null || stale) fetchIndex(cfg);
             JSONObject remote = index.optJSONObject("cells");
             JSONObject local = state.optJSONObject("cells");
@@ -218,8 +266,10 @@ public final class RoadSync {
                     download(cfg, name, want);
                 }
                 downloaded++;
+                redraw(false);
             }
             saveState();
+            if (downloaded > 0) redraw(true);
             Log.i(TAG, "conferido: " + wanted.size() + " quadrados, " + downloaded + " baixados");
             return true;
         } catch (Exception e) {
@@ -232,8 +282,8 @@ public final class RoadSync {
 
     private void fetchIndex(MapConfig cfg) throws IOException, JSONException {
         String etag = state.optString("index_etag", null);
-        File cached = new File(RoadStore.dir(), "index.json");
-        HttpURLConnection c = open(cfg, cfg.roadData + "index.json");
+        File cached = new File(dir(), "index.json");
+        HttpURLConnection c = open(cfg, baseUrl(cfg) + "index.json");
         try {
             if (etag != null && cached.isFile()) c.setRequestProperty("If-None-Match", etag);
             int code = c.getResponseCode();
@@ -244,6 +294,7 @@ public final class RoadSync {
                 JSONObject j = new JSONObject(new String(body, "UTF-8"));
                 index = j;
                 writeAtomic(cached, body);
+                if (isMap) MapStore.get().indexChanged();
                 String newEtag = c.getHeaderField("ETag");
                 if (newEtag != null) state.put("index_etag", newEtag);
                 else state.remove("index_etag");
@@ -261,7 +312,7 @@ public final class RoadSync {
 
     private void download(MapConfig cfg, String name, String want) throws IOException, JSONException {
         String[] crcSize = want.split(":");
-        HttpURLConnection c = open(cfg, cfg.roadData + "cells/" + name + ".bin");
+        HttpURLConnection c = open(cfg, baseUrl(cfg) + "cells/" + name + ".bin");
         byte[] body;
         try {
             int code = c.getResponseCode();
@@ -277,21 +328,37 @@ public final class RoadSync {
         }
         writeAtomic(file(name), body);
         state.getJSONObject("cells").put(name, want);
-        int[] xy = xy(name);
-        RoadStore.get().invalidate(xy[0], xy[1]);
+        invalidate(name);
+    }
+
+    private void invalidate(String name) {
+        if (isMap) {
+            MapStore.get().invalidate(name);
+        } else {
+            int[] xy = xy(name);
+            RoadStore.get().invalidate(xy[0], xy[1]);
+        }
+    }
+
+    /** Mapa offline: os tiles na tela são refeitos com o que chegou (no máximo a cada {@link #REDRAW_MS}). */
+    private void redraw(boolean now) {
+        if (!isMap) return;
+        long t = System.currentTimeMillis();
+        if (!now && t - lastRedraw < REDRAW_MS) return;
+        lastRedraw = t;
+        Tiles.get(app).dataChanged();
     }
 
     private void delete(String name) {
         //noinspection ResultOfMethodCallIgnored
         file(name).delete();
         state.optJSONObject("cells").remove(name);
-        int[] xy = xy(name);
-        RoadStore.get().invalidate(xy[0], xy[1]);
+        invalidate(name);
     }
 
     /** Passou do espaço máximo: apaga os quadrados mais longe do centro do raio (fora da rota). */
     private void prune() {
-        long limit = MapConfig.get(app).roadDataBytes;
+        long limit = isMap ? MapConfig.get(app).mapDataBytes : MapConfig.get(app).roadDataBytes;
         JSONObject local = state.optJSONObject("cells");
         long total = 0;
         List<String> names = new ArrayList<>();
@@ -336,6 +403,31 @@ public final class RoadSync {
         return out;
     }
 
+    /** Quadrados da visão geral (2°) a até {@code km} de um ponto. */
+    static List<String> overviewAround(double lat, double lon, int km) {
+        double dLat = km / 110.574;
+        double dLon = km / (111.320 * Math.max(0.1, Math.cos(Math.toRadians(lat))));
+        List<String> out = new ArrayList<>();
+        for (int y = ovCell(lat - dLat, 90); y <= ovCell(lat + dLat, 90); y++) {
+            for (int x = ovCell(lon - dLon, 180); x <= ovCell(lon + dLon, 180); x++) {
+                String name = "o" + x + "_" + y;
+                if (cellDistance(name, lat, lon) <= km * 1000) out.add(name);
+            }
+        }
+        return out;
+    }
+
+    /** Quadrados da visão geral por onde a rota passa. */
+    static List<String> overviewAlong(Route r) {
+        LinkedHashSet<String> out = new LinkedHashSet<>();
+        for (int i = 0; i < r.size(); i++) out.add("o" + ovCell(r.lon[i], 180) + "_" + ovCell(r.lat[i], 90));
+        return new ArrayList<>(out);
+    }
+
+    private static int ovCell(double deg, double offset) {
+        return (int) Math.floor((deg + offset) / OVERVIEW_DEG);
+    }
+
     /** Quadrados por onde a rota passa (com uma margem), na ordem do caminho. */
     static List<String> cellsAlong(Route r) {
         return cellsAlong(r, 0, Double.MAX_VALUE);
@@ -367,7 +459,7 @@ public final class RoadSync {
     /** Distância em metros do ponto até o retângulo do quadrado (0 se estiver dentro). */
     static double cellDistance(String name, double lat, double lon) {
         int[] xy = xy(name);
-        double d = RoadCell.CELL_DEG;
+        double d = name.startsWith("o") ? OVERVIEW_DEG : RoadCell.CELL_DEG;
         double s = xy[1] * d - 90, w = xy[0] * d - 180;
         double la = Math.max(s, Math.min(s + d, lat));
         double lo = Math.max(w, Math.min(w + d, lon));
@@ -376,11 +468,12 @@ public final class RoadSync {
 
     static int[] xy(String name) {
         int u = name.indexOf('_');
-        return new int[]{Integer.parseInt(name.substring(0, u)), Integer.parseInt(name.substring(u + 1))};
+        int start = name.startsWith("o") ? 1 : 0;
+        return new int[]{Integer.parseInt(name.substring(start, u)), Integer.parseInt(name.substring(u + 1))};
     }
 
-    private static File file(String name) {
-        return new File(RoadStore.cellsDir(), name + ".bin");
+    private File file(String name) {
+        return new File(new File(dir(), "cells"), name + ".bin");
     }
 
     private static long size(String crcSize) {
@@ -395,7 +488,7 @@ public final class RoadSync {
     // ------------------------------------------------------------------ estado e rede
 
     private void loadState() {
-        JSONObject j = NwdConfigs.read(new File(RoadStore.dir(), "state.json"));
+        JSONObject j = NwdConfigs.read(new File(dir(), "state.json"));
         state = j == null ? new JSONObject() : j;
         try {
             if (state.optJSONObject("cells") == null) state.put("cells", new JSONObject());
@@ -411,7 +504,7 @@ public final class RoadSync {
     }
 
     private void saveState() {
-        File dir = RoadStore.dir();
+        File dir = dir();
         if (!dir.isDirectory() && !dir.mkdirs()) return;
         NwdConfigs.write(new File(dir, "state.json"), state);
     }

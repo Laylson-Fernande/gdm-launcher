@@ -5,10 +5,13 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
+import android.graphics.LinearGradient;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.graphics.Shader;
 import android.os.SystemClock;
 import android.util.AttributeSet;
 import android.view.Choreographer;
@@ -26,8 +29,18 @@ import com.k4811.map.tiles.Tiles;
  * seta do carro. Sem bibliotecas.
  *
  * Câmera: centro em coordenadas de mundo (ver {@link Geo}), zoom e rumo (o rumo que fica para cima).
- * No modo navegação o mapa gira com o carro e o carro fica no terço de baixo, como no Waze. Animações
- * a ~30 quadros por segundo, só enquanto algo se mexe (central de 1,5 GHz).
+ * Seguindo o carro, o mapa gira com ele (direção do carro para cima) ou fica com o norte para cima,
+ * conforme a bússola ({@link #setHeadingUp}). No modo navegação com a direção para cima, o carro fica
+ * no terço de baixo, como no Waze, e o zoom acompanha a velocidade e, com o zoom dinâmico, a distância
+ * até a próxima manobra ou alerta. Animações a ~30 quadros por segundo, só enquanto algo se mexe
+ * (central de 1,5 GHz).
+ *
+ * Perspectiva ({@link #setPerspective}): com a direção para cima, o chão inclina como numa câmera atrás
+ * do carro olhando para a frente (como no Waze). É uma projeção sobre o desenho plano: "plano" =
+ * pixels do mapa já girados, relativos à âncora (x para a direita, y para baixo); na tela,
+ * {@code (x / w, y·cos θ / w)} com {@code w = 1 − y·sen θ / D}. Perto do carro a escala é a mesma do
+ * mapa plano; à frente as coisas diminuem. Os tiles longe (escala < {@link #FAR_SCALE}) vêm do zoom de
+ * cima, para não carregar o dobro de tiles por um detalhe que não se vê.
  */
 public class MapView extends View implements Tiles.Listener {
 
@@ -37,6 +50,9 @@ public class MapView extends View implements Tiles.Listener {
 
         /** Toque longo num ponto do mapa. */
         void onLongPress(double lat, double lon);
+
+        /** O rumo do mapa (graus, o que fica para cima) mudou: a bússola gira junto. */
+        void onBearingChanged(float bearing);
     }
 
     private static final float MIN_ZOOM = 3;
@@ -45,6 +61,19 @@ public class MapView extends View implements Tiles.Listener {
     /** Espera entre quadros animados (entre 1 e 2 vsyncs de 60 Hz). */
     private static final long FRAME_SKIP_MS = 20;
     private static final long FIX_ANIM_MS = 950;
+    /** Zoom dinâmico: o mais perto que chega numa manobra ou alerta. */
+    private static final float NAV_NEAR_ZOOM = 17.8f;
+    /** Zoom dinâmico: quanto afasta além do zoom da velocidade quando o próximo evento está longe. */
+    private static final float NAV_FAR_EXTRA = 0.7f;
+    /** Zoom mudado à mão navegando: o automático espera este tempo para voltar. */
+    private static final long MANUAL_ZOOM_MS = 15000;
+    /** Inclinação da perspectiva (graus a partir da vista de cima). */
+    private static final float TILT_DEG = 42;
+    /** Distância da câmera, em alturas da View: menor = perspectiva mais forte. */
+    private static final float TILT_DISTANCE = 1.5f;
+    /** Tile que aparece com menos que esta escala vem do zoom de cima (metade da resolução). */
+    private static final float FAR_SCALE = 0.62f;
+    private static final long TILT_ANIM_MS = 600;
 
     private final Tiles tiles;
     private final float tilePx;
@@ -59,6 +88,34 @@ public class MapView extends View implements Tiles.Listener {
     private float anchorY = 0.5f;
     private boolean follow = true;
     private boolean navigating;
+    /** Seguindo o carro: true = direção do carro para cima; false = norte para cima. */
+    private boolean headingUp = true;
+    private boolean autoZoom = true;
+    /** Metros até a próxima manobra ou alerta (o que vier antes); NaN = nada à frente. */
+    private double focusAhead = Double.NaN;
+    private long manualZoomUntil;
+    private float notifiedBearing;
+    /** Perspectiva ligada (opção); vale com a direção para cima e fora da prévia da rota. */
+    private boolean perspective = true;
+    /** Mostrando a rota inteira (prévia): sem perspectiva até voltar a seguir o carro. */
+    private boolean overview;
+    /** Inclinação atual, 0 (de cima) a 1 ({@link #TILT_DEG}), e a projeção dela (ver {@link #setTiltValues}). */
+    private float tilt;
+    private float tiltFrom;
+    private float tiltTo;
+    private long tiltStart;
+    private float tiltCos = 1;
+    /** sen θ / D: quanto {@code w} cresce por pixel à frente. */
+    private float tiltK;
+    private final Matrix tiltMatrix = new Matrix();
+    private final float[] tiltValues = new float[9];
+    /** Retângulo da tela no plano (trapézio), para escolher os tiles: x0,y0 … x3,y3. */
+    private final float[] ground = new float[8];
+    private long[] farKeys = new long[32];
+    private Shader haze;
+    private int hazeColor;
+    private int hazeHeight;
+    private final Paint hazePaint = new Paint();
 
     // Animação da câmera (zoom e rumo) e do carro.
     private float zoomFrom;
@@ -96,6 +153,8 @@ public class MapView extends View implements Tiles.Listener {
     private float[] lines = new float[0];
 
     private final Paint tilePaint = new Paint(Paint.FILTER_BITMAP_FLAG);
+    /** Tiles do mapa próprio: já vêm no tema, sem o filtro escuro. */
+    private final Paint vectorPaint = new Paint(Paint.FILTER_BITMAP_FLAG);
     private final Paint emptyPaint = new Paint();
     private final Paint casingPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint routePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -188,7 +247,7 @@ public class MapView extends View implements Tiles.Listener {
             public boolean onScroll(MotionEvent e1, MotionEvent e2, float dx, float dy) {
                 if (scale.isInProgress()) return true;
                 setFollowInternal(false);
-                panBy(dx, dy);
+                panBy(e2.getX(), e2.getY(), dx, dy);
                 invalidate();
                 return true;
             }
@@ -204,6 +263,7 @@ public class MapView extends View implements Tiles.Listener {
 
             @Override
             public boolean onDoubleTap(MotionEvent e) {
+                markManualZoom();
                 zoomAround(follow ? getWidth() / 2f : e.getX(), follow ? getHeight() * anchorY : e.getY(), 1);
                 return true;
             }
@@ -219,6 +279,7 @@ public class MapView extends View implements Tiles.Listener {
             @Override
             public boolean onScale(ScaleGestureDetector d) {
                 float dz = (float) (Math.log(d.getScaleFactor()) / Math.log(2));
+                markManualZoom();
                 float fx = follow ? getWidth() / 2f : d.getFocusX();
                 float fy = follow ? getHeight() * anchorY : d.getFocusY();
                 zoomAt(fx, fy, zoom + dz);
@@ -227,6 +288,8 @@ public class MapView extends View implements Tiles.Listener {
                 return true;
             }
         });
+        tilt = tiltTo = perspective && headingUp ? 1f : 0f;
+        anchorY = navAnchor();
     }
 
     public void setListener(Listener l) {
@@ -276,6 +339,7 @@ public class MapView extends View implements Tiles.Listener {
         if (dark == on) return;
         dark = on;
         tilePaint.setColorFilter(on ? darkFilter() : null);
+        tiles.setDark(on);
         emptyPaint.setColor(on ? 0xFF1B1E22 : 0xFFE8E4DC);
         textPaint.setColor(on ? 0xFFCCCCCC : 0xFF333333);
         textBg.setColor(on ? 0x99000000 : 0xB3FFFFFF);
@@ -315,11 +379,18 @@ public class MapView extends View implements Tiles.Listener {
     /** Volta a seguir o carro (botão "centralizar"). */
     public void setFollow(boolean on) {
         setFollowInternal(on);
+        if (on) setOverview(false);
         if (on && !Double.isNaN(carX)) {
             animateCamera(carX, carY, 600);
-            if (navigating && !Float.isNaN(carHeading)) animateBearing(carHeading, 600);
+            animateBearing(followBearing(), 600);
         }
         schedule();
+    }
+
+    /** Rumo da câmera seguindo o carro: o do carro (direção para cima) ou 0 (norte para cima). */
+    private float followBearing() {
+        if (!headingUp) return 0;
+        return Float.isNaN(carHeading) ? bearing : carHeading;
     }
 
     private void setFollowInternal(boolean on) {
@@ -329,20 +400,112 @@ public class MapView extends View implements Tiles.Listener {
     }
 
     /**
-     * Modo navegação: mapa girando com o carro, carro no terço de baixo e zoom pela velocidade.
-     * Fora dele: norte para cima e carro no meio.
+     * Modo navegação: zoom pela velocidade (e pela próxima manobra, com o zoom dinâmico) e, com a
+     * direção para cima, o carro no terço de baixo. Fora dele: carro no meio (ou embaixo, com perspectiva).
      */
     public void setNavigating(boolean on) {
         navigating = on;
-        anchorY = on ? 0.72f : 0.5f;
-        if (!on) animateBearing(0, 500);
-        else if (!Float.isNaN(carHeading)) animateBearing(carHeading, 500);
+        manualZoomUntil = 0;
+        overview = false;
+        updateTilt();
+        anchorY = navAnchor();
+        animateBearing(followBearing(), 500);
         if (on) animateZoom(17, 600);
         schedule();
     }
 
+    /** Altura do carro na tela: no terço de baixo navegando ou com perspectiva (direção para cima). */
+    private float navAnchor() {
+        return headingUp && (navigating || tiltTo > 0) ? 0.72f : 0.5f;
+    }
+
+    /** Bússola: direção do carro para cima (true) ou norte para cima (false). */
+    public void setHeadingUp(boolean on) {
+        if (headingUp == on) return;
+        headingUp = on;
+        updateTilt();
+        // Norte para cima vale também com o mapa solto; direção para cima só seguindo o carro.
+        if (follow || !on) animateBearing(followBearing(), 500);
+        schedule();
+    }
+
+    public boolean isHeadingUp() {
+        return headingUp;
+    }
+
+    /** Visão em perspectiva (câmera atrás do carro) com a direção para cima. */
+    public void setPerspective(boolean on) {
+        if (perspective == on) return;
+        perspective = on;
+        updateTilt();
+        schedule();
+    }
+
+    private void setOverview(boolean on) {
+        if (overview == on) return;
+        overview = on;
+        updateTilt();
+    }
+
+    /**
+     * Anima a inclinação até a que vale agora (perspectiva, direção para cima, fora da prévia) e, seguindo
+     * o carro, põe ele na altura certa.
+     */
+    private void updateTilt() {
+        float target = perspective && headingUp && !overview ? 1f : 0f;
+        if (target != tiltTo) {
+            tiltFrom = tilt;
+            tiltTo = target;
+            tiltStart = SystemClock.uptimeMillis();
+            schedule();
+        }
+        if (follow) anchorY = navAnchor();
+    }
+
+    /** Projeção da inclinação {@code t} (0..1) para a altura atual da View. */
+    private void setTiltValues(float t) {
+        tilt = t;
+        double th = Math.toRadians(TILT_DEG * t);
+        tiltCos = (float) Math.cos(th);
+        float d = Math.max(1, getHeight()) * TILT_DISTANCE;
+        tiltK = (float) (Math.sin(th) / d);
+        // (x, y, 1) → (x, y·cos, 1 − y·k)
+        tiltValues[Matrix.MSCALE_X] = 1;
+        tiltValues[Matrix.MSKEW_X] = 0;
+        tiltValues[Matrix.MTRANS_X] = 0;
+        tiltValues[Matrix.MSKEW_Y] = 0;
+        tiltValues[Matrix.MSCALE_Y] = tiltCos;
+        tiltValues[Matrix.MTRANS_Y] = 0;
+        tiltValues[Matrix.MPERSP_0] = 0;
+        tiltValues[Matrix.MPERSP_1] = -tiltK;
+        tiltValues[Matrix.MPERSP_2] = 1;
+        tiltMatrix.setValues(tiltValues);
+    }
+
+    /** y no plano de um y da tela (relativos à âncora); acima do horizonte, o ponto mais longe possível. */
+    private float flatY(float dy) {
+        float den = Math.max(0.05f, tiltCos + dy * tiltK);
+        return dy / den;
+    }
+
+    /** Zoom dinâmico navegando (aproxima perto da manobra/alerta, afasta quando estão longe). */
+    public void setAutoZoom(boolean on) {
+        autoZoom = on;
+    }
+
+    /** Metros até a próxima manobra ou alerta, o que vier antes; NaN se não há nada à frente. */
+    public void setFocusAhead(double meters) {
+        focusAhead = meters;
+    }
+
     public void zoomBy(float dz) {
+        markManualZoom();
         zoomAround(getWidth() / 2f, getHeight() * anchorY, dz);
+    }
+
+    /** Navegando, o zoom à mão vale por um tempo antes de o automático voltar. */
+    private void markManualZoom() {
+        if (navigating) manualZoomUntil = SystemClock.uptimeMillis() + MANUAL_ZOOM_MS;
     }
 
     /** Posição do GPS: a seta anda até lá em ~1 s; a câmera vai junto se estiver seguindo. */
@@ -373,10 +536,8 @@ public class MapView extends View implements Tiles.Listener {
                 cy = y;
                 if (zoom < 14) animateZoom(16, 700);
             }
-            if (navigating) {
-                if (!Float.isNaN(carHeading)) animateBearing(carHeading, FIX_ANIM_MS);
-                animateZoom(zoomForSpeed(speedMps), 2500);
-            }
+            if (headingUp && !Float.isNaN(carHeading)) animateBearing(carHeading, FIX_ANIM_MS);
+            if (navigating && now >= manualZoomUntil) animateZoom(navZoom(speedMps), 2500);
         }
         schedule();
     }
@@ -449,6 +610,7 @@ public class MapView extends View implements Tiles.Listener {
         double scaleY = h / (spanY * 256 * dp);
         float z = (float) (Math.log(Math.min(scaleX, scaleY)) / Math.log(2));
         setFollowInternal(false);
+        setOverview(true);
         anchorY = 0.5f;
         // Centro do retângulo útil, deslocado pelas margens de cima e de baixo.
         double centerY = (minY + maxY) / 2;
@@ -468,6 +630,8 @@ public class MapView extends View implements Tiles.Listener {
         int h = getHeight();
         if (w == 0 || h == 0) return;
         tiles.beginFrame();
+        setTiltValues(tilt);
+        boolean tilted = tilt > 0.001f;
         float ax = w / 2f;
         float ay = h * anchorY;
         int z = Math.max(2, Math.min(maxTileZoom, Math.round(zoom)));
@@ -476,42 +640,128 @@ public class MapView extends View implements Tiles.Listener {
         double worldPx = (double) tilePx * n;
         double cpx = cx * worldPx;
         double cpy = cy * worldPx;
-        float r = (float) (Math.hypot(Math.max(ax, w - ax), Math.max(ay, h - ay)) / s) + 1;
+        // A tela no plano: um retângulo (sem inclinação) ou um trapézio que abre para a frente.
+        groundQuad(w, h, ax, ay);
+        float r = 0;
+        for (int i = 0; i < 8; i += 2) r = Math.max(r, (float) Math.hypot(ground[i], ground[i + 1]));
+        r = r / s + 1;
         int x0 = (int) Math.floor((cpx - r) / tilePx);
         int x1 = (int) Math.floor((cpx + r) / tilePx);
         int y0 = Math.max(0, (int) Math.floor((cpy - r) / tilePx));
         int y1 = Math.min(n - 1, (int) Math.floor((cpy + r) / tilePx));
+        double rad = Math.toRadians(-bearing);
+        float cos = (float) Math.cos(rad);
+        float sin = (float) Math.sin(rad);
+        float half = tilePx * s / 2f;
+        float halfDiag = half * 1.415f;
 
         canvas.drawColor(emptyPaint.getColor());
         canvas.save();
         canvas.translate(ax, ay);
+        if (tilted) canvas.concat(tiltMatrix);
         canvas.rotate(-bearing);
         canvas.scale(s, s);
-        float rr = r * r;
-        for (int ty = y0; ty <= y1; ty++) {
-            for (int tx = x0; tx <= x1; tx++) {
-                float left = (float) (tx * (double) tilePx - cpx);
-                float top = (float) (ty * (double) tilePx - cpy);
-                // Fora do círculo que cobre a tela girada: pula.
-                float nx = Math.max(left, Math.min(0, left + tilePx));
-                float ny = Math.max(top, Math.min(0, top + tilePx));
-                if (nx * nx + ny * ny > rr) continue;
-                int wx = ((tx % n) + n) % n;
-                dst.set(left, top, left + tilePx + 0.6f, top + tilePx + 0.6f);
-                Bitmap b = tiles.get(z, wx, ty);
-                if (b != null) {
-                    canvas.drawBitmap(b, null, dst, tilePaint);
-                } else {
-                    drawParent(canvas, z, wx, ty);
+        // Primeiro os tiles longe, do zoom de cima (por baixo); depois os de perto, por cima deles.
+        int far = 0;
+        for (int pass = 0; pass < 2; pass++) {
+            for (int ty = y0; ty <= y1; ty++) {
+                for (int tx = x0; tx <= x1; tx++) {
+                    float left = (float) (tx * (double) tilePx - cpx);
+                    float top = (float) (ty * (double) tilePx - cpy);
+                    // Centro do tile no plano (girado e na escala da tela).
+                    float lx = (left + tilePx / 2f) * s;
+                    float ly = (top + tilePx / 2f) * s;
+                    float fx = lx * cos - ly * sin;
+                    float fy = lx * sin + ly * cos;
+                    if (!nearGround(fx, fy, halfDiag)) continue;
+                    // Tile longe (pequeno na tela): o pai, uma vez só, na primeira passada.
+                    boolean isFar = tilted && z > 3 && (1 - (fy + half) * tiltK) * FAR_SCALE > 1;
+                    if (pass == 0) {
+                        if (!isFar) continue;
+                        long k = Tiles.key(z - 1, tx >> 1, ty >> 1);
+                        boolean seen = false;
+                        for (int i = 0; i < far && !seen; i++) seen = farKeys[i] == k;
+                        if (seen) continue;
+                        if (far == farKeys.length) farKeys = java.util.Arrays.copyOf(farKeys, far * 2);
+                        farKeys[far++] = k;
+                        float pl = (float) ((tx >> 1) * 2.0 * tilePx - cpx);
+                        float pt0 = (float) ((ty >> 1) * 2.0 * tilePx - cpy);
+                        drawTile(canvas, z - 1, tx >> 1, ty >> 1, pl, pt0, tilePx * 2);
+                    } else {
+                        if (isFar) continue;
+                        drawTile(canvas, z, tx, ty, left, top, tilePx);
+                    }
                 }
             }
         }
         canvas.restore();
 
+        if (tilted) drawHaze(canvas, w, h);
         drawRoute(canvas, ax, ay);
         if (!Double.isNaN(destX)) drawPin(canvas, ax, ay);
         if (!Double.isNaN(carX)) drawCar(canvas, ax, ay);
         drawAttribution(canvas, w, h);
+    }
+
+    /** Um tile (ou, sem ele, o pedaço de um pai em memória) em {@code size} pixels do plano do zoom. */
+    private void drawTile(Canvas canvas, int z, int tx, int ty, float left, float top, float size) {
+        int n = 1 << z;
+        int wx = ((tx % n) + n) % n;
+        dst.set(left, top, left + size + 0.6f, top + size + 0.6f);
+        Bitmap b = tiles.get(z, wx, ty);
+        if (b != null) {
+            canvas.drawBitmap(b, null, dst, tiles.isVector(b) ? vectorPaint : tilePaint);
+        } else {
+            drawParent(canvas, z, wx, ty);
+        }
+    }
+
+    /** Os 4 cantos da tela (com uma margem) no plano, relativos à âncora, em {@link #ground}. */
+    private void groundQuad(int w, int h, float ax, float ay) {
+        float m = 8 * dp;
+        float top = flatY(-ay - m);
+        float bottom = flatY(h - ay + m);
+        float wt = 1 - top * tiltK;
+        float wb = 1 - bottom * tiltK;
+        float l = -ax - m;
+        float rr = w - ax + m;
+        ground[0] = l * wt;
+        ground[1] = top;
+        ground[2] = rr * wt;
+        ground[3] = top;
+        ground[4] = rr * wb;
+        ground[5] = bottom;
+        ground[6] = l * wb;
+        ground[7] = bottom;
+    }
+
+    /** O ponto (fx, fy) do plano está a até {@code pad} do trapézio da tela. */
+    private boolean nearGround(float fx, float fy, float pad) {
+        for (int i = 0; i < 8; i += 2) {
+            float ex = ground[(i + 2) % 8] - ground[i];
+            float ey = ground[(i + 3) % 8] - ground[i + 1];
+            float len = (float) Math.hypot(ex, ey);
+            if (len == 0) continue;
+            // Cantos no sentido horário na tela (y para baixo): dentro = produto vetorial positivo.
+            float cross = (ex * (fy - ground[i + 1]) - ey * (fx - ground[i])) / len;
+            if (cross < -pad) return false;
+        }
+        return true;
+    }
+
+    /** Névoa no alto da tela, onde o chão vai longe: some com o detalhe pequeno demais. */
+    private void drawHaze(Canvas canvas, int w, int h) {
+        int color = emptyPaint.getColor();
+        int height = Math.round(h * 0.28f);
+        if (haze == null || hazeColor != color || hazeHeight != height) {
+            hazeColor = color;
+            hazeHeight = height;
+            haze = new LinearGradient(0, 0, 0, height, (color & 0xFFFFFF) | 0xE6000000, color & 0xFFFFFF,
+                Shader.TileMode.CLAMP);
+            hazePaint.setShader(haze);
+        }
+        hazePaint.setAlpha(Math.round(255 * tilt));
+        canvas.drawRect(0, 0, w, height, hazePaint);
     }
 
     /** Enquanto o tile não chega, um pedaço ampliado de um tile de zoom menor que já está em memória. */
@@ -524,7 +774,7 @@ public class MapView extends View implements Tiles.Listener {
             int sx = (x - ((x >> dz) << dz)) * size;
             int sy = (y - ((y >> dz) << dz)) * size;
             src.set(sx, sy, sx + size, sy + size);
-            canvas.drawBitmap(p, src, dst, tilePaint);
+            canvas.drawBitmap(p, src, dst, tiles.isVector(p) ? vectorPaint : tilePaint);
             return;
         }
     }
@@ -544,35 +794,80 @@ public class MapView extends View implements Tiles.Listener {
         float margin = 40 * dp;
         float right = getWidth() + margin;
         float bottom = getHeight() + margin;
+        // Com perspectiva, o trecho que passa do alto da tela (rumo ao horizonte) é cortado no plano.
+        float farY = tiltK > 0 ? flatY(-ay - margin) : Float.NEGATIVE_INFINITY;
+        // Último ponto usado, no plano e na tela (a tela só vale se ele não foi cortado).
+        float pfx = 0;
+        float pfy = 0;
         int from = Math.max(0, Math.min(routeFrom, rt.size() - 1));
         for (int i = from; i < rt.size(); i++) {
             float dx = (float) ((rt.wx[i] - cx) * scale);
             float dy = (float) ((rt.wy[i] - cy) * scale);
-            float sx = ax + dx * cos - dy * sin;
-            float sy = ay + dx * sin + dy * cos;
-            if (have) {
-                // Pontos colados não mudam nada na tela: pula (menos o último).
-                if (i < rt.size() - 1 && Math.abs(sx - px) < minStep && Math.abs(sy - py) < minStep) continue;
-                // Trecho inteiro fora da tela (os dois pontos do mesmo lado): não manda desenhar.
-                boolean out = (sx < -margin && px < -margin) || (sx > right && px > right)
-                    || (sy < -margin && py < -margin) || (sy > bottom && py > bottom);
-                if (out) {
-                    px = sx;
-                    py = sy;
-                    continue;
-                }
-                lines[count++] = px;
-                lines[count++] = py;
-                lines[count++] = sx;
-                lines[count++] = sy;
+            float fx = dx * cos - dy * sin;
+            float fy = dx * sin + dy * cos;
+            if (!have) {
+                pfx = fx;
+                pfy = fy;
+                pt[0] = fx;
+                pt[1] = fy;
+                project(pt);
+                px = ax + pt[0];
+                py = ay + pt[1];
+                have = true;
+                continue;
             }
+            if (fy < farY && pfy < farY) {
+                // Os dois lá na frente, depois do alto da tela.
+                pfx = fx;
+                pfy = fy;
+                continue;
+            }
+            float sx0 = px;
+            float sy0 = py;
+            if (pfy < farY) {
+                pt[0] = pfx + (fx - pfx) * (farY - pfy) / (fy - pfy);
+                pt[1] = farY;
+                project(pt);
+                sx0 = ax + pt[0];
+                sy0 = ay + pt[1];
+            }
+            if (fy < farY) {
+                pt[0] = pfx + (fx - pfx) * (farY - pfy) / (fy - pfy);
+                pt[1] = farY;
+            } else {
+                pt[0] = fx;
+                pt[1] = fy;
+            }
+            project(pt);
+            float sx = ax + pt[0];
+            float sy = ay + pt[1];
+            // Pontos colados não mudam nada na tela: pula (menos o último).
+            if (pfy >= farY && i < rt.size() - 1 && Math.abs(sx - sx0) < minStep && Math.abs(sy - sy0) < minStep) {
+                continue;
+            }
+            pfx = fx;
+            pfy = fy;
             px = sx;
             py = sy;
-            have = true;
+            // Trecho inteiro fora da tela (os dois pontos do mesmo lado): não manda desenhar.
+            boolean out = (sx < -margin && sx0 < -margin) || (sx > right && sx0 > right)
+                || (sy < -margin && sy0 < -margin) || (sy > bottom && sy0 > bottom);
+            if (out) continue;
+            lines[count++] = sx0;
+            lines[count++] = sy0;
+            lines[count++] = sx;
+            lines[count++] = sy;
         }
         if (count == 0) return;
         canvas.drawLines(lines, 0, count, casingPaint);
         canvas.drawLines(lines, 0, count, routePaint);
+    }
+
+    /** Ponto do plano (relativo à âncora) → tela (relativo à âncora), em {@code p}. */
+    private void project(float[] p) {
+        float w = Math.max(0.05f, 1 - p[1] * tiltK);
+        p[0] = p[0] / w;
+        p[1] = p[1] * tiltCos / w;
     }
 
     private void drawPin(Canvas canvas, float ax, float ay) {
@@ -592,11 +887,27 @@ public class MapView extends View implements Tiles.Listener {
             canvas.drawCircle(0, 0, 11 * dp, carPaint);
             canvas.drawCircle(0, 0, 11 * dp, carEdge);
         } else {
-            canvas.rotate(carHeading - bearing);
+            canvas.rotate(screenAngle(carHeading - bearing, pt[0] - ax, pt[1] - ay));
             canvas.drawPath(carPath, carPaint);
             canvas.drawPath(carPath, carEdge);
         }
         canvas.restore();
+    }
+
+    /**
+     * Ângulo na tela de uma direção {@code angle} (graus, já relativa ao rumo do mapa) que sai do ponto
+     * (sx, sy) da tela (relativo à âncora): com perspectiva, as direções "abrem" para os lados.
+     */
+    private float screenAngle(float angle, float sx, float sy) {
+        if (tiltK <= 0) return angle;
+        float fy = flatY(sy);
+        float fx = sx * (1 - fy * tiltK);
+        double a = Math.toRadians(angle);
+        float step = 20 * dp;
+        pt[0] = fx + (float) Math.sin(a) * step;
+        pt[1] = fy - (float) Math.cos(a) * step;
+        project(pt);
+        return (float) Math.toDegrees(Math.atan2(pt[0] - sx, sy - pt[1]));
     }
 
     private void drawAttribution(Canvas canvas, int w, int h) {
@@ -665,9 +976,19 @@ public class MapView extends View implements Tiles.Listener {
                 bearingDur = 0;
                 bearing = (bearing % 360 + 360) % 360;
             }
+            if (listener != null && Math.abs(Geo.angleDiff(notifiedBearing, bearing)) >= 1) {
+                notifiedBearing = bearing;
+                listener.onBearingChanged(bearing);
+            }
+        }
+        if (tilt != tiltTo) {
+            float t = ease(Math.min(1f, (now - tiltStart) / (float) TILT_ANIM_MS));
+            tilt = tiltFrom + (tiltTo - tiltFrom) * t;
+            if (t < 1f) more = true;
+            else tilt = tiltTo;
         }
         if (flingX != 0 || flingY != 0) {
-            panBy(flingX, flingY);
+            panBy(getWidth() / 2f, getHeight() * anchorY, flingX, flingY);
             flingX *= 0.85f;
             flingY *= 0.85f;
             if (Math.abs(flingX) < 0.5f && Math.abs(flingY) < 0.5f) {
@@ -713,6 +1034,36 @@ public class MapView extends View implements Tiles.Listener {
         bearingDur = ms;
     }
 
+    /**
+     * Zoom da navegação. Sem o zoom dinâmico: só pela velocidade. Com ele: um pouco mais longe que o
+     * da velocidade quando a próxima manobra (ou alerta) está longe e, chegando perto, o zoom em que
+     * ela cabe na parte da tela à frente do carro, até {@link #NAV_NEAR_ZOOM}. Em passos de 0,1 para
+     * não refazer a animação por diferenças que não se veem.
+     */
+    private float navZoom(float mps) {
+        float base = zoomForSpeed(mps);
+        if (!autoZoom) return base;
+        float far = base - NAV_FAR_EXTRA;
+        double d = focusAhead;
+        if (Double.isNaN(d) || getHeight() == 0 || Double.isNaN(carToY)) return far;
+        // Espaço à frente do carro: com a direção para cima, do carro até embaixo da faixa da manobra;
+        // com o norte para cima a manobra pode estar para qualquer lado, então o menor meio da tela.
+        float room = headingUp ? getHeight() * anchorY - 140 * dp : Math.min(getWidth(), getHeight()) / 2f - 40 * dp;
+        room = Math.max(80 * dp, room);
+        // Com perspectiva cabe mais chão à frente na mesma altura de tela (na inclinação de destino).
+        if (headingUp && tiltTo > 0) {
+            float save = tilt;
+            setTiltValues(tiltTo);
+            room = -flatY(-room);
+            setTiltValues(save);
+        }
+        room *= 0.8f;
+        double perWorld = Geo.metersPerWorld(Geo.lat(carToY));
+        double fit = Math.log(room * perWorld / (tilePx * Math.max(60, d))) / Math.log(2);
+        float z = (float) Math.max(far, Math.min(NAV_NEAR_ZOOM, fit));
+        return Math.round(z * 10) / 10f;
+    }
+
     /** Zoom da navegação: mais perto devagar, mais longe na estrada. */
     private static float zoomForSpeed(float mps) {
         float kmh = mps * 3.6f;
@@ -734,13 +1085,15 @@ public class MapView extends View implements Tiles.Listener {
         return a || b || super.onTouchEvent(e);
     }
 
-    private void panBy(float dx, float dy) {
-        double scale = tilePx * Math.pow(2, zoom);
-        double rad = Math.toRadians(bearing);
-        double wx = (dx * Math.cos(rad) - dy * Math.sin(rad)) / scale;
-        double wy = (dx * Math.sin(rad) + dy * Math.cos(rad)) / scale;
-        cx = (cx + wx + 1) % 1;
-        cy = Math.max(0, Math.min(1, cy + wy));
+    /**
+     * Arrasto de (sx + dx, sy + dy) para (sx, sy) na tela: o ponto do mapa que estava sob o dedo vai
+     * junto (com perspectiva, o mesmo arrasto anda mais lá na frente).
+     */
+    private void panBy(float sx, float sy, float dx, float dy) {
+        double[] a = fromScreen(sx + dx, sy + dy);
+        double[] b = fromScreen(sx, sy);
+        cx = (cx + a[0] - b[0] + 1) % 1;
+        cy = Math.max(0, Math.min(1, cy + a[1] - b[1]));
         camDur = 0;
     }
 
@@ -786,15 +1139,18 @@ public class MapView extends View implements Tiles.Listener {
         double rad = Math.toRadians(-bearing);
         double dx = (wx - cx) * scale;
         double dy = (wy - cy) * scale;
-        out[0] = (float) (ax + dx * Math.cos(rad) - dy * Math.sin(rad));
-        out[1] = (float) (ay + dx * Math.sin(rad) + dy * Math.cos(rad));
+        out[0] = (float) (dx * Math.cos(rad) - dy * Math.sin(rad));
+        out[1] = (float) (dx * Math.sin(rad) + dy * Math.cos(rad));
+        project(out);
+        out[0] += ax;
+        out[1] += ay;
     }
 
     private double[] fromScreen(float sx, float sy) {
         double scale = tilePx * Math.pow(2, zoom);
         double rad = Math.toRadians(bearing);
-        double dx = sx - getWidth() / 2f;
-        double dy = sy - getHeight() * anchorY;
+        double dy = flatY(sy - getHeight() * anchorY);
+        double dx = (sx - getWidth() / 2f) * (1 - dy * tiltK);
         double wx = (dx * Math.cos(rad) - dy * Math.sin(rad)) / scale;
         double wy = (dx * Math.sin(rad) + dy * Math.cos(rad)) / scale;
         return new double[]{cx + wx, cy + wy};

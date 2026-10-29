@@ -12,6 +12,8 @@ import android.os.Process;
 import android.util.Log;
 
 import com.k4811.map.MapConfig;
+import com.k4811.map.vector.MapStore;
+import com.k4811.map.vector.TileRenderer;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -23,15 +25,21 @@ import java.net.URL;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.WeakHashMap;
 
 /**
- * Tiles do mapa (256×256), em camadas: memória → mapas offline (.mbtiles) → disco → internet.
+ * Tiles do mapa (256×256), em camadas: memória → mapa offline próprio (desenhado aqui a partir dos
+ * dados baixados, ver {@link TileRenderer}) → mapas .mbtiles → disco → internet. O mapa próprio vem
+ * primeiro sempre que a área do tile está toda baixada; com só uma parte, o tile da internet (ou do
+ * cache) é preferido e o próprio fica para quando não há outro.
  *
  * Feito para central com 2 GB de RAM: bitmaps RGB_565 (128 KB cada), memória limitada a poucas
  * dezenas de tiles, 2 threads de fundo com prioridade baixa e pedidos LIFO (o que acabou de aparecer
@@ -65,6 +73,13 @@ public final class Tiles {
     private final HashMap<Long, Long> failedAt = new HashMap<>();
     private final List<Listener> listeners = new ArrayList<>();
     private final List<SQLiteDatabase> offline = new ArrayList<>();
+    private final TileRenderer renderer;
+    /** Tiles desenhados do mapa próprio (já no tema; o filtro escuro do MapView não vale para eles). */
+    private final Set<Bitmap> vector = Collections.newSetFromMap(new WeakHashMap<Bitmap, Boolean>());
+    /** Geração de cada tile em memória; abaixo de {@link #generation} é refeito (mantendo o velho na tela). */
+    private final HashMap<Long, Integer> memoryGen = new HashMap<>();
+    private int generation;
+    private volatile boolean dark;
     private boolean offlineOpened;
     private boolean notifyPosted;
     private volatile int frame;
@@ -78,6 +93,8 @@ public final class Tiles {
         // ~25 tiles cobrem a tela com a rotação; o resto guarda o entorno e o zoom anterior.
         maxMemory = heapMb >= 128 ? 72 : heapMb >= 64 ? 48 : 32;
         memory = new LinkedHashMap<>(maxMemory + 8, 0.75f, true);
+        MapStore.get().setMaxBytes((heapMb >= 192 ? 48 : heapMb >= 128 ? 32 : 16) * 1024 * 1024);
+        renderer = new TileRenderer(context, Math.round(256 * context.getResources().getDisplayMetrics().density));
         for (int i = 0; i < THREADS; i++) {
             Thread t = new Thread(this::work, "K4811Tiles" + i);
             t.setDaemon(true);
@@ -101,9 +118,35 @@ public final class Tiles {
         listeners.remove(l);
     }
 
-    /** Sem internet não baixa (só memória, .mbtiles e disco). */
+    /** Sem internet não baixa (só memória, mapa próprio, .mbtiles e disco). */
     public void setOnline(boolean on) {
         online = on;
+    }
+
+    /** Tema do mapa próprio; ao trocar, os tiles dele são refeitos. Na thread principal. */
+    public void setDark(boolean on) {
+        if (dark == on) return;
+        dark = on;
+        generation++;
+    }
+
+    /** O tile veio do mapa próprio (desenhado no tema, sem filtro de cor). */
+    public boolean isVector(Bitmap b) {
+        return vector.contains(b);
+    }
+
+    /**
+     * Os dados do mapa próprio mudaram (quadrados baixados): os tiles são refeitos, e os que falharam
+     * podem ser tentados de novo. Qualquer thread.
+     */
+    public void dataChanged() {
+        main.post(() -> {
+            generation++;
+            synchronized (queue) {
+                failedAt.clear();
+            }
+            notifyLoaded();
+        });
     }
 
     /** Começo de um quadro: pedidos não renovados há {@link #STALE_FRAMES} quadros caducam. */
@@ -124,23 +167,34 @@ public final class Tiles {
     public Bitmap get(int z, int x, int y) {
         long k = key(z, x, y);
         Bitmap b = memory.get(k);
-        if (b != null) return b;
+        if (b != null) {
+            Integer g = memoryGen.get(k);
+            // Velho (dados ou tema mudaram): continua na tela enquanto o novo é feito.
+            if (g != null && g < generation) request(k);
+            return b;
+        }
+        request(k);
+        return null;
+    }
+
+    private void request(long k) {
         synchronized (queue) {
             Integer seen = pending.get(k);
             if (seen == null) {
                 Long failed = failedAt.get(k);
-                if (failed != null && System.currentTimeMillis() - failed < RETRY_MS) return null;
+                if (failed != null && System.currentTimeMillis() - failed < RETRY_MS) return;
                 queue.addLast(k);
                 queue.notify();
             }
             pending.put(k, frame);
         }
-        return null;
     }
 
     /** Libera a memória (tela do mapa fechada). */
     public void trimMemory() {
         memory.clear();
+        memoryGen.clear();
+        MapStore.get().trimMemory();
     }
 
     // ------------------------------------------------------------------ fundo
@@ -174,12 +228,14 @@ public final class Tiles {
             int x = (int) ((k >>> 29) & 0x1FFFFFFF);
             int y = (int) (k & 0x1FFFFFFF);
             Bitmap b = null;
+            boolean[] fromVector = new boolean[1];
             try {
-                b = load(z, x, y);
+                b = load(z, x, y, fromVector);
             } catch (Throwable t) {
                 Log.w(TAG, "tile " + z + "/" + x + "/" + y + ": " + t);
             }
             final Bitmap loaded = b;
+            final boolean isVector = fromVector[0];
             synchronized (queue) {
                 if (loaded == null) failedAt.put(k, System.currentTimeMillis());
                 else failedAt.remove(k);
@@ -189,6 +245,7 @@ public final class Tiles {
                     pending.remove(k);
                 }
                 if (loaded == null) return;
+                if (isVector) vector.add(loaded);
                 put(k, loaded);
                 notifyLoaded();
             });
@@ -197,10 +254,11 @@ public final class Tiles {
 
     private void put(long k, Bitmap b) {
         memory.put(k, b);
+        memoryGen.put(k, generation);
         if (memory.size() <= maxMemory) return;
         Iterator<Map.Entry<Long, Bitmap>> it = memory.entrySet().iterator();
         while (memory.size() > maxMemory && it.hasNext()) {
-            it.next();
+            memoryGen.remove(it.next().getKey());
             it.remove(); // o Bitmap fica para o GC (pode estar na lista de desenho do quadro atual)
         }
     }
@@ -215,7 +273,25 @@ public final class Tiles {
         });
     }
 
-    private Bitmap load(int z, int x, int y) throws Exception {
+    private Bitmap load(int z, int x, int y, boolean[] fromVector) throws Exception {
+        // Mapa próprio com a área toda baixada: sempre ele.
+        int cover = renderer.coverage(z, x, y);
+        if (cover == TileRenderer.FULL) {
+            Bitmap b = renderer.render(z, x, y, dark);
+            if (b != null) {
+                fromVector[0] = true;
+                return b;
+            }
+        }
+        Bitmap b = loadRaster(z, x, y);
+        if (b != null || cover != TileRenderer.PARTIAL) return b;
+        // Só parte da área baixada e nenhum outro tile: o que houver.
+        b = renderer.render(z, x, y, dark);
+        fromVector[0] = b != null;
+        return b;
+    }
+
+    private Bitmap loadRaster(int z, int x, int y) throws Exception {
         byte[] data = fromOffline(z, x, y);
         if (data != null) return decode(data);
         File f = new File(MapConfig.dir(), "cache/" + z + "/" + x + "/" + y + ".png");

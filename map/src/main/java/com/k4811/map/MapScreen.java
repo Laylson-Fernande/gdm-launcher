@@ -25,6 +25,7 @@ import android.widget.TextView;
 import com.k4811.common.config.LauncherConfig;
 import com.k4811.common.home.GpsClient;
 import com.k4811.common.ui.IconView;
+import com.k4811.common.ui.ThemeDrawables;
 import com.k4811.common.ui.Touch;
 import com.k4811.common.ui.Ui;
 import com.k4811.map.route.Navigator;
@@ -54,6 +55,19 @@ import java.util.concurrent.Executors;
  *
  * Com os dados das vias baixados (ver {@link RoadSync}): placa do limite de velocidade, velocidade em
  * vermelho acima dele e o próximo alerta (radar, lombada, pedágio, passagem de nível), com voz nos radares.
+ *
+ * Ao abrir a busca: os favoritos ({@link Favorites}) e os recentes. A estrela de cada linha e a da prévia
+ * da rota salvam ou tiram o lugar dos favoritos. Tocar e segurar no mapa marca o ponto com o endereço
+ * dele (busca reversa), o jeito de acertar a casa quando o número não está no mapa.
+ *
+ * A bússola troca entre direção do carro para cima e norte para cima (guardado nas preferências deste
+ * app, como a câmera); com a direção para cima e {@code nav_perspective}, o mapa fica em perspectiva.
+ * Navegando, o zoom dinâmico ({@code nav_auto_zoom}) usa a distância até a próxima manobra ou o próximo
+ * alerta, o que vier antes.
+ *
+ * O botão de alertas liga e desliga, só neste mapa, os alertas (radares, lombadas, pedágios, passagens
+ * de nível; tela e voz) que estão ligados nas Configurações; a placa de limite continua. Guardado nas
+ * preferências deste app: só o car-setting grava o {@code launcher.json}.
  */
 public class MapScreen extends FrameLayout implements GpsClient.Listener, MapView.Listener, Navigator.Listener,
     RoadWatcher.Listener {
@@ -82,18 +96,26 @@ public class MapScreen extends FrameLayout implements GpsClient.Listener, MapVie
     private final LinearLayout results;
     private final View banner;
     private final TurnIcon turn;
+    /** ✕ no topo dos botões: encerra a rota com a manobra e a chegada no painel ao lado. */
+    private final IconView endRoute;
+    /** A tela em volta mostra a manobra e a chegada (NavProgress): o mapa fica sem as faixas. */
+    private boolean routeOutside;
     private final TextView turnDistance;
     private final TextView turnStreet;
     private final View then;
     private final TurnIcon thenTurn;
     private final TextView message;
     private final IconView recenter;
+    private final CompassButton compass;
+    private final AlertsButton alertsButton;
     private final TextView speed;
     private final View bottom;
     private final TextView bottomTitle;
     private final TextView bottomDetail;
     private final TextView primary;
     private final TextView secondary;
+    /** Estrela da prévia da rota: salva o destino nos favoritos. */
+    private final IconView bottomStar;
     private final View alert;
     private final RoadSign alertIcon;
     private final TextView alertDistance;
@@ -114,6 +136,8 @@ public class MapScreen extends FrameLayout implements GpsClient.Listener, MapVie
     private RoadWatcher roads;
     private int roadLimit;
     private float speedKmh;
+    /** Metros até o alerta na tela (da última leitura do RoadWatcher); NaN sem alerta. */
+    private double alertMeters = Double.NaN;
 
     private final Runnable hideMessage = new Runnable() {
         @Override
@@ -137,18 +161,25 @@ public class MapScreen extends FrameLayout implements GpsClient.Listener, MapVie
         results = (LinearLayout) findViewById(R.id.map_results);
         banner = findViewById(R.id.map_banner);
         turn = (TurnIcon) findViewById(R.id.map_turn);
+        endRoute = floating(R.id.map_end_route, IconView.Icon.CLOSE);
+        endRoute.color(Ui.DANGER);
+        endRoute.setOnClickListener(v -> endRoute());
         turnDistance = (TextView) findViewById(R.id.map_turn_distance);
         turnStreet = (TextView) findViewById(R.id.map_turn_street);
         then = findViewById(R.id.map_then);
         thenTurn = (TurnIcon) findViewById(R.id.map_then_turn);
         message = (TextView) findViewById(R.id.map_message);
         recenter = (IconView) findViewById(R.id.map_recenter);
+        compass = (CompassButton) findViewById(R.id.map_compass);
+        alertsButton = (AlertsButton) findViewById(R.id.map_alerts);
         speed = (TextView) findViewById(R.id.map_speed);
         bottom = findViewById(R.id.map_bottom);
         bottomTitle = (TextView) findViewById(R.id.map_bottom_title);
         bottomDetail = (TextView) findViewById(R.id.map_bottom_detail);
         primary = (TextView) findViewById(R.id.map_primary);
         secondary = (TextView) findViewById(R.id.map_secondary);
+        bottomStar = (IconView) findViewById(R.id.map_bottom_star);
+        bottomStar.setOnClickListener(v -> toggleFavorite(destination, bottomStar));
         alert = findViewById(R.id.map_alert);
         alertIcon = (RoadSign) findViewById(R.id.map_alert_icon);
         alertDistance = (TextView) findViewById(R.id.map_alert_distance);
@@ -176,6 +207,8 @@ public class MapScreen extends FrameLayout implements GpsClient.Listener, MapVie
         floating(R.id.map_zoom_in, IconView.Icon.PLUS).setOnClickListener(v -> map.zoomBy(1));
         floating(R.id.map_zoom_out, IconView.Icon.MINUS).setOnClickListener(v -> map.zoomBy(-1));
         floating(R.id.map_recenter, IconView.Icon.LOCATE).setOnClickListener(v -> map.setFollow(true));
+        compass.setOnClickListener(v -> toggleHeadingUp());
+        alertsButton.setOnClickListener(v -> toggleAlerts());
 
         search.setOnFocusChangeListener((v, focus) -> {
             if (focus) openSearch();
@@ -196,6 +229,10 @@ public class MapScreen extends FrameLayout implements GpsClient.Listener, MapVie
         setFocusableInTouchMode(true);
         setDescendantFocusability(FOCUS_BEFORE_DESCENDANTS);
         restoreCamera();
+        boolean headingUp = prefs().getBoolean("heading_up", true);
+        map.setHeadingUp(headingUp);
+        compass.setHeadingUp(headingUp);
+        alertsButton.setOn(alertsOn());
     }
 
     private IconView floating(int id, IconView.Icon icon) {
@@ -206,12 +243,32 @@ public class MapScreen extends FrameLayout implements GpsClient.Listener, MapVie
 
     // ------------------------------------------------------------------ ciclo de vida
 
+    /**
+     * A tela em volta mostra a próxima manobra e a chegada (lendo {@link NavProgress}), como o painel da
+     * tela de navegação faz com o Waze: navegando, o mapa esconde a faixa da manobra e a de chegada (fica
+     * mais mapa à vista) e o ✕ de encerrar vai para o topo dos botões.
+     */
+    public void setRouteOutside(boolean outside) {
+        routeOutside = outside;
+        renderNavigateChrome();
+    }
+
+    /** Faixas da navegação conforme {@link #routeOutside}. */
+    private void renderNavigateChrome() {
+        boolean nav = state == State.NAVIGATE;
+        banner.setVisibility(nav && !routeOutside ? VISIBLE : GONE);
+        if (nav) bottom.setVisibility(routeOutside ? GONE : VISIBLE);
+        endRoute.setVisibility(nav && routeOutside ? VISIBLE : GONE);
+    }
+
     public void onStart() {
         if (started) return;
         started = true;
         boolean dark = LauncherConfig.darkMode(getContext());
         map.setDark(dark);
         map.setOnline(MapConfig.online(getContext()));
+        map.setAutoZoom(LauncherConfig.navAutoZoom(getContext()));
+        map.setPerspective(LauncherConfig.navPerspective(getContext()));
         gps.start();
         if (voice == null) voice = new Voice(getContext(), voiceLocale());
         voice.setEnabled(voiceEnabled);
@@ -219,13 +276,19 @@ public class MapScreen extends FrameLayout implements GpsClient.Listener, MapVie
             roads = new RoadWatcher(this);
             if (state == State.NAVIGATE) roads.setRoute(route);
         }
-        Context c = getContext();
-        roads.setOptions(LauncherConfig.navCameras(c), LauncherConfig.navSpeedLimit(c), LauncherConfig.navRoadAlerts(c));
+        applyRoadOptions();
         if (!map.hasLocation()) centerOnLastKnown();
         if (resultsScroll.getVisibility() != VISIBLE) {
             search.clearFocus();
             requestFocus();
         }
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        // A tela de navegação fechou: a rota acabou junto.
+        NavProgress.clear();
     }
 
     public void onStop() {
@@ -252,6 +315,7 @@ public class MapScreen extends FrameLayout implements GpsClient.Listener, MapVie
         roads.quit(true);
         roads = null;
         roadLimit = 0;
+        alertMeters = Double.NaN;
         alert.setVisibility(GONE);
         limitSign.setVisibility(GONE);
     }
@@ -298,6 +362,7 @@ public class MapScreen extends FrameLayout implements GpsClient.Listener, MapVie
             map.setRouteProgress(navigator.segment());
             renderNavigation();
         }
+        updateFocus();
         map.setMyLocation(lat, lon, heading, mps);
         speed.setVisibility(fix.moving() || state == State.NAVIGATE ? VISIBLE : GONE);
         speed.setText(String.valueOf(fix.moving() ? Math.round(fix.speedKmh) : 0));
@@ -307,8 +372,8 @@ public class MapScreen extends FrameLayout implements GpsClient.Listener, MapVie
             boolean onRoute = state == State.NAVIGATE && navigator != null && navigator.onRoute();
             roads.update(lat, lon, heading, mps, onRoute ? navigator.traveled() : Double.NaN);
         }
-        // Raio de 100 km dos dados das vias: confere se venceu ou se o carro se afastou.
-        RoadSync.get(getContext()).area(fix.latitude, fix.longitude);
+        // Raio de 100 km dos dados das vias e do mapa offline: confere se venceu ou se o carro se afastou.
+        RoadSync.areaAll(getContext(), fix.latitude, fix.longitude);
     }
 
     // ------------------------------------------------------------------ dados das vias
@@ -321,6 +386,7 @@ public class MapScreen extends FrameLayout implements GpsClient.Listener, MapVie
         limitSign.setVisibility(s.limit > 0 ? VISIBLE : GONE);
         updateSpeedColor();
         RoadWatcher.Alert a = s.alert;
+        alertMeters = a == null ? Double.NaN : s.distance;
         if (a == null) {
             alert.setVisibility(GONE);
         } else {
@@ -367,6 +433,59 @@ public class MapScreen extends FrameLayout implements GpsClient.Listener, MapVie
         if (speed.getCurrentTextColor() != color) speed.setTextColor(color);
     }
 
+    /** Zoom dinâmico: a próxima manobra (na rota) ou o próximo alerta, o que vier antes. */
+    private void updateFocus() {
+        double d = Double.NaN;
+        if (state == State.NAVIGATE && navigator != null && navigator.onRoute() && navigator.nextStep() != null) {
+            d = navigator.distanceToNext();
+        }
+        if (!Double.isNaN(alertMeters) && (Double.isNaN(d) || alertMeters < d)) d = alertMeters;
+        map.setFocusAhead(d);
+    }
+
+    /** Alertas ligados no botão do mapa (os das Configurações valem por baixo). */
+    private boolean alertsOn() {
+        return prefs().getBoolean("alerts_on", true);
+    }
+
+    /** O que vale nos dados das vias: as Configurações e, nos alertas, o botão do mapa. */
+    private void applyRoadOptions() {
+        Context c = getContext();
+        boolean cameras = LauncherConfig.navCameras(c);
+        boolean others = LauncherConfig.navRoadAlerts(c);
+        // Com os alertas desligados nas Configurações, o botão não tem o que ligar.
+        alertsButton.setVisibility(cameras || others ? VISIBLE : GONE);
+        boolean on = alertsOn();
+        if (roads != null) roads.setOptions(cameras && on, LauncherConfig.navSpeedLimit(c), others && on);
+    }
+
+    private void toggleAlerts() {
+        boolean on = !alertsOn();
+        prefs().edit().putBoolean("alerts_on", on).apply();
+        alertsButton.setOn(on);
+        applyRoadOptions();
+        if (!on) {
+            // Some já, sem esperar a próxima leitura do GPS.
+            alertMeters = Double.NaN;
+            alert.setVisibility(GONE);
+            updateFocus();
+        }
+        showMessage(on ? R.string.map_alerts_on : R.string.map_alerts_off);
+    }
+
+    private void toggleHeadingUp() {
+        boolean on = !map.isHeadingUp();
+        map.setHeadingUp(on);
+        compass.setHeadingUp(on);
+        prefs().edit().putBoolean("heading_up", on).apply();
+        showMessage(on ? R.string.map_heading_up : R.string.map_north_up);
+    }
+
+    @Override
+    public void onBearingChanged(float bearing) {
+        compass.setBearing(bearing);
+    }
+
     @Override
     public void onFollowChanged(boolean following) {
         recenter.setVisibility(following ? INVISIBLE : VISIBLE);
@@ -376,8 +495,30 @@ public class MapScreen extends FrameLayout implements GpsClient.Listener, MapVie
     public void onLongPress(double lat, double lon) {
         if (state == State.NAVIGATE) return;
         closeSearch();
-        pick(new Places.Place(getContext().getString(R.string.map_dropped_pin),
-            String.format(Locale.US, "%.5f, %.5f", lat, lon), lat, lon));
+        Places.Place pin = new Places.Place(getContext().getString(R.string.map_dropped_pin),
+            String.format(Locale.US, "%.5f, %.5f", lat, lon), lat, lon);
+        if (!MapConfig.online(getContext())) {
+            pick(pin);
+            return;
+        }
+        // O endereço do ponto (rua e número), para o destino e os favoritos terem nome.
+        showMessage(R.string.map_finding_address);
+        map.setDestination(lat, lon);
+        int gen = ++requestGen;
+        String lang = LauncherConfig.language(getContext());
+        net.execute(() -> {
+            Places.Place found = null;
+            try {
+                found = Places.reverse(getContext(), lat, lon, lang);
+            } catch (Exception e) {
+                android.util.Log.w("K4811Map", "endereço do ponto: " + e);
+            }
+            Places.Place named = found == null ? pin : found;
+            main.post(() -> {
+                if (gen != requestGen) return;
+                pick(named);
+            });
+        });
     }
 
     // ------------------------------------------------------------------ busca
@@ -400,12 +541,20 @@ public class MapScreen extends FrameLayout implements GpsClient.Listener, MapVie
         requestFocus();
     }
 
+    /** Busca aberta e vazia: os favoritos e, depois, os recentes que não são favoritos. */
     private void showRecents() {
         net.execute(() -> {
-            List<Places.Place> list = Recents.load();
+            List<Places.Place> favorites = Favorites.load();
+            List<Places.Place> recents = Recents.load();
+            for (int i = recents.size() - 1; i >= 0; i--) {
+                if (Favorites.contains(favorites, recents.get(i))) recents.remove(i);
+            }
             main.post(() -> {
                 if (search.getText().length() > 0 || !search.hasFocus()) return;
-                showResults(list, list.isEmpty() ? null : getContext().getString(R.string.map_recent));
+                results.removeAllViews();
+                addSection(favorites, R.string.map_favorites, favorites);
+                addSection(recents, R.string.map_recent, favorites);
+                fitResults(favorites.size() + recents.size());
             });
         });
     }
@@ -438,24 +587,40 @@ public class MapScreen extends FrameLayout implements GpsClient.Listener, MapVie
                 }
                 hideMessageNow();
                 if (list.isEmpty()) showMessage(R.string.map_no_results);
-                showResults(list, null);
+                showResults(list);
             });
         });
     }
 
-    private void showResults(List<Places.Place> list, String header) {
-        results.removeAllViews();
-        if (header != null) {
+    /** Resultados de uma busca (a estrela de cada um precisa saber quais já são favoritos). */
+    private void showResults(List<Places.Place> list) {
+        net.execute(() -> {
+            List<Places.Place> favorites = Favorites.load();
+            main.post(() -> {
+                results.removeAllViews();
+                addSection(list, 0, favorites);
+                fitResults(list.size());
+            });
+        });
+    }
+
+    /** Título (0 = sem título) e as linhas; nada se a lista está vazia. */
+    private void addSection(List<Places.Place> list, int header, List<Places.Place> favorites) {
+        if (list.isEmpty()) return;
+        if (header != 0) {
             TextView h = new TextView(getContext());
-            h.setText(header.toUpperCase(Locale.getDefault()));
+            h.setText(getContext().getString(header).toUpperCase(Locale.getDefault()));
             h.setTextColor(Ui.TEXT_MUTED);
             h.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15);
             h.setPadding(dp(20), dp(8), dp(20), dp(4));
             results.addView(h);
         }
-        for (Places.Place p : list) results.addView(row(p));
+        for (Places.Place p : list) results.addView(row(p, Favorites.contains(favorites, p)));
+    }
+
+    private void fitResults(int count) {
         Ui.applyFont(results);
-        resultsScroll.setVisibility(list.isEmpty() ? GONE : VISIBLE);
+        resultsScroll.setVisibility(count == 0 ? GONE : VISIBLE);
         // A lista não passa da área do mapa (fica por cima dele, abaixo da busca).
         int max = getHeight() - dp(16 + 72 + 32);
         resultsScroll.measure(MeasureSpec.makeMeasureSpec(searchBox.getWidth(), MeasureSpec.EXACTLY),
@@ -465,30 +630,72 @@ public class MapScreen extends FrameLayout implements GpsClient.Listener, MapVie
         resultsScroll.setLayoutParams(lp);
     }
 
-    private View row(Places.Place p) {
+    /** Nome e endereço (e o aviso de número aproximado), com a estrela dos favoritos à direita. */
+    private View row(Places.Place p, boolean favorite) {
         LinearLayout row = new LinearLayout(getContext());
-        row.setOrientation(LinearLayout.VERTICAL);
-        row.setPadding(dp(20), dp(12), dp(20), dp(12));
-        row.setBackgroundResource(R.drawable.list_row);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        row.setGravity(android.view.Gravity.CENTER_VERTICAL);
+        row.setPadding(dp(20), dp(12), dp(8), dp(12));
+        // O drawable do tema em uso (o do XML é sempre o escuro).
+        row.setBackground(ThemeDrawables.drawable(getContext(), R.drawable.list_row));
+        LinearLayout texts = new LinearLayout(getContext());
+        texts.setOrientation(LinearLayout.VERTICAL);
+        row.addView(texts, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
         TextView name = new TextView(getContext());
         name.setText(p.name);
         name.setTextColor(Ui.TEXT);
         name.setTextSize(TypedValue.COMPLEX_UNIT_SP, 21);
-        name.setSingleLine(true);
+        // Nome e endereço inteiros, quebrando linha (cortados, vários resultados ficam iguais).
+        name.setMaxLines(2);
         name.setEllipsize(android.text.TextUtils.TruncateAt.END);
         TextView detail = new TextView(getContext());
         detail.setText(p.detail);
         detail.setTextColor(Ui.TEXT_MUTED);
         detail.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
-        detail.setSingleLine(true);
+        detail.setMaxLines(3);
         detail.setEllipsize(android.text.TextUtils.TruncateAt.END);
-        row.addView(name);
-        if (!p.detail.isEmpty()) row.addView(detail);
+        texts.addView(name);
+        if (!p.detail.isEmpty()) texts.addView(detail);
+        if (p.approximate) {
+            TextView note = new TextView(getContext());
+            note.setText(getContext().getString(R.string.map_number_approx, p.number));
+            note.setTextColor(Ui.ACCENT); // legível no tema claro e no escuro
+            note.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15);
+            texts.addView(note);
+        }
+        IconView star = new IconView(getContext());
+        renderStar(star, favorite);
+        star.setOnClickListener(v -> toggleFavorite(p, star));
+        row.addView(star, new LinearLayout.LayoutParams(dp(64), dp(64)));
         row.setOnClickListener(v -> {
             closeSearch();
             pick(p);
         });
         return row;
+    }
+
+    // ------------------------------------------------------------------ favoritos
+
+    private void renderStar(IconView star, boolean favorite) {
+        star.set(favorite ? IconView.Icon.STAR_FILLED : IconView.Icon.STAR, IconView.Style.NONE);
+        star.color(favorite ? Ui.WARNING : Ui.TEXT_MUTED);
+        star.setActivated(favorite);
+        star.setContentDescription(getContext().getString(
+            favorite ? R.string.map_favorite_remove : R.string.map_favorite_add));
+    }
+
+    /** Salva ou tira {@code p} dos favoritos; a estrela muda na hora e o aviso confirma. */
+    private void toggleFavorite(Places.Place p, IconView star) {
+        if (p == null) return;
+        boolean next = !star.isActivated();
+        renderStar(star, next);
+        net.execute(() -> {
+            boolean saved = Favorites.toggle(p);
+            main.post(() -> {
+                renderStar(star, saved);
+                showMessage(saved ? R.string.map_favorite_saved : R.string.map_favorite_removed);
+            });
+        });
     }
 
     // ------------------------------------------------------------------ rota
@@ -535,7 +742,7 @@ public class MapScreen extends FrameLayout implements GpsClient.Listener, MapVie
                 route = result;
                 map.setRoute(result);
                 // Dados das vias dos quadrados por onde a rota passa (inclusive fora do raio de 100 km).
-                RoadSync.get(getContext()).route(result);
+                RoadSync.routeAll(getContext(), result);
                 if (reroute && state == State.NAVIGATE) {
                     navigator = new Navigator(result, this);
                     if (roads != null) roads.setRoute(result);
@@ -556,6 +763,15 @@ public class MapScreen extends FrameLayout implements GpsClient.Listener, MapVie
         bottomDetail.setText(phrases.duration(route.duration) + "  ·  " + phrases.distance(route.distance));
         primary.setText(R.string.map_go);
         primary.setOnClickListener(v -> startNavigation());
+        bottomStar.setVisibility(VISIBLE);
+        Places.Place shown = destination;
+        renderStar(bottomStar, false);
+        net.execute(() -> {
+            boolean favorite = Favorites.contains(Favorites.load(), shown);
+            main.post(() -> {
+                if (destination == shown) renderStar(bottomStar, favorite);
+            });
+        });
         secondary.setText(R.string.map_cancel);
         secondary.setOnClickListener(v -> endRoute());
         map.setNavigating(false);
@@ -568,12 +784,13 @@ public class MapScreen extends FrameLayout implements GpsClient.Listener, MapVie
         navigator = new Navigator(route, this);
         if (roads != null) roads.setRoute(route);
         searchBox.setVisibility(GONE);
-        banner.setVisibility(VISIBLE);
         secondary.setVisibility(GONE);
+        bottomStar.setVisibility(GONE);
         primary.setText(R.string.map_end);
         primary.setOnClickListener(v -> endRoute());
         map.setNavigating(true);
         map.setFollow(true);
+        renderNavigateChrome();
         if (!map.hasLocation()) showMessage(R.string.map_waiting_gps);
         navigator.start();
         renderNavigation();
@@ -590,9 +807,11 @@ public class MapScreen extends FrameLayout implements GpsClient.Listener, MapVie
         map.setRoute(null);
         map.setDestination(Double.NaN, Double.NaN);
         map.setNavigating(false);
+        NavProgress.clear();
         if (roads != null) roads.setRoute(null);
         banner.setVisibility(GONE);
         bottom.setVisibility(GONE);
+        endRoute.setVisibility(GONE);
         secondary.setVisibility(VISIBLE);
         searchBox.setVisibility(VISIBLE);
         hideMessageNow();
@@ -610,11 +829,13 @@ public class MapScreen extends FrameLayout implements GpsClient.Listener, MapVie
         Navigator n = navigator;
         if (n == null || state != State.NAVIGATE) return;
         Route.Step next = n.nextStep();
+        String cue = null;
         if (next != null) {
             turn.setShape(Phrases.shape(next));
             turnDistance.setText(phrases.distance(n.distanceToNext()));
             String street = Phrases.street(next);
-            turnStreet.setText(street.isEmpty() ? phrases.action(next) : street);
+            cue = street.isEmpty() ? phrases.action(next) : street;
+            turnStreet.setText(cue);
             Route.Step after = n.stepAfterNext();
             boolean soon = after != null && n.route().along[after.index] - n.route().along[next.index] < 150;
             then.setVisibility(soon ? VISIBLE : GONE);
@@ -624,6 +845,11 @@ public class MapScreen extends FrameLayout implements GpsClient.Listener, MapVie
         Date eta = new Date(System.currentTimeMillis() + (long) (left * 1000));
         bottomTitle.setText(getContext().getString(R.string.map_arrival, DateFormat.getTimeFormat(getContext()).format(eta)));
         bottomDetail.setText(phrases.duration(left) + "  ·  " + phrases.distance(n.remainingDistance()));
+        // A tela inicial mostra a próxima manobra no bloco do relógio (NavProgress).
+        if (next != null) {
+            NavProgress.publish(new NavProgress.State(Phrases.shape(next), phrases.distance(n.distanceToNext()),
+                cue, bottomTitle.getText() + "  ·  " + bottomDetail.getText()));
+        }
     }
 
     // ------------------------------------------------------------------ Navigator.Listener
@@ -647,6 +873,8 @@ public class MapScreen extends FrameLayout implements GpsClient.Listener, MapVie
         turnDistance.setText(R.string.map_act_arrive);
         turnStreet.setText(destination == null ? "" : destination.name);
         then.setVisibility(GONE);
+        NavProgress.publish(new NavProgress.State(Phrases.Shape.ARRIVE,
+            getContext().getString(R.string.map_act_arrive), destination == null ? "" : destination.name, null));
         main.postDelayed(() -> {
             if (navigator != null && navigator.arrived()) endRoute();
         }, ARRIVED_CLOSE_MS);
