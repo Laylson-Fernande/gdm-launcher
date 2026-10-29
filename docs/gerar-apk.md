@@ -31,6 +31,40 @@ A assinatura é configurada no [`build.gradle.kts`](../build.gradle.kts) da raiz
 
 Nunca suba APK, chave ou senha: o `.gitignore` já cobre `*.apk`, `*.jks`, `keys/`, `keystore.properties` e `local.properties`.
 
+## Build pessoal (sem a chave dos apps de fábrica)
+
+Rádio, MP3, música Bluetooth, telefone, equalizador e ventoinha usam os packages dos apps de fábrica da NWD (`com.nwd.radio`…) para instalar **por cima** deles, o que exige a chave da suíte. Com outra chave (uma chave pessoal, por exemplo), a central recusa (`INSTALL_FAILED_UPDATE_INCOMPATIBLE`), e não dá para desinstalar os originais.
+
+Para usar a sua versão desses apps, gere com packages próprios, que ficam **ao lado** dos de fábrica:
+
+```properties
+# local.properties (fora do git)
+k4811.packages=personal
+```
+
+ou `./gradlew assembleRelease -Pk4811.packages=personal`. O build avisa: `k4811.packages=personal: …`.
+
+| App | Package de fábrica | Package pessoal |
+|---|---|---|
+| radio | `com.nwd.radio` | `com.k4811.radio` |
+| music | `com.nwd.android.music.ui` | `com.k4811.music` |
+| bt-music | `com.nwd.bt.music` | `com.k4811.btmusic` |
+| phone | `com.nwd.android.phone` | `com.k4811.phone` |
+| eq | `com.nwd.audioset` | `com.k4811.eq` |
+| fan | `com.nwd.cpumonitor` | `com.k4811.fan` |
+
+O launcher e o car-setting não mudam. O dock e a suíte inteira passam a abrir os packages pessoais (`Apps.*` vem da tabela do `build.gradle.kts`). Instale os **8** APKs do mesmo build, porque o launcher precisa saber os packages novos.
+
+Os de fábrica continuam instalados e ativos:
+- Botões do volante, a tecla de modo e outros apps da NWD abrem os apps de fábrica, não os da suíte.
+- Eventos do sistema chegam aos dois:
+  - **Chamadas Bluetooth:** a tela de chamada de fábrica e a da suíte podem aparecer juntas.
+  - **Religar e mudança de estado da MCU:** o equalizador de fábrica e o da suíte reaplicam o DSP.
+  - **Retomar a música ao ligar:** `com.nwd.ACTION_BACKGROUND_MEDIA_PLAY` chega aos players de fábrica e aos da suíte.
+- A gaveta de apps mostra os dois.
+
+Para esconder um app de fábrica sem root: `adb shell pm disable-user --user 0 <package>`. Para desfazer: `adb shell pm enable <package>`. Teste um de cada vez: se a central abrir o app de fábrica por um componente fixo (tecla de modo, volante), esse atalho deixa de funcionar com ele desligado. O `com.nwd.audioset` pode ser o serviço de DSP que o sistema usa; evite desligá-lo.
+
 ## Versão
 
 Cada app define a sua em `<app>/build.gradle.kts`:

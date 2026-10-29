@@ -78,27 +78,34 @@ O emulador precisa da virtualização do processador:
 
 ### Criar o AVD
 
-1. Instale o emulador e a imagem do Android 10 sem Google (a mais parecida com a central):
+A central de testes atual é uma K2401 com **Android 15**: use a imagem do Android 15 sem Google (a mais parecida com a ROM da NWD). A do Android 10 continua servindo para centrais mais antigas.
+
+1. Instale o emulador e a imagem:
    ```bash
-   android --sdk=<sdk> sdk install emulator "system-images/android-29/default/x86_64"
+   android --sdk=<sdk> sdk install emulator "system-images/android-35/default/x86_64"   # Android 15
+   android --sdk=<sdk> sdk install "system-images/android-29/default/x86_64"            # Android 10 (opcional)
    ```
 2. Crie o AVD (pelo Device Manager do Android Studio ou por linha de comando):
    ```bash
-   echo no | avdmanager create avd -n K4811_Android10 -k "system-images;android-29;default;x86_64"
+   echo no | avdmanager create avd -n K4811_Android15 -k "system-images;android-35;default;x86_64" -d pixel
    ```
-3. Ajuste a tela em `~/.android/avd/K4811_Android10.avd/config.ini` (ela já nasce em paisagem):
+3. Ajuste a tela em `~/.android/avd/K4811_Android15.avd/config.ini`:
    ```ini
    hw.lcd.width=1280
    hw.lcd.height=720
+   hw.initialOrientation=landscape
+   hw.cpu.ncore=4
+   skin.path=_no_skin
+   showDeviceFrame=no
    hw.lcd.density=160
    hw.keyboard=yes
-   hw.ramSize=3072
+   hw.ramSize=2048
    skin.name=1280x720
    ```
    Como `Ui.applyDesignDensity` ajusta a escala, a densidade não importa muito.
 4. Suba o emulador:
    ```bash
-   emulator -avd K4811_Android10 -no-snapshot-save -no-boot-anim -timezone America/Sao_Paulo
+   emulator -avd K4811_Android15 -no-snapshot-save -no-boot-anim -timezone America/Sao_Paulo
    ```
    Sem `-timezone` o app de setup do emulador (`com.android.sdksetup`) pode travar com "Timezone Unknown/Unknown". O travamento é do emulador, não da suíte.
 
@@ -108,13 +115,16 @@ O emulador precisa da virtualização do processador:
    ```bash
    ./gradlew assembleDebug
    for a in launcher car-setting radio music bt-music phone eq fan; do
-     adb install -r -g $a/build/outputs/apk/debug/$a-debug.apk
+     adb install -r -g --bypass-low-target-sdk-block $a/build/outputs/apk/debug/$a-debug.apk
    done
    adb shell cmd package set-home-activity com.garagemdomadeira.nwd.launcher/com.k4811.launcher.HomeActivity
    ```
    - No emulador não existem os apps de fábrica, então os apps "por cima do original" instalam normalmente com a chave de debug.
+   - `--bypass-low-target-sdk-block` (Android 14+): sem ele o Android recusa o targetSdk 19 com `INSTALL_FAILED_DEPRECATED_SDK_VERSION`. A ROM da NWD libera isso sozinha; no Android 10 a opção não existe (tire-a).
    - O `-g` concede as permissões na instalação. Sem ele, o Android 10 do emulador mostra uma tela de revisão de permissões ("Choose what to allow…") por ser um app com targetSdk < 23.
    - O aviso "This app was built for an older version of Android" aparece uma vez por app, também por causa do targetSdk 19. Basta tocar em OK. Na central nenhum dos dois aparece.
+   - No Android 15 em 1280×720 / 160 dpi o emulador se comporta como tablet: mostra uma barra de apps embaixo e o aviso "Viewing full screen". São do emulador; a central não tem.
+   - O launcher pergunta se deve virar o "launcher padrão" da NWD (`persist.nwd.launcher.default`, que o emulador não tem). Toque em "Agora não".
 2. Abra o launcher com a tecla Início ou direto:
    ```bash
    adb shell am start -n com.garagemdomadeira.nwd.launcher/com.k4811.launcher.HomeActivity
@@ -152,7 +162,7 @@ adb emu geo fix -46.6333 -23.5505 760 8 14
 
 Para simular o carro andando, mande um `geo fix` por segundo com pontos de uma rota (ex.: a geometria GeoJSON de `https://routing.openstreetmap.de/routed-car/route/v1/driving/<lon>,<lat>;<lon>,<lat>?overview=full&geometries=geojson`, interpolada a cada N metros). Cuidados, todos do emulador:
 
-- A velocidade do `geo fix` é lida em **m/s**, apesar de a ajuda dizer "nós".
+- A velocidade do `geo fix` é lida em **nós** no Android 15 (como diz a ajuda) e em **m/s** no Android 10.
 - O `geo fix` informa rumo 0° fixo. Durante a navegação a seta usa a direção da rota, então não faz diferença; fora dela a seta aponta para o norte.
 - O emulador repete a última posição a cada segundo. Não misture `geo fix` e `geo nmea` na mesma simulação: ele alterna entre as duas fontes e o carro "pula". As sentenças NMEA também não juntam posição (`$GPGGA`) e velocidade/rumo (`$GPRMC`) num único fix.
 - Rode uma simulação por vez; se sobrar uma antiga rodando, as posições se misturam.
@@ -177,6 +187,8 @@ R8 roda sem ofuscação e mantém número de linha, então as pilhas de erro no 
 ```bash
 adb logcat | grep -i k4811
 ```
+
+**Na central, sem adb:** ligue Configurações → Sistema → **Gravar log para diagnóstico**. Cada app da suíte passa a gravar o próprio log, inclusive erros e travamentos, em `/sdcard/K4811/logs/<app>.log` (`launcher.log`, `car-setting.log`, `radio.log`…). Cada arquivo vai até 2 MB, com um anterior (`<app>.1.log`). Reproduza o problema, copie a pasta `K4811/logs` para um pen drive com um gerenciador de arquivos (ou `adb pull /sdcard/K4811/logs`) e desligue a opção depois. Um app comum só lê os próprios logs, então os arquivos não trazem o log do sistema inteiro.
 
 ## Testar na central
 

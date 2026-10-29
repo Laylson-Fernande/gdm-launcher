@@ -34,6 +34,15 @@ Não dá para reproduzir no emulador um processador de 1,5 GHz com GPU própria.
 | Zoom do mapa | 6,1% | 136 em 8 s | 0 | 5 / 5 / 6 ms | 50 MB |
 | **Navegando** (mapa girando, 50 km/h) | **11,0%** | 886 em 30 s (29,5 qps) | 0 | 5 / 5 / 6 ms | 48 MB |
 
+Os números acima são do emulador Android 10. Repetidos no **Android 15** (emulador `android-35`, 2 GB, 4 núcleos, mesma central de testes da K2401):
+
+| Cenário | CPU | Memória (PSS) |
+|---|---|---|
+| Tela inicial parada | 0,4% | 24 MB |
+| Tela de navegação, mapa parado | 0,7% | 31 MB |
+
+No Android 15 o indicador também mostra a CPU (no Android 10 do emulador só a RAM). Os poucos quadros desses cenários (o relógio virando) saem com 17–18 ms e o `gfxinfo` conta como "com atraso" (acima de 16,7 ms); com tão poucos quadros e a GPU emulada, não é um número confiável.
+
 Antes e depois das otimizações:
 
 | O quê | Antes | Depois |

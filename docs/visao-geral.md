@@ -2,7 +2,7 @@
 
 ## O que é
 
-A **K4811 App suite** é um conjunto de apps Android que substituem os apps de fábrica de uma central multimídia automotiva **NWD** (tela 1280×720, Android 10, SoC chinês). Ela traz uma tela inicial leve e apps separados para rádio, música, Bluetooth, telefone, equalizador, ventoinha e configurações, todos com o mesmo visual, o mesmo dock e **uma fonte de áudio por vez**.
+A **K4811 App suite** é um conjunto de apps Android que substituem os apps de fábrica de uma central multimídia automotiva **NWD** (tela 1280×720, Android 10 a 15, SoC chinês). Ela traz uma tela inicial leve e apps separados para rádio, música, Bluetooth, telefone, equalizador, ventoinha e configurações, todos com o mesmo visual, o mesmo dock e **uma fonte de áudio por vez**.
 
 Os apps conversam com serviços proprietários da NWD (rádio, Bluetooth, SettingService, MCU) que **só existem na central**. Por isso quase nada funciona de verdade fora dela (ver [Ambiente local e testes](ambiente-local.md)).
 

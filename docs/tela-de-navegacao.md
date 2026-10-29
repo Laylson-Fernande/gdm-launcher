@@ -7,23 +7,27 @@ Uma segunda tela inicial, no estilo do Android Auto, com dois modos:
 
 O painel tem:
 
-- uma informação configurável no alto: relógio com data, velocidade do GPS ou nada;
+- no topo, os mesmos indicadores da tela inicial: dia/noite (tocar abre a barra de brilho), voltímetro e RAM/CPU, cada um conforme Configurações › Principais;
+- uma informação configurável abaixo deles: relógio com data, velocidade do GPS ou nada;
 - a música do player ativo (Spotify, YouTube Music ou qualquer app com MediaSession): app, capa, faixa, artista, anterior / tocar-pausar / próxima;
 - no app externo, atalhos: Início (volta à tela inicial atual), reabrir a navegação e Apps (no integrado, o dock faz esse papel).
 
-Como abrir: item **Navegação** do dock (ligar em Configurações › Customizar › Customizar dock) ou **Configurações › Customizar › Tela de navegação › Abrir**.
+Como abrir: item **Navegação** do dock (fixo, logo depois de Início) ou **Configurações › Customizar › Tela de navegação › Abrir**.
 
 Código: `launcher/.../NavHomeActivity.java`, `launcher/.../nav/` (`SplitScreen`, `MediaSessions`, `MediaListener`), `common/.../home/NavApps.java`. Detalhes técnicos em [`launcher/SPEC.md`](../launcher/SPEC.md#tela-de-navegação-navhomeactivity--nav).
 
 ## Configurações
 
-Em **Configurações › Customizar › Tela de navegação** (gravadas no `launcher.json`, ver [`common/SPEC.md`](../common/SPEC.md)):
+Em **Configurações › Customizar › Customizar navegação** (gravadas no `launcher.json`, ver [`common/SPEC.md`](../common/SPEC.md)):
 
 | Opção | Chave | Valores |
 |---|---|---|
 | Mapa da navegação | `nav_mode` | `integrated` (mapa integrado), `external` (app externo), `auto` (padrão: integrado sem internet ou sem app de navegação instalado; senão o externo) |
 | Lado da música | `nav_panel_right` | esquerda (padrão) ou direita; só no mapa integrado |
 | Instruções por voz | `nav_voice` | ligado (padrão) ou desligado; só no mapa integrado |
+| Mapa offline | `nav_offline_map` | ligado (padrão): baixa e desenha o mapa do raio de 100 km e das rotas, com as mesmas regras dos dados das vias; mostra quantas áreas estão baixadas, o tamanho e a data |
+| Zoom dinâmico | `nav_auto_zoom` | ligado (padrão): navegando, aproxima perto da próxima manobra ou alerta e afasta quando estão longe; desligado: zoom só pela velocidade |
+| Visão em perspectiva | `nav_perspective` | ligado (padrão): com a direção do carro para cima, mapa inclinado como uma câmera atrás do carro (como no Waze); desligado: sempre visto de cima |
 | Alertas de radar | `nav_cameras` | ligado (padrão); mostra e avisa por voz os radares à frente |
 | Limite de velocidade | `nav_speed_limit` | ligado (padrão); placa com o limite da via ao lado da velocidade |
 | Outros avisos da via | `nav_road_alerts` | ligado (padrão); lombadas, pedágios e passagens de nível, sem voz |
@@ -40,9 +44,11 @@ O modo é decidido ao abrir a tela e conferido ao voltar a ela. No automático, 
 
 Como nenhum app comum consegue mostrar a tela do Waze ou do Maps dentro de si (ver abaixo), o mapa foi feito do zero, sem bibliotecas, sobre dados abertos do OpenStreetMap. Detalhes em [`map/SPEC.md`](../map/SPEC.md):
 
-- tiles do OSM com cache em disco e mapas offline `.mbtiles`;
+- mapa offline próprio: o app desenha ruas, água, mar, rios e nomes a partir de dados do OSM baixados como os radares (abaixo); fora da área baixada, tiles do OSM com cache em disco e mapas `.mbtiles`;
 - busca pelo Nominatim e rota pelo OSRM da FOSSGIS (instruções montadas com as strings da suíte, nos 8 idiomas);
-- mapa girando com o carro, carro no terço de baixo, zoom pela velocidade, seta apontando pela direção da rua da rota;
+- bússola acima do zoom: direção do carro para cima (padrão; em perspectiva, com o carro no terço de baixo) ou norte para cima (visto de cima), guardado no próprio launcher;
+- botão de alertas acima da bússola: liga e desliga na hora radares e avisos da via no mapa (guardado no próprio launcher; as opções das Configurações valem por baixo);
+- zoom pela velocidade e, com o zoom dinâmico, pela distância até a próxima manobra ou alerta; seta apontando pela direção da rua da rota;
 - voz pelo TextToSpeech do Android, com a música abaixando enquanto fala;
 - recálculo depois de 3 posições seguidas fora da rota; chegada a menos de 25 m;
 - radares, limite de velocidade, lombadas, pedágios e passagens de nível (abaixo).
@@ -79,6 +85,7 @@ Um app comum não pode embutir a tela de outro app (o `ActivityView` do Android 
 
 Consequências:
 
+- **Android 12+ (a central é Android 15):** a API oculta do passo 1 é bloqueada e não existe mais "metade primária". A tela de navegação, em tela cheia, abre o app com `FLAG_ACTIVITY_LAUNCH_ADJACENT` e o próprio sistema divide. O resultado é o mesmo: painel à esquerda, app à direita, Início desfaz a divisão.
 - No app externo, o painel fica sempre **à esquerda** (o Android 10 ignora o lado pedido e só põe à esquerda a tarefa que entra primeiro; o app de navegação só entraria primeiro se ainda não estivesse aberto). A opção "Lado da música" vale para o mapa integrado.
 - A proporção começa em 50/50; o usuário arrasta o divisor e o Android lembra a posição. Não há API para fixar a proporção.
 - Se a central não dividir a tela em 1,5 s, a tela avisa ("Tela dividida indisponível nesta central") e abre o app de navegação em tela cheia.
@@ -152,6 +159,21 @@ Radares e limites (emulador; dados do Sudeste gerados no PC e servidos por um se
 | Configurações: opções e "66 áreas, 5,2 MB, conferido em 27/10/2026" | ✅ |
 | Sem rota (cone à frente do carro) | ✅ fora do emulador (o `geo fix` manda rumo 0°): o código real do `RoadWatcher` rodou no PC, num percurso de 16 km por São Paulo com rumo e ruído de ±3°; 0,024 ms por posição |
 
+Android 15 (emulador `android-35/default`, 1280×720, 2 GB, 4 núcleos; o Relógio no lugar do app de navegação):
+
+| Cenário | Resultado |
+|---|---|
+| Instalação com targetSdk 19 | ⚠️ o Android 15 puro recusa; com `--bypass-low-target-sdk-block` instala (a ROM da NWD libera sozinha) |
+| Tela inicial, dock com 8 itens, idioma e tema pelo car-setting (gravação no `/sdcard`) | ✅ |
+| Indicador de RAM **e CPU** | ✅ (no Android 10 só a RAM aparecia) |
+| Mapa integrado, dados das vias baixados do GitHub Pages (56 quadrados), log em arquivo | ✅ |
+| Navegando: placa 60, alerta "Radar · 60 km/h", anúncio do radar | ✅ (sem motor de voz na imagem) |
+| App externo em tela dividida | ✅ depois da correção (antes: dividia, mas avisava "indisponível") |
+| Automático: sem internet → mapa integrado em tela cheia; com internet, ao reabrir → tela dividida | ✅ depois da correção (antes: a tela nova ficava atrás) |
+| Idioma depois de sair da tela dividida | ✅ depois da correção (antes: textos voltavam ao inglês do sistema) |
+| Internet volta com o mapa fechado: confere os dados (receiver) | ✅ |
+| Abrir os 8 apps | ✅ sem travamentos nem ANR |
+
 ### O que só a central confirma
 
 - Se a ROM da NWD tem tela dividida e aceita a API usada.
@@ -164,13 +186,13 @@ Radares e limites (emulador; dados do Sudeste gerados no PC e servidos por um se
 
 ## Testar no emulador
 
-Use um AVD com **Google Play** (o Google Maps precisa dos serviços do Google), Android 10 x86_64, 1280×720. O passo a passo do emulador está em [Ambiente local e testes](ambiente-local.md#testar-no-emulador). Depois:
+Use um AVD com **Google Play** (o Google Maps precisa dos serviços do Google), 1280×720; para o comportamento da central, Android 15 (`android-35`). Sem Google, qualquer app serve no lugar do de navegação (`"nav_app": "com.android.deskclock"` no `launcher.json`). O passo a passo do emulador está em [Ambiente local e testes](ambiente-local.md#testar-no-emulador). Depois:
 
 ```bash
 # imagem com Play Store
-android --sdk=<sdk> sdk install "system-images/android-29/google_apis_playstore/x86_64"
-echo no | avdmanager create avd -n K4811_Play -k "system-images;android-29;google_apis_playstore;x86_64"
-# ajuste o config.ini como no K4811_Android10 e acrescente PlayStore.enabled=true
+android --sdk=<sdk> sdk install "system-images/android-35-ext15/google_apis_playstore/x86_64"
+echo no | avdmanager create avd -n K4811_Play -k "system-images;android-35-ext15;google_apis_playstore;x86_64"
+# ajuste o config.ini como no K4811_Android15 e acrescente PlayStore.enabled=true
 
 # no emulador: entre com uma conta Google, instale Google Maps e um app de música e toque algo
 
