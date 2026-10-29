@@ -5,6 +5,7 @@ import com.k4811.common.ui.Touch;
 import com.k4811.common.ui.IconView;
 
 import com.k4811.common.ui.ThemeDrawables;
+import com.k4811.common.ui.ToggleSwitch;
 
 import com.k4811.common.ui.Ui;
 

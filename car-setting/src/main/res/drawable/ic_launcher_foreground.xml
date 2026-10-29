@@ -1,34 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Rádio estilizado: corpo arredondado, dial e antena. Área segura 72dp centrais. -->
+<!-- Engrenagem (mesmo desenho do IconView do dock, grade 24 escalada x2 na área segura central). -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <!-- antena -->
-    <path
-        android:pathData="M40,40 L66,28"
-        android:strokeWidth="3"
-        android:strokeColor="#FFE9EBEE"
-        android:strokeLineCap="round" />
-    <!-- corpo -->
-    <path
-        android:fillColor="#FFE9EBEE"
-        android:pathData="M34,40 h40 a8,8 0 0 1 8,8 v24 a8,8 0 0 1 -8,8 h-40 a8,8 0 0 1 -8,-8 v-24 a8,8 0 0 1 8,-8 z" />
-    <!-- alto-falante -->
-    <path
-        android:fillColor="#FF0B0E13"
-        android:pathData="M44,60 m-9,0 a9,9 0 1 0 18,0 a9,9 0 1 0 -18,0" />
-    <!-- visor -->
-    <path
-        android:fillColor="#FF0B0E13"
-        android:pathData="M58,50 h16 v8 h-16 z" />
-    <!-- agulha -->
-    <path
-        android:fillColor="#FFE9EBEE"
-        android:pathData="M65,51 h2 v6 h-2 z" />
-    <!-- botões -->
-    <path
-        android:fillColor="#FF0B0E13"
-        android:pathData="M62,68 m-3,0 a3,3 0 1 0 6,0 a3,3 0 1 0 -6,0 M72,68 m-3,0 a3,3 0 1 0 6,0 a3,3 0 1 0 -6,0" />
+    <group
+        android:scaleX="2"
+        android:scaleY="2"
+        android:translateX="30"
+        android:translateY="30">
+        <path
+            android:pathData="M18.5,12 L21.5,12 M16.596,16.596 L18.718,18.718 M12,18.5 L12,21.5 M7.404,16.596 L5.282,18.718 M5.5,12 L2.5,12 M7.404,7.404 L5.282,5.282 M12,5.5 L12,2.5 M16.596,7.404 L18.718,5.282"
+            android:strokeWidth="2.6"
+            android:strokeColor="#FFE9EBEE"
+            android:strokeLineCap="round"
+            android:strokeLineJoin="round" />
+        <path
+            android:pathData="M5.8,12 a6.2,6.2 0 1,0 12.4,0 a6.2,6.2 0 1,0 -12.4,0 M9.8,12 a2.2,2.2 0 1,0 4.4,0 a2.2,2.2 0 1,0 -4.4,0"
+            android:strokeWidth="2"
+            android:strokeColor="#FFE9EBEE"
+            android:strokeLineCap="round"
+            android:strokeLineJoin="round" />
+    </group>
 </vector>

@@ -1,5 +1,6 @@
 package com.k4811.car.setting;
 
+import android.content.Context;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
@@ -8,7 +9,6 @@ import android.content.res.Configuration;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.Settings;
@@ -16,17 +16,19 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.k4811.common.Apps;
 import com.k4811.common.audio.AudioGains;
 import com.k4811.car.setting.audio.AudioPanel;
+import com.k4811.common.Apps;
+import com.k4811.common.config.DayNight;
 import com.k4811.common.config.LauncherConfig;
-import com.k4811.common.config.NwdConfigs;
 import com.k4811.common.home.NavApps;
 import com.k4811.common.system.BottomBar;
 import com.k4811.common.system.CrashLog;
 import com.k4811.common.system.DevMode;
 import com.k4811.common.system.ExternalApps;
+import com.k4811.common.system.LogFile;
 import com.k4811.common.system.NwdSettings;
+import com.k4811.car.setting.system.MemoryPanel;
 import com.k4811.car.setting.system.PlatformCompat;
 import com.k4811.common.system.SystemProps;
 import com.k4811.common.ui.IconView;
@@ -36,11 +38,6 @@ import com.k4811.car.setting.ui.ThemeSwatches;
 import com.k4811.common.ui.Touch;
 import com.k4811.common.ui.Ui;
 
-import org.json.JSONObject;
-
-import java.io.File;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 
@@ -51,6 +48,12 @@ import java.util.TimeZone;
  */
 public class SettingsActivity extends Activity {
 
+    /** Idioma da suíte no contexto da tela (sobrevive às mudanças de janela, ver Ui.withLanguage). */
+    @Override
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(Ui.withLanguage(base));
+    }
+
     private static final String ADVANCED_PASSWORD = "1234";
     private static final String KEY_FACTORY_FEATURE = "factory_feature";
 
@@ -58,11 +61,14 @@ public class SettingsActivity extends Activity {
     private static final int PANEL_CUSTOMIZE = 1;
     private static final int PANEL_SYSTEM = 2;
     private static final int PANEL_AUDIO = 3;
+    private static final int PANEL_MEMORY = 4;
 
     private final Handler handler = new Handler(Looper.getMainLooper());
-    private final LinearLayout[] panels = new LinearLayout[4];
-    private final TextView[] tabs = new TextView[4];
+    private final LinearLayout[] panels = new LinearLayout[5];
+    private final TextView[] tabs = new TextView[5];
     private AudioPanel audio;
+    private MemoryPanel memory;
+    private int shownPanel;
     private OptionList list;
     private Dialog dialog;
 
@@ -98,8 +104,8 @@ public class SettingsActivity extends Activity {
         buildMainHome();
         list.into(panels[PANEL_CUSTOMIZE]);
         buildAppearance();
+        buildDayNight();
         buildHomeScreen();
-        buildNavHome();
         list.into(panels[PANEL_SYSTEM]);
         buildDevice();
         buildAbout();
@@ -109,6 +115,7 @@ public class SettingsActivity extends Activity {
             audio = new AudioPanel(this, list);
             audio.build();
         }
+        memory = new MemoryPanel(this, panels[PANEL_MEMORY]);
         renderAll();
         setUpTabs();
 
@@ -124,7 +131,7 @@ public class SettingsActivity extends Activity {
         findViewById(R.id.settings_sidebar).setVisibility(View.VISIBLE);
         findViewById(R.id.settings_tab_assists).setVisibility(View.GONE);
         int[] ids = {R.id.settings_tab_main, R.id.settings_tab_customize,
-            R.id.settings_tab_system, R.id.settings_tab_audio};
+            R.id.settings_tab_system, R.id.settings_tab_audio, R.id.settings_tab_memory};
         for (int i = 0; i < tabs.length; i++) {
             int panel = i;
             tabs[i] = (TextView) findViewById(ids[i]);
@@ -145,6 +152,9 @@ public class SettingsActivity extends Activity {
     }
 
     private void showPanel(int panel) {
+        shownPanel = panel;
+        // A aba Memória lê ao abrir (nada fica medindo enquanto está escondida).
+        if (panel == PANEL_MEMORY) memory.refresh();
         for (int i = 0; i < panels.length; i++) {
             panels[i].setVisibility(i == panel ? View.VISIBLE : View.GONE);
             tabs[i].setActivated(i == panel);
@@ -191,7 +201,9 @@ public class SettingsActivity extends Activity {
                 if (on == LauncherConfig.darkMode(this)) return;
                 LauncherConfig.setDarkMode(this, on);
                 restartScreens();
-            }).local().help(getString(R.string.settings_help_dark_mode));
+            }).local()
+            // Com o tema seguindo o dia e a noite, vale até a próxima troca de período (ver buildDayNight).
+            .help(getString(R.string.settings_help_dark_mode));
         int theme = LauncherConfig.theme(this);
         list.custom(getString(R.string.settings_theme_color), getString(R.string.settings_theme_color_hint),
             new ThemeSwatches(this, theme, this::pickTheme))
@@ -212,6 +224,69 @@ public class SettingsActivity extends Activity {
                 LauncherConfig.setFont(this, LauncherConfig.FONTS[i]);
                 restartScreens();
             }).local().help(getString(R.string.settings_help_font));
+    }
+
+    /**
+     * Dia e noite: com o farol (padrão, como a central) ou por horário, e o que a noite muda (brilho,
+     * tema ou os dois). O brilho com o farol é o "Escurecer com o farol" da MCU: fica ligado só com o
+     * farol mudando o brilho; por horário, quem troca o brilho é o launcher ({@code DayNightWatcher}).
+     */
+    private void buildDayNight() {
+        list.section(getString(R.string.settings_day_night_section));
+        String[] by = {getString(R.string.settings_day_night_by_headlights), getString(R.string.settings_day_night_by_time)};
+        list.choice(getString(R.string.settings_day_night_by), getString(R.string.settings_day_night_by_hint),
+            by, new int[]{0, 1},
+            () -> DayNight.byTime(this) ? 1 : 0,
+            i -> changeDayNight(() -> LauncherConfig.setDayNightBy(this,
+                i == 1 ? LauncherConfig.DAY_NIGHT_BY_TIME : LauncherConfig.DAY_NIGHT_BY_HEADLIGHTS)))
+            .local().help(getString(R.string.settings_help_day_night_by));
+        int[] times = LauncherConfig.DAY_NIGHT_TIMES;
+        String[] labels = new String[times.length];
+        for (int i = 0; i < times.length; i++) labels[i] = DayNight.format(times[i]);
+        list.choice(getString(R.string.settings_night_start), getString(R.string.settings_night_start_hint),
+            labels, times,
+            () -> LauncherConfig.nightStart(this),
+            m -> changeDayNight(() -> LauncherConfig.setNightStart(this, m)))
+            .local()
+            .visibleWhen(() -> DayNight.byTime(this))
+            .help(getString(R.string.settings_help_day_night_times));
+        list.choice(getString(R.string.settings_day_start), getString(R.string.settings_day_start_hint),
+            labels, times,
+            () -> LauncherConfig.dayStart(this),
+            m -> changeDayNight(() -> LauncherConfig.setDayStart(this, m)))
+            .local()
+            .visibleWhen(() -> DayNight.byTime(this))
+            .help(getString(R.string.settings_help_day_night_times));
+        String[] affects = {getString(R.string.settings_day_night_brightness),
+            getString(R.string.settings_day_night_theme), getString(R.string.settings_day_night_both)};
+        list.choice(getString(R.string.settings_day_night_affects), getString(R.string.settings_day_night_affects_hint),
+            affects, new int[]{0, 1, 2},
+            () -> java.util.Arrays.asList(LauncherConfig.DAY_NIGHT_AFFECTS).indexOf(LauncherConfig.dayNightAffects(this)),
+            i -> changeDayNight(() -> LauncherConfig.setDayNightAffects(this, LauncherConfig.DAY_NIGHT_AFFECTS[i])))
+            .local().help(getString(R.string.settings_help_day_night_affects));
+    }
+
+    /**
+     * Grava uma opção do dia/noite, aplica o tema do período atual se ele passou a seguir o dia e a noite, acerta o "Escurecer com o farol" da MCU e, se o fundo (escuro/claro)
+     * mudou com isso, recria as telas; senão só atualiza as linhas (os horários aparecem ou somem).
+     */
+    private void changeDayNight(Runnable save) {
+        boolean dark = LauncherConfig.darkMode(this);
+        boolean themeBefore = LauncherConfig.dayNightTheme(this);
+        save.run();
+        // Tema passou a seguir o dia e a noite (ou mudou o que decide): já aplica o período de agora.
+        if (LauncherConfig.dayNightTheme(this) && (!themeBefore || DayNight.isNight(this) != dark)) {
+            LauncherConfig.setDarkMode(this, DayNight.isNight(this));
+        }
+        if (nwd()) {
+            boolean dimmer = !DayNight.byTime(this) && LauncherConfig.dayNightBrightness(this);
+            NwdSettings.setSystemFeature(NwdSettings.FEATURE_ILL_DIMMER, dimmer ? 1 : 0);
+        }
+        if (dark != LauncherConfig.darkMode(this)) {
+            restartScreens();
+            return;
+        }
+        handler.post(rerender);
     }
 
     private void pickTheme(int theme) {
@@ -237,123 +312,9 @@ public class SettingsActivity extends Activity {
         list.action(getString(R.string.settings_customize_dock), getString(R.string.settings_customize_dock_hint),
             getString(R.string.settings_open), () -> startActivity(new Intent(this, DockSettingsActivity.class)))
             .help(getString(R.string.settings_help_customize_dock));
-    }
-
-    /** Tela de navegação do launcher: app de navegação, informação e acesso à música. */
-    private void buildNavHome() {
-        list.section(getString(R.string.settings_nav_home_section));
-        list.action(getString(R.string.settings_nav_home_open), getString(R.string.settings_nav_home_open_hint),
-            getString(R.string.settings_open), this::openNavHome)
-            .visibleWhen(() -> ExternalApps.installed(this, Apps.LAUNCHER))
-            .help(getString(R.string.settings_help_nav_home_open));
-
-        String[] modeLabels = {getString(R.string.settings_nav_home_mode_integrated),
-            getString(R.string.settings_nav_home_mode_external), getString(R.string.settings_nav_home_mode_auto)};
-        list.choice(getString(R.string.settings_nav_home_mode), getString(R.string.settings_nav_home_mode_hint),
-            modeLabels, new int[]{0, 1, 2},
-            () -> Arrays.asList(LauncherConfig.NAV_MODES).indexOf(LauncherConfig.navMode(this)),
-            i -> LauncherConfig.setNavMode(this, LauncherConfig.NAV_MODES[i]))
-            .local().help(getString(R.string.settings_help_nav_home_mode));
-
-        String[] sides = {getString(R.string.settings_edge_menu_left), getString(R.string.settings_edge_menu_right)};
-        list.choice(getString(R.string.settings_nav_home_panel_side), getString(R.string.settings_nav_home_panel_side_hint),
-            sides, new int[]{0, 1},
-            () -> LauncherConfig.navPanelRight(this) ? 1 : 0,
-            i -> LauncherConfig.setNavPanelRight(this, i == 1))
-            .local().help(getString(R.string.settings_help_nav_home_panel_side));
-
-        list.toggle(getString(R.string.settings_nav_home_voice), getString(R.string.settings_nav_home_voice_hint),
-            () -> LauncherConfig.navVoice(this),
-            on -> LauncherConfig.setNavVoice(this, on))
-            .local().help(getString(R.string.settings_help_nav_home_voice));
-
-        // Dados das vias do mapa integrado (baixados pelo launcher, ver map/.../road/RoadSync).
-        list.toggle(getString(R.string.settings_nav_home_cameras), getString(R.string.settings_nav_home_cameras_hint),
-            () -> LauncherConfig.navCameras(this),
-            on -> LauncherConfig.setNavCameras(this, on))
-            .local().help(getString(R.string.settings_help_nav_home_cameras));
-        list.toggle(getString(R.string.settings_nav_home_speed_limit), getString(R.string.settings_nav_home_speed_limit_hint),
-            () -> LauncherConfig.navSpeedLimit(this),
-            on -> LauncherConfig.setNavSpeedLimit(this, on))
-            .local().help(getString(R.string.settings_help_nav_home_speed_limit));
-        list.toggle(getString(R.string.settings_nav_home_road_alerts), getString(R.string.settings_nav_home_road_alerts_hint),
-            () -> LauncherConfig.navRoadAlerts(this),
-            on -> LauncherConfig.setNavRoadAlerts(this, on))
-            .local().help(getString(R.string.settings_help_nav_home_road_alerts));
-        String[] dayLabels = {getString(R.string.settings_nav_home_data_day),
-            getString(R.string.settings_nav_home_data_week), getString(R.string.settings_nav_home_data_month)};
-        OptionList.Row roadData = list.choice(getString(R.string.settings_nav_home_data_days),
-            getString(R.string.settings_nav_home_data_days_hint),
-            dayLabels, LauncherConfig.NAV_DATA_DAYS,
-            () -> LauncherConfig.navDataDays(this),
-            days -> LauncherConfig.setNavDataDays(this, days))
-            .local().help(getString(R.string.settings_help_nav_home_data_days));
-
-        // Automático + os apps de navegação instalados agora.
-        List<String> apps = NavApps.installed(this);
-        String[] appLabels = new String[apps.size() + 1];
-        int[] appValues = new int[apps.size() + 1];
-        appLabels[0] = getString(R.string.settings_nav_home_app_auto);
-        for (int i = 0; i < apps.size(); i++) {
-            appLabels[i + 1] = NavApps.label(this, apps.get(i));
-            appValues[i + 1] = i + 1;
-        }
-        list.choice(getString(R.string.settings_nav_home_app), getString(R.string.settings_nav_home_app_hint),
-            appLabels, appValues,
-            () -> {
-                String pkg = LauncherConfig.navApp(this);
-                return pkg == null ? 0 : apps.indexOf(pkg) + 1;
-            },
-            i -> LauncherConfig.setNavApp(this, i == 0 ? null : apps.get(i - 1)))
-            .local().help(getString(R.string.settings_help_nav_home_app));
-
-        String[] infoLabels = {getString(R.string.settings_home_module_clock),
-            getString(R.string.settings_home_module_speed), getString(R.string.settings_home_hidden)};
-        int[] infoValues = {0, 1, 2};
-        list.choice(getString(R.string.settings_nav_home_info), getString(R.string.settings_nav_home_info_hint),
-            infoLabels, infoValues,
-            () -> Arrays.asList(LauncherConfig.NAV_INFOS).indexOf(LauncherConfig.navInfo(this)),
-            i -> LauncherConfig.setNavInfo(this, LauncherConfig.NAV_INFOS[i]))
-            .local().help(getString(R.string.settings_help_nav_home_info));
-
-        OptionList.Row access = list.action(getString(R.string.settings_nav_home_media_access),
-            getString(R.string.settings_nav_home_media_access_hint), getString(R.string.settings_open), () -> {
-                try {
-                    startActivity(new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS"));
-                } catch (RuntimeException e) {
-                    // Central sem a tela de acesso a notificações: nada a abrir.
-                }
-            })
-            .visibleWhen(() -> Build.VERSION.SDK_INT >= 21 && ExternalApps.installed(this, Apps.LAUNCHER))
-            .help(getString(R.string.settings_help_nav_home_media_access));
-        list.setAfterRender(() -> {
-            boolean on = NavApps.mediaAccess(this);
-            access.setNote(getString(on ? R.string.settings_nav_home_media_access_on
-                : R.string.settings_nav_home_media_access_off), !on);
-            roadData.setNote(roadDataStatus(), false);
-        });
-    }
-
-    /** "52 áreas, 4,5 MB, conferido em 27/10/2026", do estado gravado pelo launcher (RoadSync). */
-    private String roadDataStatus() {
-        JSONObject state = NwdConfigs.read(new File(Environment.getExternalStorageDirectory(), "K4811/nav/roads/state.json"));
-        JSONObject cells = state == null ? null : state.optJSONObject("cells");
-        if (cells == null || cells.length() == 0) return getString(R.string.settings_nav_home_data_none);
-        long updated = state.optLong("updated", 0);
-        String when = updated > 0 ? android.text.format.DateFormat.getDateFormat(this).format(new java.util.Date(updated)) : "—";
-        return getString(R.string.settings_nav_home_data_status, cells.length(),
-            android.text.format.Formatter.formatShortFileSize(this, state.optLong("bytes", 0)), when);
-    }
-
-    private void openNavHome() {
-        Intent nav = new Intent(Apps.ACTION_NAV_HOME);
-        nav.setPackage(Apps.LAUNCHER);
-        nav.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        try {
-            startActivity(nav);
-        } catch (RuntimeException e) {
-            // Launcher antigo, sem a tela de navegação.
-        }
+        list.action(getString(R.string.settings_customize_nav), getString(R.string.settings_customize_nav_hint),
+            getString(R.string.settings_open), () -> startActivity(new Intent(this, NavSettingsActivity.class)))
+            .help(getString(R.string.settings_help_customize_nav));
     }
 
     private void buildMainHome() {
@@ -397,6 +358,15 @@ public class SettingsActivity extends Activity {
             .local().help(getString(R.string.settings_help_screen_off_after));
     }
 
+    /** Tela do Android onde se liga o acesso a notificações (do launcher). */
+    private void openNotificationAccess() {
+        try {
+            startActivity(new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS"));
+        } catch (RuntimeException e) {
+            // Central sem a tela de acesso a notificações: nada a abrir.
+        }
+    }
+
     private boolean nwd() {
         return NwdSettings.isInstalled(this);
     }
@@ -409,6 +379,32 @@ public class SettingsActivity extends Activity {
             .local()
             .visibleWhen(() -> BottomBar.available(this))
             .help(getString(R.string.settings_help_hide_bottom_bar));
+        list.toggle(getString(R.string.settings_start_guard), getString(R.string.settings_start_guard_hint),
+            () -> LauncherConfig.startGuard(this),
+            on -> LauncherConfig.setStartGuard(this, on))
+            .local().help(getString(R.string.settings_help_start_guard));
+        // Quem apaga é o serviço de notificações do launcher (nav/MediaListener), que precisa do acesso.
+        list.toggle(getString(R.string.settings_block_notifications), getString(R.string.settings_block_notifications_hint),
+            () -> LauncherConfig.blockNotifications(this),
+            on -> {
+                LauncherConfig.setBlockNotifications(this, on);
+                if (on && !NavApps.mediaAccess(this)) openNotificationAccess();
+            })
+            .local()
+            .visibleWhen(() -> Build.VERSION.SDK_INT >= 21 && ExternalApps.installed(this, Apps.LAUNCHER))
+            .help(getString(R.string.settings_help_block_notifications));
+        list.action(getString(R.string.settings_block_notifications_access),
+            getString(R.string.settings_block_notifications_access_hint), getString(R.string.settings_open),
+            this::openNotificationAccess)
+            .visibleWhen(() -> Build.VERSION.SDK_INT >= 21 && LauncherConfig.blockNotifications(this)
+                && !NavApps.mediaAccess(this) && ExternalApps.installed(this, Apps.LAUNCHER));
+        list.toggle(getString(R.string.settings_save_logs), getString(R.string.settings_save_logs_hint),
+            () -> LauncherConfig.saveLogs(this),
+            on -> {
+                LauncherConfig.setSaveLogs(this, on);
+                LogFile.sync(this);
+            })
+            .local().help(getString(R.string.settings_help_save_logs));
     }
 
     private String yesNo(boolean v) {
@@ -494,6 +490,7 @@ public class SettingsActivity extends Activity {
         getContentResolver().unregisterContentObserver(observer);
         handler.removeCallbacksAndMessages(null);
         list.release();
+        memory.release();
         if (audio != null) audio.release();
         if (dialog != null) dialog.dismiss();
         super.onDestroy();
@@ -510,6 +507,8 @@ public class SettingsActivity extends Activity {
         super.onResume();
         Ui.hideSystemBars(getWindow());
         renderAll();
+        // Volta da tela do app no Android (Forçar parada): lê de novo.
+        if (shownPanel == PANEL_MEMORY) memory.refresh();
     }
 
     @Override

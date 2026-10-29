@@ -1,5 +1,6 @@
 package com.k4811.car.setting;
 
+import android.content.Context;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -31,6 +32,12 @@ import java.util.List;
  * Anything that could leave the unit without sound, picture or apps is kept out even here.
  */
 public class AdvancedActivity extends Activity {
+
+    /** Suite language in the screen context (survives window changes, see Ui.withLanguage). */
+    @Override
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(Ui.withLanguage(base));
+    }
 
     private static final String ACTION_PRINT_LOG = "com.nwd.action.ACTION_PRINT_LOG_ENABLE";
     private static final String ACTION_HAND_BRAKE = "com.nwd.action.ACTION_HAND_BREAK_STATE_CHANGE";

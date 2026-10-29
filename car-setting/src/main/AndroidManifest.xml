@@ -2,6 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+    <!-- Aba Memória: encerrar apps em segundo plano (até o Android 13; depois abre a tela do app). -->
+    <uses-permission android:name="android.permission.KILL_BACKGROUND_PROCESSES" />
     <!-- Settings.System (chaves da NWD) e pedido de alterar props ("nwd_system_prop"), como o
          launcher padrão. Com targetSdk < 23 é concedida na instalação. -->
     <uses-permission android:name="android.permission.WRITE_SETTINGS" />
@@ -53,6 +55,14 @@
             android:launchMode="singleTop"
             android:screenOrientation="nosensor" />
 
+        <!-- Customizar navegação: tela de navegação, mapa integrado, radares e app externo. -->
+        <activity
+            android:name=".NavSettingsActivity"
+            android:configChanges="fontScale|keyboard|keyboardHidden|locale|mcc|mnc|navigation|orientation|screenLayout|screenSize|smallestScreenSize|uiMode|density"
+            android:exported="false"
+            android:launchMode="singleTop"
+            android:screenOrientation="nosensor" />
+
         <!-- Avançado (com senha): fábrica, desenvolvimento e menus da NWD. -->
         <activity
             android:name=".AdvancedActivity"
@@ -68,5 +78,14 @@
             android:exported="false"
             android:launchMode="singleTop"
             android:screenOrientation="nosensor" />
+
+        <!-- Modo escuro pedido pela barra de brilho do launcher (só este app grava o launcher.json). -->
+        <receiver
+            android:name=".DarkModeReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.k4811.action.SET_DARK_MODE" />
+            </intent-filter>
+        </receiver>
     </application>
 </manifest>

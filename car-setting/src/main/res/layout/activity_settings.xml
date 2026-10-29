@@ -76,6 +76,11 @@
             android:text="@string/settings_group_system" />
 
         <TextView
+            android:id="@+id/settings_tab_memory"
+            style="@style/SettingsTab"
+            android:text="@string/settings_group_memory" />
+
+        <TextView
             android:id="@+id/settings_tab_advanced"
             style="@style/SettingsTab"
             android:text="@string/settings_advanced"

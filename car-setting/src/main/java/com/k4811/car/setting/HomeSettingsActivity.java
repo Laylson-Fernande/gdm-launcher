@@ -1,5 +1,6 @@
 package com.k4811.car.setting;
 
+import android.content.Context;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.res.Configuration;
@@ -41,6 +42,12 @@ import java.util.concurrent.Executors;
  * modules. The Image module's row also picks its picture among the images in K4811/. No dock.
  */
 public class HomeSettingsActivity extends Activity {
+
+    /** Suite language in the screen context (survives window changes, see Ui.withLanguage). */
+    @Override
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(Ui.withLanguage(base));
+    }
 
     private static final int THUMB_COLUMNS = 4;
     private static final int THUMB_WIDTH = 200;

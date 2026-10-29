@@ -1,5 +1,6 @@
 package com.k4811.car.setting;
 
+import android.content.Context;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.res.Configuration;
@@ -47,6 +48,12 @@ import java.util.regex.Pattern;
  * to a text file.
  */
 public class DevPropsActivity extends Activity {
+
+    /** Suite language in the screen context (survives window changes, see Ui.withLanguage). */
+    @Override
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(Ui.withLanguage(base));
+    }
 
     /** getprop line: "[name]: [value]". */
     private static final Pattern LINE = Pattern.compile("^\\[(.*)\\]: \\[(.*)\\]$");
