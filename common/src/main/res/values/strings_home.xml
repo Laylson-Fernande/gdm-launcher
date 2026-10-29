@@ -130,6 +130,7 @@
     <string name="home_dock_nav">NAVIGATION</string>
     <string name="home_dock_nav_title">Navigation screen</string>
     <string name="home_nav_arrival">Arrival %1$s</string>
+    <string name="home_nav_waze_starting">Starting Waze…</string>
     <string name="home_nav_open">Open navigation</string>
     <string name="home_nav_no_app">No navigation app installed</string>
     <string name="home_nav_no_split">Split screen unavailable on this unit</string>

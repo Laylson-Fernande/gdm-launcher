@@ -41,6 +41,7 @@ import com.k4811.common.ui.Ui;
 import com.k4811.launcher.home.HomeSession;
 import com.k4811.launcher.nav.MediaSessions;
 import com.k4811.map.MapConfig;
+import com.k4811.launcher.waze.WazeScreen;
 import com.k4811.map.MapScreen;
 import com.k4811.map.NavProgress;
 import com.k4811.map.TurnIcon;
@@ -105,6 +106,9 @@ public class NavHomeActivity extends Activity {
     /** Mapa integrado (OpenStreetMap) em vez do app externo em tela dividida; decidido ao abrir. */
     private boolean integrated;
     private MapScreen mapScreen;
+    /** Waze modificado embutido no lugar do mapa (o launcher é o host do modo carro dele); decidido ao abrir. */
+    private boolean embedded;
+    private WazeScreen wazeScreen;
 
     private TextView clockTime;
     private TextView clockDate;
@@ -166,7 +170,9 @@ public class NavHomeActivity extends Activity {
         appliedLook = Ui.lookKey(this);
         boolean entering = getIntent().getBooleanExtra(SplitScreen.EXTRA_ENTERING, false);
         integrated = !entering && wantsIntegrated();
+        embedded = !integrated && !entering && wantsEmbeddedWaze();
         if (integrated) setUpIntegrated();
+        else if (embedded) setUpEmbeddedWaze();
         else setContentView(R.layout.activity_nav_home);
         Ui.applyFont(findViewById(R.id.nav_root));
 
@@ -227,7 +233,7 @@ public class NavHomeActivity extends Activity {
         // Modo escuro trocado pela barra de brilho: como uma troca nas Configurações (navegando, espera).
         statusBar.setOnLookChanged(this::checkMode);
 
-        if (savedInstanceState != null || integrated) return;
+        if (savedInstanceState != null || integrated || embedded) return;
         if (entering) {
             // Reaberta por SplitScreen.enter: a navegação abre ao lado quando a tela dividir.
             waitingSplit = true;
@@ -241,7 +247,7 @@ public class NavHomeActivity extends Activity {
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         if (checkMode()) return;
-        if (integrated) return;
+        if (integrated || embedded) return;
         // Aberta de novo pelo dock ou pelas Configurações: traz a navegação de volta para o lado.
         handler.postDelayed(this::openNavigation, 300);
     }
@@ -260,12 +266,37 @@ public class NavHomeActivity extends Activity {
         return !MapConfig.online(this);
     }
 
+    /**
+     * Waze embutido? Com o app externo escolhido sendo o Waze modificado (projeto recompile-optimized),
+     * o mapa dele entra no lugar do integrado, sem tela dividida.
+     */
+    private boolean wantsEmbeddedWaze() {
+        return "com.waze".equals(NavApps.chosen(this)) && WazeScreen.available(this);
+    }
+
+    /** Painel e Waze lado a lado, como o mapa integrado; a rota vai para o cartão do painel. */
+    private void setUpEmbeddedWaze() {
+        setContentView(R.layout.activity_nav_home_waze);
+        ViewGroup holder = (ViewGroup) findViewById(R.id.nav_map);
+        wazeScreen = new WazeScreen(this);
+        holder.addView(wazeScreen, new ViewGroup.LayoutParams(-1, -1));
+        setUpPanelBesideMap(holder);
+        wazeScreen.setRouteListener(this::renderRoute);
+    }
+
     /** Painel e mapa lado a lado, o dock embaixo (Navegação aceso), a música no lado escolhido. */
     private void setUpIntegrated() {
         setContentView(R.layout.activity_nav_home_map);
+        setUpPanelBesideMap(findViewById(R.id.nav_map));
+        mapScreen = (MapScreen) findViewById(R.id.nav_map);
+        // Como com o Waze: a manobra e a chegada vão para o cartão do painel, no lugar da hora.
+        if (findViewById(R.id.nav_route) != null) mapScreen.setRouteOutside(true);
+    }
+
+    /** Lado da música, cantos do mapa, sem os atalhos (há o dock), capa menor e o dock. */
+    private void setUpPanelBesideMap(View map) {
         ViewGroup row = (ViewGroup) findViewById(R.id.nav_map_row);
         View panel = findViewById(R.id.nav_root);
-        View map = findViewById(R.id.nav_map);
         if (LauncherConfig.navPanelRight(this)) {
             row.removeView(panel);
             row.addView(panel);
@@ -282,9 +313,6 @@ public class NavHomeActivity extends Activity {
         ViewGroup.LayoutParams lp = frame.getLayoutParams();
         lp.width = lp.height = Math.round(Ui.dp(this, 112));
         frame.setLayoutParams(lp);
-        mapScreen = (MapScreen) findViewById(R.id.nav_map);
-        // Como com o Waze: a manobra e a chegada vão para o cartão do painel, no lugar da hora.
-        if (findViewById(R.id.nav_route) != null) mapScreen.setRouteOutside(true);
         DockView dock = DockNavigator.attachDock(this, DockView.Item.NAVIGATION);
         dock.setListener(this::onDock);
     }
@@ -316,14 +344,18 @@ public class NavHomeActivity extends Activity {
      * @return true se vai recriar (o chamador não continua)
      */
     private boolean checkMode() {
-        if (isFinishing() || (mapScreen != null && mapScreen.isNavigating())) return false;
+        if (isFinishing() || (mapScreen != null && mapScreen.isNavigating())
+            || (wazeScreen != null && wazeScreen.isNavigating())) {
+            return false;
+        }
         if (!Ui.lookKey(this).equals(appliedLook)) {
             // Tema, modo escuro (inclusive o dia/noite), idioma, fonte ou dock mudaram: monta tudo de
             // novo, mapa incluído. Navegando, espera a rota acabar (a tela continua como está).
             recreate();
             return true;
         }
-        if (wantsIntegrated() == integrated) return false;
+        boolean wantIntegrated = wantsIntegrated();
+        if (wantIntegrated == integrated && (!wantIntegrated && wantsEmbeddedWaze()) == embedded) return false;
         // Tarefa nova, como uma abertura normal: sai da tela dividida se estava nela e, no app
         // externo, abre a navegação ao lado (recreate() guardaria o estado e não abriria).
         SplitScreen.restart(this);
@@ -367,9 +399,10 @@ public class NavHomeActivity extends Activity {
                 renderIntegrated(NavProgress.current());
             }
         }
+        if (wazeScreen != null) wazeScreen.onStart();
         info = LauncherConfig.navInfo(this);
         showInfo();
-        if (route != null && !integrated) {
+        if (route != null && !integrated && !embedded) {
             // A rota do app de navegação ao lado: pede o estado atual e escuta as mudanças.
             IntentFilter f = new IntentFilter(Apps.ACTION_NAV_STATE);
             f.addAction(Apps.ACTION_NAV_PANEL_QUERY);
@@ -404,7 +437,7 @@ public class NavHomeActivity extends Activity {
     @Override
     protected void onStop() {
         unregisterReceiver(tick);
-        if (route != null && !integrated) {
+        if (route != null && !integrated && !embedded) {
             unregisterReceiver(navState);
             sendPanelShown(false);
         }
@@ -416,6 +449,7 @@ public class NavHomeActivity extends Activity {
             NavProgress.removeListener(integratedRoute);
             mapScreen.onStop();
         }
+        if (wazeScreen != null) wazeScreen.onStop();
         super.onStop();
     }
 
@@ -428,6 +462,7 @@ public class NavHomeActivity extends Activity {
         radio.setListener(null);
         radio.release();
         artLoader.shutdownNow();
+        if (wazeScreen != null) wazeScreen.onDestroy();
         super.onDestroy();
     }
 
@@ -451,6 +486,7 @@ public class NavHomeActivity extends Activity {
     @Override
     public void onBackPressed() {
         if (mapScreen != null && mapScreen.onBackPressed()) return;
+        if (wazeScreen != null && wazeScreen.onBackPressed()) return;
         goHome();
     }
 
@@ -592,6 +628,7 @@ public class NavHomeActivity extends Activity {
         setRouteActive(s != null);
         if (s == null) return;
         routeIcon.setVisibility(View.GONE);
+        ((View) routeIcon.getParent()).setVisibility(View.VISIBLE);
         routeTurn.setVisibility(View.VISIBLE);
         routeTurn.setShape(s.shape);
         setIfChanged(routeDistance, s.distance);
@@ -621,6 +658,8 @@ public class NavHomeActivity extends Activity {
         routeIcon.setImageBitmap(icon);
         routeIcon.setColorFilter(Ui.TEXT);
         routeIcon.setVisibility(icon == null ? View.GONE : View.VISIBLE);
+        // Sem seta (o Waze não manda no começo da rota): a moldura sai e o texto encosta na borda.
+        ((View) routeIcon.getParent()).setVisibility(icon == null ? View.GONE : View.VISIBLE);
         setIfChanged(routeDistance, i.getStringExtra("distance"));
         setIfChanged(routeCue, i.getStringExtra("cue"));
         StringBuilder eta = new StringBuilder();

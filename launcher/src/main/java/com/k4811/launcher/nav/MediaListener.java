@@ -8,6 +8,7 @@ import android.service.notification.StatusBarNotification;
 import android.util.Log;
 
 import com.k4811.common.config.LauncherConfig;
+import com.k4811.launcher.start.PlayerResume;
 
 /**
  * Serviço de notificações do launcher. Existe porque o Android libera a lista de players
@@ -15,7 +16,8 @@ import com.k4811.common.config.LauncherConfig;
  * notificações ligado pelo usuário (ver {@link MediaSessions}). Com "Bloquear notificações"
  * ({@link LauncherConfig#blockNotifications}), também apaga cada notificação assim que ela aparece,
  * o que tira o aviso flutuante da tela. Não lê o conteúdo; deixa as de player (para o controle de
- * música continuar) e as fixas, que o Android não deixa apagar.
+ * música continuar) e as fixas, que o Android não deixa apagar. Enquanto ligado, também acompanha
+ * os players de fora para retomá-los ao ligar o carro ({@link PlayerResume}).
  */
 @TargetApi(18)
 public class MediaListener extends NotificationListenerService {
@@ -28,6 +30,12 @@ public class MediaListener extends NotificationListenerService {
     public void onListenerConnected() {
         blocking = LauncherConfig.blockNotifications(this);
         if (blocking) blockAll();
+        PlayerResume.track(this);
+    }
+
+    @Override
+    public void onListenerDisconnected() {
+        PlayerResume.untrack(this);
     }
 
     @Override

@@ -98,6 +98,11 @@ public final class StartGuard {
         launcherResumed = Math.max(0, launcherResumed + (resumed ? 1 : -1));
     }
 
+    /** Último estado da MCU guardado (1 = ligado, se nunca veio). */
+    static int mcuState(Context c) {
+        return c.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getInt(KEY_MCU_STATE, 1);
+    }
+
     /** Estado da MCU guardado: o processo pode morrer entre "dormindo" (0) e "ligado" (1). */
     static boolean mcuWoke(Context c, int now) {
         SharedPreferences prefs = c.getSharedPreferences(PREFS, Context.MODE_PRIVATE);

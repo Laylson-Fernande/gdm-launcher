@@ -122,6 +122,7 @@
     <string name="home_dock_nav">ナビ</string>
     <string name="home_dock_nav_title">ナビ画面</string>
     <string name="home_nav_arrival">到着 %1$s</string>
+    <string name="home_nav_waze_starting">Waze を起動しています…</string>
     <string name="home_nav_open">ナビを開く</string>
     <string name="home_nav_no_app">ナビアプリがありません</string>
     <string name="home_nav_no_split">この機器では画面分割を使えません</string>

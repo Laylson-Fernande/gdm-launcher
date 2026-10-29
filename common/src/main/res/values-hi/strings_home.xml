@@ -123,6 +123,7 @@
     <string name="home_dock_nav">नेविगेशन</string>
     <string name="home_dock_nav_title">नेविगेशन स्क्रीन</string>
     <string name="home_nav_arrival">पहुँच %1$s</string>
+    <string name="home_nav_waze_starting">Waze खुल रहा है…</string>
     <string name="home_nav_open">नेविगेशन खोलें</string>
     <string name="home_nav_no_app">कोई नेविगेशन ऐप इंस्टॉल नहीं है</string>
     <string name="home_nav_no_split">इस यूनिट पर स्प्लिट स्क्रीन उपलब्ध नहीं है</string>

@@ -16,7 +16,7 @@ android {
     }
 
     buildFeatures {
-        aidl = false
+        aidl = true     // androidx.car.app: host do modo carro do Waze (launcher/waze)
         buildConfig = false
     }
 

@@ -124,6 +124,7 @@
     <string name="home_dock_nav">NAVEGACIÓN</string>
     <string name="home_dock_nav_title">Pantalla de navegación</string>
     <string name="home_nav_arrival">Llegada %1$s</string>
+    <string name="home_nav_waze_starting">Abriendo Waze…</string>
     <string name="home_nav_open">Abrir navegación</string>
     <string name="home_nav_no_app">Ninguna app de navegación instalada</string>
     <string name="home_nav_no_split">Pantalla dividida no disponible en esta unidad</string>

@@ -124,6 +124,7 @@
     <string name="home_dock_nav">导航</string>
     <string name="home_dock_nav_title">导航界面</string>
     <string name="home_nav_arrival">到达 %1$s</string>
+    <string name="home_nav_waze_starting">正在打开 Waze…</string>
     <string name="home_nav_open">打开导航</string>
     <string name="home_nav_no_app">未安装导航应用</string>
     <string name="home_nav_no_split">此设备不支持分屏</string>

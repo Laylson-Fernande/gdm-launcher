@@ -123,6 +123,7 @@
     <string name="home_dock_nav">NAVEGAÇÃO</string>
     <string name="home_dock_nav_title">Tela de navegação</string>
     <string name="home_nav_arrival">Chegada %1$s</string>
+    <string name="home_nav_waze_starting">Abrindo o Waze…</string>
     <string name="home_nav_open">Abrir navegação</string>
     <string name="home_nav_no_app">Nenhum app de navegação instalado</string>
     <string name="home_nav_no_split">Tela dividida indisponível nesta central</string>

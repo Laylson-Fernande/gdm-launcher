@@ -126,6 +126,7 @@
     <string name="home_dock_nav">НАВИГАЦИЯ</string>
     <string name="home_dock_nav_title">Экран навигации</string>
     <string name="home_nav_arrival">Прибытие %1$s</string>
+    <string name="home_nav_waze_starting">Запуск Waze…</string>
     <string name="home_nav_open">Открыть навигацию</string>
     <string name="home_nav_no_app">Нет приложения навигации</string>
     <string name="home_nav_no_split">Разделение экрана недоступно</string>

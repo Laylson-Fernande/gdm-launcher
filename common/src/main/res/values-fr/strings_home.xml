@@ -124,6 +124,7 @@
     <string name="home_dock_nav">NAVIGATION</string>
     <string name="home_dock_nav_title">Écran de navigation</string>
     <string name="home_nav_arrival">Arrivée %1$s</string>
+    <string name="home_nav_waze_starting">Ouverture de Waze…</string>
     <string name="home_nav_open">Ouvrir la navigation</string>
     <string name="home_nav_no_app">Aucune app de navigation installée</string>
     <string name="home_nav_no_split">Écran partagé indisponible sur cet appareil</string>
