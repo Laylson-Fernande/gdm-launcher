@@ -2,7 +2,7 @@
 
 Uma segunda tela inicial, no estilo do Android Auto, com dois modos:
 
-- **Mapa integrado** (módulo [`map`](../map/README.md)): o launcher ocupa a tela inteira, com o mapa OpenStreetMap ao lado do painel de música e acima do dock. Busca, rota, instruções passo a passo, voz, recálculo e chegada são do próprio launcher. Funciona sem internet com as áreas já vistas.
+- **Mapa integrado** (módulo [`map`](../map/README.md)): o launcher ocupa a tela inteira, com o mapa OpenStreetMap ao lado do painel de música e acima do dock. Busca, rota, instruções passo a passo, voz, recálculo e chegada são do próprio launcher. Funciona sem internet na área baixada (100 km em volta do carro e as rotas já calculadas): mapa, busca de endereços e rota.
 - **App externo**: o app de navegação (Waze, Google Maps…) numa metade da tela dividida e o painel na outra.
 
 O painel tem:
@@ -25,13 +25,14 @@ Em **Configurações › Customizar › Customizar navegação** (gravadas no `l
 | Mapa da navegação | `nav_mode` | `integrated` (mapa integrado), `external` (app externo), `auto` (padrão: integrado sem internet ou sem app de navegação instalado; senão o externo) |
 | Lado da música | `nav_panel_right` | esquerda (padrão) ou direita; só no mapa integrado |
 | Instruções por voz | `nav_voice` | ligado (padrão) ou desligado; só no mapa integrado |
-| Mapa offline | `nav_offline_map` | ligado (padrão): baixa e desenha o mapa do raio de 100 km e das rotas, com as mesmas regras dos dados das vias; mostra quantas áreas estão baixadas, o tamanho e a data |
+| Mapa offline | `nav_offline_map` | ligado (padrão): baixa e desenha o mapa do raio escolhido e das rotas, e baixa o grafo e o índice de endereços da rota e da busca sem internet, com as mesmas regras dos dados das vias; mostra quantas áreas estão baixadas, o tamanho e a data |
 | Zoom dinâmico | `nav_auto_zoom` | ligado (padrão): navegando, aproxima perto da próxima manobra ou alerta e afasta quando estão longe; desligado: zoom só pela velocidade |
 | Visão em perspectiva | `nav_perspective` | ligado (padrão): com a direção do carro para cima, mapa inclinado como uma câmera atrás do carro (como no Waze); desligado: sempre visto de cima |
 | Alertas de radar | `nav_cameras` | ligado (padrão); mostra e avisa por voz os radares à frente |
 | Limite de velocidade | `nav_speed_limit` | ligado (padrão); placa com o limite da via ao lado da velocidade |
 | Outros avisos da via | `nav_road_alerts` | ligado (padrão); lombadas, pedágios e passagens de nível, sem voz |
-| Atualizar dados das vias | `nav_data_days` | todo dia, toda semana (padrão) ou todo mês; mostra quantas áreas estão baixadas, o tamanho e a data |
+| Atualizar dados das vias | `nav_data_days` | todo dia, toda semana (padrão) ou todo mês, para todos os dados baixados (vias, mapa, rota, endereços); mostra quantas áreas estão baixadas, o tamanho e a data |
+| Raio dos dados baixados | `nav_data_km` | 25, 50, 100 (padrão), 200, 300 ou 500 km em volta do carro; ao mudar, o launcher confere na hora |
 | App de navegação | `nav_app` | Automático (app do Config. Veículo; senão Waze, Google Maps, outro que abra `geo:`) ou um app instalado |
 | Informação | `nav_info` | `clock` (padrão), `speed`, `none` |
 | Acesso à música | — | abre a tela "Acesso a notificações" do Android e mostra se está liberado |
@@ -46,6 +47,9 @@ Como nenhum app comum consegue mostrar a tela do Waze ou do Maps dentro de si (v
 
 - mapa offline próprio: o app desenha ruas, água, mar, rios e nomes a partir de dados do OSM baixados como os radares (abaixo); fora da área baixada, tiles do OSM com cache em disco e mapas `.mbtiles`;
 - busca pelo Nominatim e rota pelo OSRM da FOSSGIS (instruções montadas com as strings da suíte, nos 8 idiomas);
+- sugestões enquanto digita: do índice de endereços baixado (ruas com número de casa do CNEFE do IBGE, parques, escolas, bairros, cidades) e, com internet, do Photon;
+- sem internet (ou com o OSRM fora do ar), a rota e o recálculo são calculados no próprio aparelho, sobre o grafo de ruas baixado;
+- até 3 opções de rota na prévia, com tempo, distância e a diferença entre elas; o perfil de rotas preferidas (as ruas por onde o carro passa) faz o caminho de costume ser sugerido primeiro;
 - bússola acima do zoom: direção do carro para cima (padrão; em perspectiva, com o carro no terço de baixo) ou norte para cima (visto de cima), guardado no próprio launcher;
 - botão de alertas acima da bússola: liga e desliga na hora radares e avisos da via no mapa (guardado no próprio launcher; as opções das Configurações valem por baixo);
 - zoom pela velocidade e, com o zoom dinâmico, pela distância até a próxima manobra ou alerta; seta apontando pela direção da rua da rota;
@@ -60,7 +64,7 @@ Os dados vêm do próprio OpenStreetMap, a mesma base que o OsmAnd usa para os a
 1. Toda semana um workflow do GitHub (`road-data.yml`) baixa o recorte do Brasil da Geofabrik e gera um **pacote offline** em quadrados de ~28 km, publicado no GitHub Pages do repositório (gerador e formato em [`tools/road-data/README.md`](../tools/road-data/README.md)).
 2. A central guarda os quadrados em `K4811/nav/roads/` e usa **sem internet**.
 3. Com internet, ela confere:
-   - o **raio de 100 km** em volta do carro, no período escolhido (todo dia, toda semana, todo mês) ou quando o carro se afasta 30 km;
+   - o **raio escolhido** (100 km por padrão) em volta do carro, logo depois de instalar (sem precisar abrir o mapa), no período escolhido (todo dia, toda semana, todo mês), quando o carro se afasta 30% do raio ou quando o raio muda;
    - os quadrados **ao longo de uma rota**, assim que ela é calculada, mesmo fora do raio.
 
    Conferir é baixar um índice pequeno (~85 KB compactado para o Brasil) e só os quadrados que mudaram.
@@ -142,6 +146,22 @@ Mapa integrado (emulador Android 10, 1280×720, GPS simulado ao longo de uma rot
 | Automático sem internet → mapa integrado (sai da tela dividida sozinho); com internet → app externo | ✅ |
 | Sem internet: áreas já vistas vêm do cache | ✅ |
 | Mapa offline `.mbtiles` | ⚠️ não testado (nenhum arquivo de teste) |
+
+Busca e rota sem internet (emulador Android 15; dados do Nordeste e o CNEFE de Pernambuco gerados no PC e copiados para `K4811/nav/graph` e `places`, 100 km em volta de Garanhuns; GPS na Rua Francisco Branco, 1326):
+
+| Cenário | Resultado |
+|---|---|
+| Sem internet, digitando "parque euc": sugestões a cada letra, o Parque Euclides Dourado primeiro | ✅ |
+| "Rua Francisco Branco 1326": o número vem do CNEFE, interpolado (~10 m do ponto do IBGE no PC) | ✅ |
+| Sem internet, escolher o parque: rota calculada no aparelho (2,1 km, 62 ms), "Rota calculada sem internet" | ✅ |
+| Sem internet, sair da rota: recálculo no aparelho (3–6 ms cada) | ✅ |
+| Com internet, "Marco Zero Recife" (fora da área baixada): sugestões do Photon | ✅ |
+| Rotas longas no PC (mesmo código): Caruaru 100 km em 0,1 s, Recife 230 km em 0,2 s | ✅ |
+| Dados publicados pelo workflow e baixados pelo `RoadSync` | ⚠️ não testado (o workflow ainda não rodou com os pacotes novos) |
+| Prévia para a Av. Santo Antônio sem internet: 3 opções (cartões e linhas cinza), "Mais rápida", diferença "+1 min · +200 m"; tocar no cartão escolhe | ✅ |
+| Dirigir (GPS simulado, ~43 km/h) pela 3ª opção sem navegar, sair da tela e buscar de novo: ela vem primeiro, como "Seu caminho de costume" (26 trechos no perfil) | ✅ |
+| Com internet, trajeto curto (o OSRM deu uma rota só): as alternativas do aparelho completam as opções | ✅ |
+| Perfil numa viagem real (GPS de verdade, horas de uso) | ⚠️ não testado na central |
 
 Radares e limites (emulador; dados do Sudeste gerados no PC e servidos por um servidor local; GPS simulado a 72 km/h pela Av. 23 de Maio):
 
@@ -233,7 +253,7 @@ Para forçar uma conferência, zere `index_checked` e `area_time` no `state.json
 ## Limitações conhecidas
 
 - **Uma fonte por vez:** o Spotify e o YouTube Music não pausam quando o rádio liga; o `PlayerHandoff` só conhece os players da suíte.
-- **Mapa integrado:** sem busca nem rota nova offline; sem trânsito e faixas; o tema escuro é um filtro sobre o mapa claro do OSM.
+- **Mapa integrado:** sem trânsito e faixas; busca e rota sem internet só na área baixada; o tema escuro dos tiles da internet é um filtro sobre o mapa claro do OSM.
 - **Radares e limites:** valem o que a comunidade do OSM mapeou (fora das cidades grandes muitas vias não têm limite; radar não mapeado não aparece; radar móvel nunca). Sem rota, o alerta é por um cone à frente do carro, que pode errar em curvas fechadas e pistas paralelas. Precisa do GitHub Pages ligado no repositório (Settings → Pages → Source: GitHub Actions) e do workflow `road-data.yml` rodado uma vez.
 - **Atualizar uma central que já tem o launcher:** a permissão de internet é nova nesta versão; no Android 10 ela pode só valer depois de reiniciar a central (o mapa fica cinza até lá). Instalação nova não tem o problema.
 - A tecla Início física (ou a da barra da NWD) com a tela dividida aberta não desfaz a divisão: o Android a minimiza e sobra uma faixa escura fina do painel na borda esquerda da tela inicial. Tocar em Navegação no dock restaura a divisão. O botão Início do painel não tem esse problema.

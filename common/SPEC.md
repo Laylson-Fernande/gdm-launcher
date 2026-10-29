@@ -64,7 +64,8 @@ Declara `READ_EXTERNAL_STORAGE` e o receiver `com.k4811.common.system.BottomBar$
 | `nav_media_percent` | int | -1 | % do volume em que a música fica enquanto a navegação fala (0 a 100, de 10 em 10); -1 = nunca configurado, nada é aplicado. O car-setting grava e aplica na mixagem da central (`setGPSPromptVolumeWay`/`setMixedRatio`); o MP3 abaixa o próprio player para esse valor quando perde o foco com "pode abaixar" (`audio/MixVolumes`) |
 | `notify_percent` | int | -1 | % do volume em que tocam as notificações (stream de notificação em X% do máximo; o volume da central vale para todo o áudio do Android). O car-setting aplica ao mudar e o launcher reaplica ao abrir; -1 = não mexe |
 | `nav_offline_map` | bool | true | mapa offline do mapa integrado: baixa e desenha o mapa do raio de 100 km e das rotas (ver `map/SPEC.md`) |
-| `nav_data_days` | int | 7 | período de conferência dos dados das vias (1, 7 ou 30 dias; ver `map/SPEC.md`) |
+| `nav_data_days` | int | 7 | período de conferência dos dados baixados do mapa: vias, mapa offline, rota e endereços (1, 7 ou 30 dias; ver `map/SPEC.md`) |
+| `nav_data_km` | int | 100 | raio em volta do carro dos dados baixados do mapa (25, 50, 100, 200, 300 ou 500 km; ver `map/SPEC.md`) |
 | `dock_size` | int | 100 | tamanho do dock em % (60, 75, 85, 100, 110): altura, ícones e textos; `DockView.heightDp`, e a grade da tela inicial redistribui os módulos |
 | `save_logs` | bool | false | cada app grava o próprio log em `K4811/logs/<app>.log` (`LogFile`, ligado pelo `SuiteApp`) |
 | `start_guard` | bool | true | ao ligar o carro, se um app de fábrica abrir sozinho, o launcher volta para a última tela da suíte (`launcher/.../start/StartGuard`) |
