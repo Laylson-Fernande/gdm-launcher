@@ -2,7 +2,9 @@
 <!--
     Tela de navegação com o mapa integrado: o painel (informação e música, o mesmo da tela dividida)
     de um lado e o mapa do outro; o dock entra embaixo (DockNavigator.attachDock). NavHomeActivity
-    troca a ordem quando a música fica à direita.
+    troca a ordem quando a música fica à direita. O mapa fica afastado da borda da tela como o dock
+    (26 dp, o recuo do DockView), com os cantos arredondados como os cartões; a largura do painel
+    cabe a hora e a data inteiras na barra de cima durante a navegação.
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/nav_map_row"
@@ -13,7 +15,7 @@
 
     <include
         layout="@layout/activity_nav_home"
-        android:layout_width="420dp"
+        android:layout_width="500dp"
         android:layout_height="match_parent" />
 
     <com.k4811.map.MapScreen
@@ -21,6 +23,7 @@
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_marginBottom="4dp"
+        android:layout_marginRight="26dp"
         android:layout_marginTop="16dp"
         android:layout_weight="1" />
 </LinearLayout>

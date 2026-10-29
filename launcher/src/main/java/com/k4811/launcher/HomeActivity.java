@@ -33,21 +33,25 @@ import com.k4811.common.home.GpsClient;
 import com.k4811.common.home.HomeGrid;
 import com.k4811.common.home.HomeImage;
 import com.k4811.common.home.NavApps;
-import com.k4811.common.system.SysMonitor;
 import com.k4811.launcher.home.HomeModuleViews;
+import com.k4811.launcher.home.HomeRoute;
 import com.k4811.launcher.home.HomeSession;
+import com.k4811.common.audio.MixVolumes;
 import com.k4811.common.config.LauncherConfig;
 import com.k4811.common.config.NwdConfigs;
 import com.k4811.common.system.BottomBar;
 import com.k4811.launcher.home.MuteClient;
 import com.k4811.common.audio.PlayerHandoff;
 import com.k4811.launcher.home.VolumeClient;
+import com.k4811.launcher.home.ZlinkMonitor;
 import com.k4811.common.music.AlbumArt;
 import com.k4811.common.radio.Band;
 import com.k4811.common.radio.RadioClient;
 import com.k4811.common.radio.RadioState;
 import com.k4811.common.radio.StationArt;
-import com.k4811.common.system.NwdSettings;
+import com.k4811.launcher.start.StartGuard;
+import com.k4811.launcher.status.DayNightWatcher;
+import com.k4811.launcher.status.StatusBar;
 import com.k4811.common.system.SystemProps;
 import com.k4811.common.ui.IconView;
 import com.k4811.common.ui.Touch;
@@ -66,13 +70,19 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * Home screen: top bar (voltmeter, screen off, settings), the modules the driver placed in the
+ * Home screen: top bar (StatusBar: day/night with brightness, voltmeter, RAM/CPU; screen off, settings), the modules the driver placed in the
  * grid (clock, volume and mute, "now playing" for radio, USB/SD or Bluetooth music, fan and
  * Bluetooth status, a picture, GPS speed and GPS data; see {@link HomeModuleViews}) and the dock.
  * A call covers only the "now playing" slot. Opening this screen neither turns the radio on nor
  * cuts what is playing.
  */
 public class HomeActivity extends Activity {
+
+    /** Suite language in the screen context (survives window changes, see Ui.withLanguage). */
+    @Override
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(Ui.withLanguage(base));
+    }
 
     private static final int SOURCE_ANDROID = 0;
     private static final int SOURCE_RADIO = 4;
@@ -123,6 +133,8 @@ public class HomeActivity extends Activity {
     private View screenOffOverlay;
     private DockView dock;
     private HomeModuleViews modules;
+    /** Rota acima da hora (mapa integrado ou app de navegação). */
+    private HomeRoute route;
     private GpsClient gps;
     private final Map<String, String> appLabels = new HashMap<>();
     private TextView speedValue;
@@ -150,22 +162,9 @@ public class HomeActivity extends Activity {
     /** Track whose cover is on screen (or loading); null = source icon. */
     private String artKey;
     private int artGen;
-    private View voltageView;
-    private TextView sysMonitorView;
-    private SysMonitor sysMonitor;
-    /** RAM e CPU a cada 2 s, com a tela inicial na frente. */
-    private final Runnable sysMonitorTick = new Runnable() {
-        @Override
-        public void run() {
-            SysMonitor.Sample s = sysMonitor.sample();
-            setIfChanged(sysMonitorView, s.cpuPercent < 0 ? getString(R.string.home_sys_ram, s.ramPercent)
-                : getString(R.string.home_sys_ram_cpu, s.ramPercent, s.cpuPercent));
-            handler.postDelayed(this, 2000);
-        }
-    };
-    private TextView voltageText;
+    /** Day/night (tap: brightness), voltmeter, RAM and CPU: shared with the navigation screen. */
+    private StatusBar statusBar;
     private View sourceBadge;
-    private IconView dayNight;
     private TextView sourceBadgeText;
     private final ExecutorService artLoader = Executors.newSingleThreadExecutor();
     /** Image module: picture version (path, date and size) and slot on screen, to reload only on change. */
@@ -177,6 +176,10 @@ public class HomeActivity extends Activity {
     private TextView callNumber;
     private TextView callAnswer;
     private IconView btIcon;
+    /** Botão do ZLINK no bloco do Bluetooth: abre, ou desconecta quando conectado. */
+    private IconView zlinkButton;
+    private ZlinkMonitor zlink;
+    private final ZlinkMonitor.Listener zlinkListener = connected -> renderZlink();
     private TextView btText;
     private TextView btDeviceView;
     private final ContentObserver fanObserver = new ContentObserver(handler) {
@@ -197,53 +200,9 @@ public class HomeActivity extends Activity {
         }
     };
 
-    /** Headlights (MCU ILL signal) switched: sun ⇄ moon. */
-    private final ContentObserver headlightObserver = new ContentObserver(handler) {
-        @Override
-        public void onChange(boolean selfChange) {
-            renderDayNight();
-        }
-    };
-
     /** Settings › "Turn screen off after": same action as the screen-off button, after inactivity. */
     private final Runnable autoScreenOff = () -> {
         if (screenOffOverlay != null && screenOffOverlay.getVisibility() != View.VISIBLE) setScreenOn(false);
-    };
-
-    /**
-     * Battery voltage via CAN (as in the NWD themes): asks every 10 s and the head unit
-     * replies with volts × 10. Without a reply (car without CAN), the indicator stays hidden.
-     */
-    private static final String ACTION_QUERY_VOLTAGE = "com.nwd.action.ACTION_QUERY_CAN_BATTERY_VOLTAGE";
-    private static final String ACTION_VOLTAGE = "com.nwd.action.ACTION_CAN_BATTERY_VOLTAGE";
-    private static final String EXTRA_VOLTAGE = "extra_voltage_value";
-    private static final long VOLTAGE_PERIOD_MS = 10000;
-
-    private final Runnable voltageTick = new Runnable() {
-        @Override
-        public void run() {
-            try {
-                sendBroadcast(new Intent(ACTION_QUERY_VOLTAGE));
-            } catch (Exception ignored) {
-            }
-            handler.postDelayed(this, VOLTAGE_PERIOD_MS);
-        }
-    };
-
-    private final BroadcastReceiver voltageReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (!LauncherConfig.showVoltmeter(HomeActivity.this)) return;
-            int raw = intent.getIntExtra(EXTRA_VOLTAGE, 0);
-            float volts = Math.abs(raw) / 10f;
-            if (volts <= 0f) return; // reply without a value: keep the previous one
-            volts = Math.max(8f, Math.min(18f, volts));
-            voltageText.setText(String.format(Locale.getDefault(), "%.1f V", volts));
-            if (voltageView.getVisibility() != View.VISIBLE) {
-                voltageView.setVisibility(View.VISIBLE);
-                Touch.fadeIn(voltageView);
-            }
-        }
     };
 
     private final BroadcastReceiver btReceiver = new BroadcastReceiver() {
@@ -296,12 +255,15 @@ public class HomeActivity extends Activity {
         createDateFormats();
         setContentView(R.layout.activity_home);
         appliedLook = lookKey();
+        DayNightWatcher.get(this).addListener(dayNightListener);
         Ui.applyFont(findViewById(R.id.home_root));
         // On the home screen the dock always highlights Home; what is playing shows in the top bar.
         dock = DockNavigator.attachDock(this, DockView.Item.HOME);
         bindViews();
         modules = new HomeModuleViews(this);
+        route = new HomeRoute(this, modules);
         modules.apply(LauncherConfig.homeLayout(this));
+        MixVolumes.applySaved(this); // a central pode ter voltado o volume das notificações
         gps = new GpsClient(this);
         gps.setListener(this::renderGps);
         // Portrait grid: sized to the area the home screen really got (and if it changes).
@@ -343,14 +305,11 @@ public class HomeActivity extends Activity {
         IntentFilter btFilter = new IntentFilter();
         for (String a : BT_ACTIONS) btFilter.addAction(a);
         registerReceiver(btReceiver, btFilter);
-        registerReceiver(voltageReceiver, new IntentFilter(ACTION_VOLTAGE));
 
         getContentResolver().registerContentObserver(
             Settings.System.getUriFor(KEY_FAN_SWITCH), false, fanObserver);
         getContentResolver().registerContentObserver(
             Settings.System.getUriFor(KEY_BACKLIGHT_STATE), false, backlightObserver);
-        getContentResolver().registerContentObserver(
-            Settings.System.getUriFor(NwdSettings.KEY_NO_SOURCE_DEVICE), false, headlightObserver);
         readFan();
 
         // Only observes. connect(false) doesn't send ACTION_MEDIA_PLAY.
@@ -386,7 +345,11 @@ public class HomeActivity extends Activity {
         clockTime.setTypeface(Ui.semiBold(this));
         clockDate.setTypeface(Ui.regular(this));
         View clock = findViewById(R.id.clock_block);
-        clock.setOnClickListener(v -> openDateSettings());
+        // Com rota acima da hora, o toque abre a tela de navegação; sem rota, a data e hora do Android.
+        clock.setOnClickListener(v -> {
+            if (route != null && route.shown()) openDock(DockView.Item.NAVIGATION);
+            else openDateSettings();
+        });
 
         // Emergency exit: long-pressing the black area opens Android Settings.
         findViewById(R.id.home_space).setOnLongClickListener(v -> {
@@ -418,15 +381,7 @@ public class HomeActivity extends Activity {
         npPrev.setOnClickListener(v -> transport(-1));
         npPlay.setOnClickListener(v -> transport(0));
         npNext.setOnClickListener(v -> transport(1));
-        voltageView = findViewById(R.id.voltage);
-        sysMonitorView = text(R.id.sys_monitor);
-        sysMonitorView.setTypeface(Ui.medium(this));
-        sysMonitor = new SysMonitor(this);
-        voltageText = text(R.id.voltage_text);
-        voltageText.setTypeface(Ui.medium(this));
-        icon(R.id.voltage_icon, IconView.Icon.BATTERY, IconView.Style.NONE).color(Ui.TEXT_MUTED);
-        dayNight = (IconView) findViewById(R.id.day_night);
-        dayNight.setClickable(false);
+        statusBar = new StatusBar(this, findViewById(android.R.id.content));
         sourceBadge = findViewById(R.id.source_badge);
         sourceBadge.setActivated(true);
         sourceBadgeText = text(R.id.source_badge_text);
@@ -453,6 +408,12 @@ public class HomeActivity extends Activity {
         btDeviceView = text(R.id.bt_status_device);
         btText.setTypeface(Ui.medium(this));
         btDeviceView.setTypeface(Ui.regular(this));
+        zlink = ZlinkMonitor.get(this);
+        zlink.addListener(zlinkListener);
+        zlinkButton = icon(R.id.bt_zlink, DockView.Item.ZLINK.icon(this), IconView.Style.FLAT_CIRCLE);
+        zlinkButton.setOnClickListener(v -> zlink.toggle());
+        show(zlinkButton, DockView.Item.ZLINK.isAvailable(this));
+        renderZlink();
 
         speedValue = text(R.id.speed_value);
         speedUnit = text(R.id.speed_unit);
@@ -488,7 +449,19 @@ public class HomeActivity extends Activity {
         if (mute != null) mute.refresh();
         readFan();
         queryBt();
+        zlink.start(); // o acesso à música pode ter sido ligado agora
+        renderZlink();
         applyPrefs();
+        route.start();
+    }
+
+    /** Desconectado: ícone do ZLINK (abre). Conectado: X vermelho (desconecta). */
+    private void renderZlink() {
+        if (zlinkButton == null) return;
+        boolean on = zlink.isConnected();
+        zlinkButton.set(on ? IconView.Icon.CLOSE : DockView.Item.ZLINK.icon(this), IconView.Style.FLAT_CIRCLE);
+        zlinkButton.color(on ? Ui.DANGER : Ui.TEXT);
+        zlinkButton.setContentDescription(on ? getString(R.string.home_zlink_disconnect) : DockView.Item.ZLINK.label(this));
     }
 
     /** Settings screen options: home modules and voltmeter. */
@@ -497,18 +470,8 @@ public class HomeActivity extends Activity {
         if (snap != null) render(snap);
         renderImage();
         updateGps();
-        handler.removeCallbacks(voltageTick);
-        if (LauncherConfig.showVoltmeter(this)) {
-            handler.post(voltageTick);
-        } else {
-            voltageView.setVisibility(View.GONE);
-        }
-        renderDayNight();
+        statusBar.start();
         scheduleAutoScreenOff();
-        handler.removeCallbacks(sysMonitorTick);
-        boolean monitor = LauncherConfig.showSysMonitor(this);
-        sysMonitorView.setVisibility(monitor ? View.VISIBLE : View.GONE);
-        if (monitor) handler.post(sysMonitorTick);
     }
 
     @Override
@@ -516,16 +479,18 @@ public class HomeActivity extends Activity {
         // Leaving the home screen with the backlight off (another app, a call): turn it back on.
         if (screenOffOverlay != null && screenOffOverlay.getVisibility() == View.VISIBLE) setScreenOn(true);
         handler.removeCallbacks(clockTick);
-        handler.removeCallbacks(voltageTick);
-        handler.removeCallbacks(sysMonitorTick);
+        statusBar.stop();
         handler.removeCallbacks(autoScreenOff);
         gps.stop();
+        route.stop();
         super.onPause();
     }
 
     @Override
     protected void onDestroy() {
+        DayNightWatcher.get(this).removeListener(dayNightListener);
         stopWaitingForConfig();
+        if (zlink != null) zlink.removeListener(zlinkListener);
         handler.removeCallbacksAndMessages(null);
         gps.stop();
         gps.setListener(null);
@@ -533,13 +498,8 @@ public class HomeActivity extends Activity {
             unregisterReceiver(btReceiver);
         } catch (Exception ignored) {
         }
-        try {
-            unregisterReceiver(voltageReceiver);
-        } catch (Exception ignored) {
-        }
         getContentResolver().unregisterContentObserver(fanObserver);
         getContentResolver().unregisterContentObserver(backlightObserver);
-        getContentResolver().unregisterContentObserver(headlightObserver);
         if (volume != null) {
             volume.setListener(null);
             volume.release();
@@ -973,6 +933,7 @@ public class HomeActivity extends Activity {
     @Override
     public void onUserInteraction() {
         super.onUserInteraction();
+        StartGuard.userActed();
         scheduleAutoScreenOff();
     }
 
@@ -980,18 +941,6 @@ public class HomeActivity extends Activity {
         handler.removeCallbacks(autoScreenOff);
         int seconds = LauncherConfig.screenOffAfter(this);
         if (seconds > 0) handler.postDelayed(autoScreenOff, seconds * 1000L);
-    }
-
-    /** Sun by day, moon with the headlights on (Settings › Main can hide it). */
-    private void renderDayNight() {
-        if (!LauncherConfig.showDayNight(this)) {
-            dayNight.setVisibility(View.GONE);
-            return;
-        }
-        boolean night = NwdSettings.headlightsOn(this);
-        dayNight.set(night ? IconView.Icon.MOON : IconView.Icon.SUN, IconView.Style.NONE).color(Ui.TEXT_SOFT);
-        dayNight.setContentDescription(getString(night ? R.string.home_night : R.string.home_day));
-        dayNight.setVisibility(View.VISIBLE);
     }
 
     /** −1 previous, 0 play/pause (on the radio: on/off), +1 next. */
@@ -1026,7 +975,8 @@ public class HomeActivity extends Activity {
                 openDock(DockView.Item.RADIO);
                 break;
             case USB:
-                openDock(DockView.Item.MUSIC);
+                // Toca o MP3 da suíte: abre ele mesmo com outro app no botão Música.
+                DockNavigator.navigateMp3(this, null);
                 break;
             case BT:
                 openDock(DockView.Item.BT_MUSIC);
@@ -1121,9 +1071,13 @@ public class HomeActivity extends Activity {
 
     /** Idioma, tema, modo escuro e fonte em uso nesta tela; se mudarem nas Configurações (outro app), recria. */
     private String lookKey() {
-        return LauncherConfig.language(this) + "|" + LauncherConfig.theme(this)
-            + "|" + LauncherConfig.darkMode(this) + "|" + LauncherConfig.font(this);
+        return Ui.lookKey(this); // the module grid follows the dock height too
     }
+
+    /** Tema seguindo o dia e a noite: a troca acontece com a tela aberta. */
+    private final DayNightWatcher.Listener dayNightListener = night -> {
+        if (!isFinishing() && !lookKey().equals(appliedLook)) recreate();
+    };
 
     private void openDateSettings() {
         try {

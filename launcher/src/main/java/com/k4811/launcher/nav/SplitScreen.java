@@ -7,6 +7,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 
 import java.lang.reflect.Method;
@@ -19,9 +21,12 @@ import java.lang.reflect.Method;
  * tela cheia. Uma tarefa que já existe (a do app de navegação, por exemplo) nunca muda de modo ao
  * vir para a frente; ao dividir, o Android só a põe na outra metade.
  *
- * Não há API pública para entrar em tela dividida: usa {@code ActivityOptions.setLaunchWindowingMode}
- * (oculta; liberada para apps com targetSdk antigo). Quem chama confere o resultado com
- * {@link Activity#isInMultiWindowMode()}.
+ * Android 7 a 11: não há API pública para entrar em tela dividida; usa
+ * {@code ActivityOptions.setLaunchWindowingMode} (oculta; liberada para apps com targetSdk antigo).
+ * Android 12+: essa API é bloqueada e o modo "metade primária" não existe mais; a tela dividida é do
+ * próprio sistema, que divide quando uma tela em tela cheia abre outra com
+ * {@code FLAG_ACTIVITY_LAUNCH_ADJACENT} ({@link #adjacentSplits()}). Nos dois casos quem abre fica à
+ * esquerda. Quem chama confere o resultado com {@link Activity#isInMultiWindowMode()}.
  */
 public final class SplitScreen {
     private SplitScreen() {
@@ -32,10 +37,20 @@ public final class SplitScreen {
     public static final String EXTRA_ENTERING = "com.k4811.launcher.extra.SPLIT_ENTERING";
     /** WindowConfiguration.WINDOWING_MODE_SPLIT_SCREEN_PRIMARY. */
     private static final int WINDOWING_MODE_SPLIT_SCREEN_PRIMARY = 3;
+    /** Android 12+: espera a animação de desfazer a divisão antes de reabrir (ver {@link #restart}). */
+    private static final long RESTART_AFTER_SPLIT_MS = 600;
 
     /** O Android deste aparelho tem tela dividida. */
     public static boolean supported() {
         return Build.VERSION.SDK_INT >= 24;
+    }
+
+    /**
+     * Android 12+: abrir um app com {@link #openBeside} a partir desta tela em tela cheia já divide a
+     * tela (esta à esquerda, o app à direita); não há {@link #enter}.
+     */
+    public static boolean adjacentSplits() {
+        return Build.VERSION.SDK_INT >= 31;
     }
 
     /**
@@ -46,7 +61,7 @@ public final class SplitScreen {
      * @return false se não deu nem para pedir (Android antigo, API indisponível); aí nada mudou
      */
     public static boolean enter(Activity self) {
-        if (!supported()) return false;
+        if (!supported() || adjacentSplits()) return false;
         Bundle options = splitOptions();
         if (options == null) return false;
         Intent again = new Intent(self, self.getClass());
@@ -65,9 +80,16 @@ public final class SplitScreen {
         Intent again = new Intent(self, self.getClass());
         again.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         Context app = self.getApplicationContext();
+        boolean wasSplit = Build.VERSION.SDK_INT >= 24 && self.isInMultiWindowMode();
         if (Build.VERSION.SDK_INT >= 21) removeTask(self);
         else self.finish();
-        start(app, again, null);
+        if (wasSplit && adjacentSplits()) {
+            // Android 12+: aberta durante a animação que desfaz a divisão, a tela nova fica atrás do
+            // app que sobrou em tela cheia. Abre depois da animação.
+            new Handler(Looper.getMainLooper()).postDelayed(() -> start(app, again, null), RESTART_AFTER_SPLIT_MS);
+        } else {
+            start(app, again, null);
+        }
     }
 
     @TargetApi(21)

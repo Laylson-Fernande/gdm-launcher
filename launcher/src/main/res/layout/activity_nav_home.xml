@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
     Painel da tela de navegação: fica numa metade da tela dividida (o app de navegação ocupa a
-    outra), então a largura varia (≈ 430 a 850 dp). De cima para baixo: a informação escolhida
+    outra), então a largura varia (≈ 430 a 850 dp). De cima para baixo: dia/noite, voltímetro e RAM/CPU,
+    a informação escolhida
     (relógio ou velocidade), o cartão da música (app, capa, faixa, controles) e os atalhos.
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -11,6 +12,151 @@
     android:background="@color/background"
     android:orientation="vertical"
     android:padding="20dp">
+
+    <!-- Dia/noite (tocar: brilho) · voltímetro · RAM e CPU, como na tela inicial (StatusBar). -->
+    <LinearLayout
+        android:id="@+id/nav_status"
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <com.k4811.common.ui.IconView
+            android:id="@+id/day_night"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:padding="4dp"
+            android:visibility="gone" />
+
+        <LinearLayout
+            android:id="@+id/voltage"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:contentDescription="@string/home_battery_voltage"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:visibility="gone">
+
+            <com.k4811.common.ui.IconView
+                android:id="@+id/voltage_icon"
+                android:layout_width="34dp"
+                android:layout_height="34dp"
+                android:clickable="false"
+                android:focusable="false" />
+
+            <TextView
+                android:id="@+id/voltage_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:includeFontPadding="false"
+                android:textColor="@color/text"
+                android:textSize="22sp" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/sys_monitor"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:includeFontPadding="false"
+            android:singleLine="true"
+            android:textColor="@color/text_soft"
+            android:textSize="18sp"
+            android:visibility="gone" />
+
+        <!-- Hora pequena: só enquanto o cartão da rota ocupa o lugar do relógio. -->
+        <TextView
+            android:id="@+id/nav_status_clock"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:includeFontPadding="false"
+            android:singleLine="true"
+            android:textColor="@color/text_soft"
+            android:textSize="18sp"
+            android:visibility="gone" />
+    </LinearLayout>
+
+    <!-- Rota do app de navegação (Waze modificado, broadcast NAV_STATE): no lugar do relógio/velocidade. -->
+    <LinearLayout
+        android:id="@+id/nav_route"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/panel"
+        android:orientation="vertical"
+        android:padding="20dp"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <FrameLayout
+                android:layout_width="88dp"
+                android:layout_height="88dp"
+                android:layout_marginRight="20dp">
+
+                <ImageView
+                    android:id="@+id/nav_route_icon"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="fitCenter" />
+
+                <!-- Manobra do mapa integrado (NavProgress). -->
+                <com.k4811.map.TurnIcon
+                    android:id="@+id/nav_route_turn"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:visibility="gone" />
+            </FrameLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/nav_route_distance"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:includeFontPadding="false"
+                    android:singleLine="true"
+                    android:textColor="@color/text"
+                    android:textSize="48sp" />
+
+                <TextView
+                    android:id="@+id/nav_route_cue"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:ellipsize="end"
+                    android:maxLines="2"
+                    android:textColor="@color/text"
+                    android:textSize="24sp" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/nav_route_eta"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:singleLine="true"
+            android:ellipsize="end"
+            android:textColor="@color/text_muted"
+            android:textSize="22sp" />
+    </LinearLayout>
 
     <!-- Relógio: hora e data. -->
     <LinearLayout

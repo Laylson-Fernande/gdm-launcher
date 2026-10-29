@@ -17,6 +17,8 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <!-- Aviso de volume e menu da borda de baixo por cima dos outros apps (overlay/). Com targetSdk < 23 é concedida na instalação. -->
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <!-- Vigia da partida (start/StartReceiver): boot. -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
         android:name=".LauncherApp"
@@ -76,8 +78,9 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-        <!-- Só para o Android liberar a leitura dos players (Spotify, YouTube Music…) à tela de navegação,
-             depois que o usuário ligar o acesso a notificações. Não lê notificações. -->
+        <!-- Para o Android liberar a leitura dos players (Spotify, YouTube Music…) à tela de navegação,
+             depois que o usuário ligar o acesso a notificações, e para "Bloquear notificações" (apaga as
+             notificações assim que aparecem). Não lê o conteúdo das notificações. -->
         <service
             android:name="com.k4811.launcher.nav.MediaListener"
             android:exported="true"
@@ -95,5 +98,17 @@
         <service
             android:name="com.k4811.launcher.overlay.EdgeMenuService"
             android:exported="false" />
+        <!-- Carro ligou: se um app de fábrica abrir sozinho, volta para a suíte (start/StartGuard).
+             Também recebe a última tela dos outros apps da suíte (com.k4811.action.SCREEN_SHOWN). -->
+        <receiver
+            android:name=".start.StartReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.nwd.ACTION_BACKGROUND_MEDIA_PLAY" />
+                <action android:name="com.nwd.action.ACTION_MCU_STATE_CHANGE" />
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="com.k4811.action.SCREEN_SHOWN" />
+            </intent-filter>
+        </receiver>
     </application>
 </manifest>

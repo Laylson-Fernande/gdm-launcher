@@ -47,6 +47,71 @@
         android:orientation="vertical"
         android:visibility="gone">
 
+        <!-- Rota (app de navegação ou mapa integrado) acima da hora, só enquanto há rota. -->
+        <LinearLayout
+            android:id="@+id/home_route"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="14dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:visibility="gone">
+
+            <FrameLayout
+                android:id="@+id/home_route_icon_box"
+                android:layout_width="72dp"
+                android:layout_height="72dp"
+                android:layout_marginRight="18dp">
+
+                <ImageView
+                    android:id="@+id/home_route_icon"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="fitCenter" />
+
+                <com.k4811.map.TurnIcon
+                    android:id="@+id/home_route_turn"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:visibility="gone" />
+            </FrameLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/home_route_distance"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:includeFontPadding="false"
+                    android:singleLine="true"
+                    android:textColor="@color/text"
+                    android:textSize="44sp" />
+
+                <TextView
+                    android:id="@+id/home_route_cue"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:ellipsize="end"
+                    android:maxLines="2"
+                    android:textColor="@color/text"
+                    android:textSize="22sp" />
+
+                <TextView
+                    android:id="@+id/home_route_eta"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:ellipsize="end"
+                    android:singleLine="true"
+                    android:textColor="@color/text_muted"
+                    android:textSize="18sp" />
+            </LinearLayout>
+        </LinearLayout>
+
         <TextView
             android:id="@+id/clock_time"
             android:layout_width="wrap_content"
@@ -467,6 +532,15 @@
                 android:textColor="@color/text_muted"
                 android:textSize="20sp" />
         </LinearLayout>
+
+        <!-- Abre o ZLINK (CarPlay / Android Auto); só aparece com o ZLINK instalado. -->
+        <com.k4811.common.ui.IconView
+            android:id="@+id/bt_zlink"
+            android:layout_width="52dp"
+            android:layout_height="52dp"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="12dp"
+            android:visibility="gone" />
     </LinearLayout>
 
     <!-- ===== Image module: only the picture chosen in Settings, cropped to fill the slot (no frame) ===== -->

@@ -34,7 +34,14 @@
             android:textColor="@color/text"
             android:textSize="32sp" />
 
-        <!-- How many apps -->
+        <!-- Hidden apps: opens their list (and closes it again) -->
+        <TextView
+            android:id="@+id/apps_hidden"
+            style="@style/LineButton"
+            android:layout_marginRight="20dp"
+            android:visibility="gone" />
+
+        <!-- How many apps (in the hidden list: how to show one again) -->
         <TextView
             android:id="@+id/apps_count"
             android:layout_width="wrap_content"

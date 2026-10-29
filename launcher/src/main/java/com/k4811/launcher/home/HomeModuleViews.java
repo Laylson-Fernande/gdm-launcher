@@ -30,6 +30,8 @@ public final class HomeModuleViews {
     private Map<HomeGrid.Module, HomeGrid.Slot> layout;
     private boolean npLine2 = true;
     private boolean npProgress = true;
+    /** Há rota no bloco do relógio: hora menor (a data continua embaixo). */
+    private boolean routeShown;
 
     public HomeModuleViews(Activity activity) {
         this.activity = activity;
@@ -74,11 +76,11 @@ public final class HomeModuleViews {
                     break;
                 case FAN:
                     fitStatus(slot, R.id.fan_status, R.id.fan_status_icon, R.id.fan_status_info,
-                        R.id.fan_status_title, 30, R.id.fan_status_text, 22);
+                        R.id.fan_status_title, 30, R.id.fan_status_text, 22, 0);
                     break;
                 case BLUETOOTH:
                     fitStatus(slot, R.id.bt_status, R.id.bt_status_icon, R.id.bt_status_info,
-                        R.id.bt_status_text, 26, R.id.bt_status_device, 20);
+                        R.id.bt_status_text, 26, R.id.bt_status_device, 20, R.id.bt_zlink);
                     break;
                 case IMAGE:
                     text(R.id.image_empty).setTextSize(TypedValue.COMPLEX_UNIT_SP,
@@ -99,6 +101,18 @@ public final class HomeModuleViews {
         place(card, grid.frame(callSlot));
         fitCall(grid.frame(callSlot));
         card.bringToFront();
+    }
+
+    /**
+     * Mostra ou esconde a rota acima da hora (bloco do relógio): com rota, a hora e a data ficam menores
+     * para caber a manobra.
+     */
+    public void setRouteShown(boolean shown) {
+        if (shown == routeShown) return;
+        routeShown = shown;
+        activity.findViewById(R.id.home_route).setVisibility(shown ? View.VISIBLE : View.GONE);
+        HomeGrid.Slot at = slotOf(HomeGrid.Module.CLOCK);
+        if (at != null) fitClock(grid.frame(at));
     }
 
     /** Slot of {@code m}, or null when it's hidden. */
@@ -167,9 +181,54 @@ public final class HomeModuleViews {
         }
         TextView clockTime = text(R.id.clock_time);
         TextView clockDate = text(R.id.clock_date);
-        Ui.autoFit(clockTime, sp(time), slot.width - 16);
-        Ui.autoFit(clockDate, sp(date), slot.width - 16);
-        margins(clockDate, 0, gap, 0, 0);
+        if (routeShown) fitRoute(slot);
+        Ui.autoFit(clockTime, sp(routeShown ? time * 2 / 5 : time), slot.width - 16);
+        Ui.autoFit(clockDate, sp(routeShown ? date * 4 / 5 : date), slot.width - 16);
+        margins(clockDate, 0, routeShown ? gap / 2 : gap, 0, 0);
+    }
+
+    /** Rota no bloco do relógio: manobra, distância, rua e chegada no tamanho do slot. */
+    private void fitRoute(HomeGrid.Frame slot) {
+        int icon;
+        int distance;
+        int cue;
+        int eta;
+        switch (slot.size) {
+            case TALL:
+            case LARGE:
+                icon = 72;
+                distance = 44;
+                cue = 22;
+                eta = 18;
+                break;
+            case WIDE:
+                icon = 56;
+                distance = 34;
+                cue = 19;
+                eta = 16;
+                break;
+            default:
+                icon = 44;
+                distance = 26;
+                cue = 16;
+                eta = 14;
+                break;
+        }
+        View box = activity.findViewById(R.id.home_route_icon_box);
+        android.view.ViewGroup.LayoutParams lp = box.getLayoutParams();
+        lp.width = lp.height = Math.round(Ui.dp(activity, icon));
+        box.setLayoutParams(lp);
+        // O texto ocupa o resto da largura do slot (a rua quebra em até duas linhas).
+        int textWidth = Math.round(Ui.dp(activity, slot.width - icon - 18 - 16));
+        TextView d = text(R.id.home_route_distance);
+        TextView c = text(R.id.home_route_cue);
+        TextView e = text(R.id.home_route_eta);
+        d.setTextSize(TypedValue.COMPLEX_UNIT_SP, distance);
+        c.setTextSize(TypedValue.COMPLEX_UNIT_SP, cue);
+        e.setTextSize(TypedValue.COMPLEX_UNIT_SP, eta);
+        d.setMaxWidth(textWidth);
+        c.setMaxWidth(textWidth);
+        e.setMaxWidth(textWidth);
     }
 
     /** Speed: big number over "km/h" (or the GPS state). */
@@ -247,9 +306,12 @@ public final class HomeModuleViews {
         margins(activity.findViewById(R.id.volume_mute), gap, 0, gap, 0);
     }
 
-    /** Fan and Bluetooth: icon beside two lines; bigger and centered in the large slots. */
+    /**
+     * Fan and Bluetooth: icon beside two lines; bigger and centered in the large slots. {@code sideId}
+     * (0 = none) is a button on the right, same size as the icon, when visible.
+     */
     private void fitStatus(HomeGrid.Frame slot, int rootId, int iconId, int infoId,
-                           int titleId, int titleSp, int subId, int subSp) {
+                           int titleId, int titleSp, int subId, int subSp, int sideId) {
         boolean big = slot.size == HomeGrid.Size.TALL || slot.size == HomeGrid.Size.LARGE;
         int icon = big ? 72 : 52;
         int gap = big ? 24 : 18;
@@ -259,6 +321,11 @@ public final class HomeModuleViews {
         size(activity.findViewById(iconId), icon, icon);
         margins(activity.findViewById(infoId), gap, 0, 0, 0);
         int width = slot.width - 12 - icon - gap;
+        View side = sideId == 0 ? null : activity.findViewById(sideId);
+        if (side != null && side.getVisibility() == View.VISIBLE) {
+            size(side, icon, icon);
+            width -= icon + 12;
+        }
         Ui.autoFit(text(titleId), sp(Math.round(titleSp * scale)), width);
         TextView sub = text(subId);
         if (sub.getEllipsize() != null) {

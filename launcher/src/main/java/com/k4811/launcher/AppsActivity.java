@@ -1,7 +1,9 @@
 package com.k4811.launcher;
 
+import android.content.Context;
 import android.app.Activity;
 import android.app.ActivityOptions;
+import android.app.Dialog;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -13,6 +15,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.AnimationSet;
 import android.view.animation.DecelerateInterpolator;
@@ -28,12 +31,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.k4811.launcher.home.AppCatalog;
+import com.k4811.launcher.start.StartGuard;
 import com.k4811.common.ui.IconView;
 import com.k4811.common.ui.Touch;
 import com.k4811.common.ui.Ui;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -41,8 +46,18 @@ import java.util.concurrent.Executors;
  * Every installed app in a 5-column grid that scrolls down until the last one (no pages). The
  * icons come in with a short cascade the first time, sink a little under the finger and the app
  * opens zooming out of its icon. Back returns to the home screen.
+ *
+ * The suite's apps come first, then the others, each group alphabetical ({@link AppCatalog}). The
+ * list shows at once from the cache and is refreshed in the background (new or updated apps).
+ * Holding an app hides it; the "Hidden" button lists the hidden ones, and tapping one shows it again.
  */
 public class AppsActivity extends Activity {
+
+    /** Suite language in the screen context (survives window changes, see Ui.withLanguage). */
+    @Override
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(Ui.withLanguage(base));
+    }
 
     /** Rows visible at once: two and a half, so the cut row shows there is more below. */
     private static final float VISIBLE_ROWS = 2.5f;
@@ -50,7 +65,16 @@ public class AppsActivity extends Activity {
 
     private final Handler handler = new Handler(Looper.getMainLooper());
     private final ExecutorService loader = Executors.newSingleThreadExecutor();
+    /** Every app (hidden ones included), in drawer order. */
+    private List<AppCatalog.Entry> all = new ArrayList<>();
+    /** What the grid shows: the visible apps or, in the hidden list, the hidden ones. */
     private final List<AppCatalog.Entry> apps = new ArrayList<>();
+    private Set<String> hidden;
+    /** Showing the hidden apps (tap = show again). */
+    private boolean showingHidden;
+    private TextView title;
+    private TextView hiddenButton;
+    private Dialog dialog;
 
     private GridView grid;
     private TextView countView;
@@ -68,13 +92,20 @@ public class AppsActivity extends Activity {
         setContentView(R.layout.activity_apps);
         Ui.applyFont(findViewById(R.id.apps_root));
 
-        ((TextView) findViewById(R.id.apps_title)).setTypeface(Ui.semiBold(this));
+        title = (TextView) findViewById(R.id.apps_title);
+        title.setTypeface(Ui.semiBold(this));
         countView = (TextView) findViewById(R.id.apps_count);
+        hiddenButton = (TextView) findViewById(R.id.apps_hidden);
+        hiddenButton.setOnClickListener(v -> {
+            showingHidden = !showingHidden;
+            show();
+        });
+        hidden = AppCatalog.hidden(this);
         empty = (TextView) findViewById(R.id.apps_empty);
 
         IconView back = (IconView) findViewById(R.id.apps_back);
         back.set(IconView.Icon.CHEVRON_LEFT, IconView.Style.NONE);
-        back.setOnClickListener(v -> finish());
+        back.setOnClickListener(v -> onBackPressed());
 
         grid = (GridView) findViewById(R.id.apps_grid);
         // A longer, softer fling than the default: the list glides to a stop.
@@ -83,7 +114,18 @@ public class AppsActivity extends Activity {
         grid.setLayoutAnimation(cascade());
         adapter = new AppsAdapter();
         grid.setAdapter(adapter);
-        grid.setOnItemClickListener((parent, view, position, id) -> open(view, position));
+        grid.setOnItemClickListener((parent, view, position, id) -> {
+            if (showingHidden) unhide(position);
+            else open(view, position);
+        });
+        grid.setOnItemLongClickListener((parent, view, position, id) -> {
+            if (showingHidden) return false;
+            view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
+            // The dialog takes the touch: the finger never lifts on the cell, so it springs back here.
+            view.animate().scaleX(1f).scaleY(1f).setDuration(150).start();
+            askHide(position);
+            return true;
+        });
         // Row height follows the area the grid really got.
         grid.addOnLayoutChangeListener((v, l, t, r, b, ol, ot, or, ob) -> {
             int h = b - t;
@@ -106,12 +148,29 @@ public class AppsActivity extends Activity {
     }
 
     @Override
+    public void onUserInteraction() {
+        super.onUserInteraction();
+        StartGuard.userActed();
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (showingHidden) {
+            showingHidden = false;
+            show();
+            return;
+        }
+        finish();
+    }
+
+    @Override
     protected void onDestroy() {
         loadGen++;
         loader.shutdownNow();
         handler.removeCallbacksAndMessages(null);
+        if (dialog != null) dialog.dismiss();
         grid.setAdapter(null);
-        AppCatalog.recycle(new ArrayList<>(apps));
+        // The icons stay in AppCatalog's cache for the next opening: nothing to recycle here.
         apps.clear();
         super.onDestroy();
     }
@@ -128,31 +187,56 @@ public class AppsActivity extends Activity {
         if (hasFocus) Ui.hideSystemBars(getWindow());
     }
 
+    /**
+     * Cache first (memory now; disk, the first time after the launcher starts), then the installed
+     * apps in the background: the grid only changes if something did.
+     */
     private void reload() {
         final int gen = ++loadGen;
         final int iconPx = Math.round(Ui.dp(this, 88));
+        List<AppCatalog.Entry> ready = AppCatalog.inMemory(iconPx);
+        if (ready != null && all.isEmpty()) setAll(ready);
         loader.execute(() -> {
-            List<AppCatalog.Entry> loaded = AppCatalog.load(getApplicationContext(), iconPx);
-            handler.post(() -> {
-                if (isFinishing() || gen != loadGen) {
-                    AppCatalog.recycle(loaded);
-                    return;
-                }
-                List<AppCatalog.Entry> previous = new ArrayList<>(apps);
-                apps.clear();
-                apps.addAll(loaded);
-                show();
-                // The grid redraws on the next frames: free the old icons only after that.
-                handler.postDelayed(() -> AppCatalog.recycle(previous), 1500);
-            });
+            if (ready == null) {
+                List<AppCatalog.Entry> disk = AppCatalog.cached(getApplicationContext(), iconPx);
+                if (disk != null) post(gen, disk);
+            }
+            post(gen, AppCatalog.refresh(getApplicationContext(), iconPx));
         });
     }
 
+    private void post(int gen, List<AppCatalog.Entry> list) {
+        handler.post(() -> {
+            if (isFinishing() || gen != loadGen || AppCatalog.same(all, list)) return;
+            setAll(list);
+        });
+    }
+
+    private void setAll(List<AppCatalog.Entry> list) {
+        all = list;
+        show();
+    }
+
+    /** Fills the grid for the current mode (visible apps or hidden ones). */
     private void show() {
+        apps.clear();
+        int hiddenCount = 0;
+        for (AppCatalog.Entry e : all) {
+            boolean isHidden = hidden.contains(e.key());
+            if (isHidden) hiddenCount++;
+            if (isHidden == showingHidden) apps.add(e);
+        }
+        title.setText(showingHidden ? R.string.home_apps_hidden_title : R.string.home_apps_title);
+        hiddenButton.setVisibility(showingHidden || hiddenCount > 0 ? View.VISIBLE : View.GONE);
+        hiddenButton.setText(showingHidden ? getString(R.string.home_apps_done)
+            : getString(R.string.home_apps_hidden_button, hiddenCount));
+        hiddenButton.setActivated(showingHidden);
         boolean none = apps.isEmpty();
         grid.setVisibility(none ? View.GONE : View.VISIBLE);
         empty.setVisibility(none ? View.VISIBLE : View.GONE);
-        countView.setText(none ? "" : getResources().getQuantityString(R.plurals.home_apps_count, apps.size(), apps.size()));
+        empty.setText(showingHidden ? R.string.home_apps_hidden_none : R.string.home_apps_empty);
+        countView.setText(none ? "" : showingHidden ? getString(R.string.home_apps_hidden_hint)
+            : getResources().getQuantityString(R.plurals.home_apps_count, apps.size(), apps.size()));
         adapter.notifyDataSetChanged();
         if (!none && !animatedIn) {
             animatedIn = true;
@@ -172,6 +256,49 @@ public class AppsActivity extends Activity {
         LayoutAnimationController c = new LayoutAnimationController(set, 0.12f);
         c.setOrder(LayoutAnimationController.ORDER_NORMAL);
         return c;
+    }
+
+    // ------------------------------------------------------------------ hidden apps
+
+    private void askHide(int position) {
+        if (position < 0 || position >= apps.size()) return;
+        AppCatalog.Entry entry = apps.get(position);
+        if (dialog != null) dialog.dismiss();
+        Dialog d = new Dialog(this, R.style.OverlayDialog);
+        View root = getLayoutInflater().inflate(R.layout.dialog_confirm, null);
+        Ui.applyFont(root);
+        d.setContentView(root);
+        ((TextView) root.findViewById(R.id.confirm_title)).setText(getString(R.string.home_apps_hide_title, entry.label));
+        ((TextView) root.findViewById(R.id.confirm_message)).setText(R.string.home_apps_hide_message);
+        TextView cancel = (TextView) root.findViewById(R.id.confirm_negative);
+        cancel.setText(R.string.home_cancel);
+        cancel.setOnClickListener(v -> d.dismiss());
+        TextView ok = (TextView) root.findViewById(R.id.confirm_positive);
+        ok.setText(R.string.home_apps_hide);
+        ok.setActivated(true);
+        ok.setOnClickListener(v -> {
+            d.dismiss();
+            AppCatalog.hide(this, entry, true);
+            hidden = AppCatalog.hidden(this);
+            show();
+        });
+        root.setOnClickListener(v -> d.dismiss());
+        d.getWindow().addFlags(WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN
+            | WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
+        Ui.hideSystemBars(d.getWindow());
+        d.show();
+        Touch.install(root);
+        dialog = d;
+    }
+
+    private void unhide(int position) {
+        if (position < 0 || position >= apps.size()) return;
+        AppCatalog.Entry entry = apps.get(position);
+        AppCatalog.hide(this, entry, false);
+        hidden = AppCatalog.hidden(this);
+        Toast.makeText(this, getString(R.string.home_apps_unhidden, entry.label), Toast.LENGTH_SHORT).show();
+        if (hidden.isEmpty()) showingHidden = false;
+        show();
     }
 
     private void open(View cell, int position) {
@@ -245,6 +372,11 @@ public class AppsActivity extends Activity {
                 }
             }
             AppCatalog.Entry entry = apps.get(position);
+            cell.setAlpha(showingHidden ? 0.55f : 1f);
+            // A recycled cell may still be pressed in (after a long press).
+            cell.animate().cancel();
+            cell.setScaleX(1f);
+            cell.setScaleY(1f);
             cell.setContentDescription(entry.label);
             ((TextView) cell.findViewById(R.id.app_label)).setText(entry.label);
             ImageView icon = (ImageView) cell.findViewById(R.id.app_icon);
