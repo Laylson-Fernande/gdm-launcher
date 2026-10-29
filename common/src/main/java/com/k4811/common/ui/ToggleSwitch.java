@@ -1,4 +1,4 @@
-package com.k4811.car.setting.ui;
+package com.k4811.common.ui;
 
 import android.animation.ValueAnimator;
 import android.content.Context;
@@ -9,7 +9,6 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
 
-import com.k4811.common.ui.Ui;
 
 /**
  * Interruptor liga/desliga desenhado (trilho + bolinha). Sem PNG nem AndroidX.

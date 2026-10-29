@@ -53,4 +53,17 @@
     <string name="map_say_camera_limit">%1$s में स्पीड कैमरा, सीमा %2$d</string>
     <string name="map_say_red_light">%1$s में रेड लाइट कैमरा</string>
     <string name="map_say_slow_down">ध्यान दें, गति कम करें</string>
+    <string name="map_compass">कम्पास: कार की दिशा या उत्तर ऊपर</string>
+    <string name="map_heading_up">कार की दिशा ऊपर</string>
+    <string name="map_north_up">उत्तर ऊपर</string>
+    <string name="map_alerts">अलर्ट</string>
+    <string name="map_alerts_on">अलर्ट चालू</string>
+    <string name="map_alerts_off">अलर्ट बंद</string>
+    <string name="map_favorites">पसंदीदा</string>
+    <string name="map_favorite_add">पसंदीदा में सहेजें</string>
+    <string name="map_favorite_remove">पसंदीदा से हटाएँ</string>
+    <string name="map_favorite_saved">पसंदीदा में सहेजा गया</string>
+    <string name="map_favorite_removed">पसंदीदा से हटाया गया</string>
+    <string name="map_number_approx">नंबर %1$s मानचित्र पर नहीं है: सड़क पर अनुमानित स्थान। सही जगह चुनने के लिए मानचित्र को दबाकर रखें।</string>
+    <string name="map_finding_address">पता खोजा जा रहा है…</string>
 </resources>

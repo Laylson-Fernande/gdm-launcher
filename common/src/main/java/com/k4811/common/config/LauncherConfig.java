@@ -34,6 +34,7 @@ public final class LauncherConfig {
     public static final int VERSION = 2;
     private static final String KEY_VERSION = "version";
     private static final String KEY_DOCK_TOGGLES = "dock_toggles";
+    private static final String KEY_DOCK_SIZE = "dock_size";
     private static final String KEY_LANGUAGE = "language";
     private static final String KEY_FONT = "font";
     private static final String KEY_THEME = "theme";
@@ -41,6 +42,10 @@ public final class LauncherConfig {
     private static final String KEY_DARK_MODE = "dark_mode";
     private static final String KEY_VOLTMETER = "show_voltmeter";
     private static final String KEY_DAY_NIGHT = "show_day_night";
+    private static final String KEY_DAY_NIGHT_BY = "day_night_by";
+    private static final String KEY_DAY_NIGHT_AFFECTS = "day_night_affects";
+    private static final String KEY_NIGHT_START = "night_start";
+    private static final String KEY_DAY_START = "day_start";
     private static final String KEY_SCREEN_OFF_AFTER = "screen_off_after";
     /** Antigo "mostrar controles de volume"; só serve para montar a tela inicial padrão. */
     private static final String KEY_VOLUME = "show_volume_controls";
@@ -48,12 +53,15 @@ public final class LauncherConfig {
     private static final String KEY_HOME_IMAGE = "home_image";
     private static final String KEY_HIDE_BOTTOM_BAR = "hide_bottom_bar";
     private static final String KEY_ZLINK_NAME = "zlink_name";
+    private static final String KEY_ZLINK_AUTO_CONNECT = "zlink_auto_connect";
+    private static final String KEY_ZLINK_AUTO_OPEN = "zlink_auto_open";
     private static final String KEY_ASK_DEFAULT = "ask_default_launcher";
     private static final String KEY_VOLUME_OVERLAY = "show_volume_overlay";
     /** Antigo liga/desliga do menu da borda; só lido quando ainda não há {@link #KEY_EDGE_MENU_SIDE}. */
     private static final String KEY_EDGE_MENU = "edge_menu";
     private static final String KEY_EDGE_MENU_SIDE = "edge_menu_side";
     private static final String KEY_NAV_APP = "nav_app";
+    private static final String KEY_MUSIC_APP = "music_app";
     private static final String KEY_NAV_INFO = "nav_info";
     private static final String KEY_NAV_MODE = "nav_mode";
     private static final String KEY_NAV_PANEL_RIGHT = "nav_panel_right";
@@ -62,7 +70,17 @@ public final class LauncherConfig {
     private static final String KEY_NAV_SPEED_LIMIT = "nav_speed_limit";
     private static final String KEY_NAV_ROAD_ALERTS = "nav_road_alerts";
     private static final String KEY_NAV_DATA_DAYS = "nav_data_days";
+    private static final String KEY_NAV_AUTO_ZOOM = "nav_auto_zoom";
+    private static final String KEY_NAV_PERSPECTIVE = "nav_perspective";
+    private static final String KEY_NAV_OFFLINE_MAP = "nav_offline_map";
+    /** % da mídia durante a voz da navegação (-1 = nunca configurado). Ver MixVolumes. */
+    private static final String KEY_NAV_MEDIA_PERCENT = "nav_media_percent";
+    /** % das notificações em relação ao volume (-1 = nunca configurado). Ver MixVolumes. */
+    private static final String KEY_NOTIFY_PERCENT = "notify_percent";
     private static final String KEY_SYS_MONITOR = "show_sys_monitor";
+    private static final String KEY_SAVE_LOGS = "save_logs";
+    private static final String KEY_START_GUARD = "start_guard";
+    private static final String KEY_BLOCK_NOTIFICATIONS = "block_notifications";
 
     /** Launcher original da NWD (valor de fábrica de persist.nwd.launcher.default). */
     public static final String ORIGINAL_LAUNCHER = "com.android.launcher";
@@ -88,7 +106,7 @@ public final class LauncherConfig {
     /** Opções de "Apagar a tela após" (segundos sem tocar na tela inicial); 0 = nunca. */
     public static final int[] SCREEN_OFF_AFTER = {0, 5, 10, 30};
 
-    /** Máximo de itens opcionais no dock (Início e Apps são fixos e ficam fora da conta). */
+    /** Máximo de itens opcionais no dock (Início, Navegação e Apps são fixos e ficam fora da conta). */
     public static final int MAX_DOCK_TOGGLES = 5;
     public static final DockView.Item[] DEFAULT_DOCK = {
         DockView.Item.RADIO, DockView.Item.MUSIC, DockView.Item.BT_MUSIC, DockView.Item.PHONE, DockView.Item.EQ,
@@ -165,13 +183,86 @@ public final class LauncherConfig {
         return put(KEY_THEME, theme);
     }
 
-    /** Modo escuro (fundo escuro). Ligado por padrão; desligado deixa o fundo claro. */
+    /**
+     * Modo escuro (fundo escuro); ligado por padrão, desligado deixa o fundo claro. Vale a última
+     * escolha: a do motorista (Configurações ou barra de brilho) ou, com o tema seguindo o dia e a noite
+     * ({@link #dayNightTheme}), a da última troca (escuro ao anoitecer, claro ao amanhecer, gravada pelo
+     * car-setting a pedido do {@code DayNightWatcher} do launcher).
+     */
     public static boolean darkMode(Context c) {
         return bool(KEY_DARK_MODE, true);
     }
 
     public static boolean setDarkMode(Context c, boolean on) {
         return put(KEY_DARK_MODE, on);
+    }
+
+    /** O que decide o dia e a noite: o farol (sinal ILL da MCU) ou o horário. */
+    public static final String DAY_NIGHT_BY_HEADLIGHTS = "headlights";
+    public static final String DAY_NIGHT_BY_TIME = "time";
+
+    public static String dayNightBy(Context c) {
+        return DAY_NIGHT_BY_TIME.equals(string(KEY_DAY_NIGHT_BY, null)) ? DAY_NIGHT_BY_TIME : DAY_NIGHT_BY_HEADLIGHTS;
+    }
+
+    public static boolean setDayNightBy(Context c, String by) {
+        return put(KEY_DAY_NIGHT_BY, by);
+    }
+
+    /** O que muda à noite: só o brilho (padrão, como a central faz com o farol), só o tema ou os dois. */
+    public static final String DAY_NIGHT_BRIGHTNESS = "brightness";
+    public static final String DAY_NIGHT_THEME = "theme";
+    public static final String DAY_NIGHT_BOTH = "both";
+    public static final String[] DAY_NIGHT_AFFECTS = {DAY_NIGHT_BRIGHTNESS, DAY_NIGHT_THEME, DAY_NIGHT_BOTH};
+
+    public static String dayNightAffects(Context c) {
+        String v = string(KEY_DAY_NIGHT_AFFECTS, DAY_NIGHT_BRIGHTNESS);
+        for (String a : DAY_NIGHT_AFFECTS) if (a.equals(v)) return a;
+        return DAY_NIGHT_BRIGHTNESS;
+    }
+
+    public static boolean setDayNightAffects(Context c, String affects) {
+        return put(KEY_DAY_NIGHT_AFFECTS, affects);
+    }
+
+    /** O tema fica escuro à noite e claro de dia (em vez da escolha fixa). */
+    public static boolean dayNightTheme(Context c) {
+        return !DAY_NIGHT_BRIGHTNESS.equals(dayNightAffects(c));
+    }
+
+    /** O brilho muda entre o do dia e o da noite. */
+    public static boolean dayNightBrightness(Context c) {
+        return !DAY_NIGHT_THEME.equals(dayNightAffects(c));
+    }
+
+    /** Horários de "Por horário", em minutos desde a meia-noite (de 30 em 30). */
+    public static final int[] DAY_NIGHT_TIMES;
+
+    static {
+        DAY_NIGHT_TIMES = new int[48];
+        for (int i = 0; i < 48; i++) DAY_NIGHT_TIMES[i] = i * 30;
+    }
+
+    /** Começo da noite (padrão 18:00). */
+    public static int nightStart(Context c) {
+        return clampMinutes(integer(KEY_NIGHT_START, 18 * 60), 18 * 60);
+    }
+
+    public static boolean setNightStart(Context c, int minutes) {
+        return put(KEY_NIGHT_START, minutes);
+    }
+
+    /** Começo do dia (padrão 06:00). */
+    public static int dayStart(Context c) {
+        return clampMinutes(integer(KEY_DAY_START, 6 * 60), 6 * 60);
+    }
+
+    public static boolean setDayStart(Context c, int minutes) {
+        return put(KEY_DAY_START, minutes);
+    }
+
+    private static int clampMinutes(int v, int def) {
+        return v >= 0 && v < 24 * 60 ? v : def;
     }
 
     /** Itens opcionais ligados no dock, na ordem fixa do enum. Sem nada gravado, o padrão. */
@@ -199,6 +290,22 @@ public final class LauncherConfig {
         return put(KEY_DOCK_TOGGLES, ids);
     }
 
+    /** Tamanhos do dock em % do padrão (altura, ícones e textos), na ordem das Configurações. */
+    public static final int[] DOCK_SIZES = {60, 75, 85, 100, 110};
+
+    /** Tamanho do dock em % ({@link #DOCK_SIZES}); 100 por padrão. */
+    public static int dockSize(Context c) {
+        int v = integer(KEY_DOCK_SIZE, 100);
+        for (int known : DOCK_SIZES) {
+            if (known == v) return v;
+        }
+        return 100;
+    }
+
+    public static boolean setDockSize(Context c, int percent) {
+        return put(KEY_DOCK_SIZE, percent);
+    }
+
     public static boolean resetDockToggles(Context c) {
         return put(KEY_DOCK_TOGGLES, null);
     }
@@ -211,6 +318,28 @@ public final class LauncherConfig {
 
     public static boolean setZlinkName(Context c, int index) {
         return put(KEY_ZLINK_NAME, index);
+    }
+
+    /** false = o launcher desconecta o ZLINK quando ele conecta sem o usuário ter aberto o ZLINK. */
+    public static boolean zlinkAutoConnect(Context c) {
+        return bool(KEY_ZLINK_AUTO_CONNECT, true);
+    }
+
+    public static boolean setZlinkAutoConnect(Context c, boolean on) {
+        return put(KEY_ZLINK_AUTO_CONNECT, on);
+    }
+
+    /** Ao conectar: não abre (esconde a tela do ZLINK), abre, ou abre se estava aberto ao desligar. */
+    public static final int ZLINK_OPEN_NO = 0;
+    public static final int ZLINK_OPEN_YES = 1;
+    public static final int ZLINK_OPEN_LAST = 2;
+
+    public static int zlinkAutoOpen(Context c) {
+        return integer(KEY_ZLINK_AUTO_OPEN, ZLINK_OPEN_YES);
+    }
+
+    public static boolean setZlinkAutoOpen(Context c, int mode) {
+        return put(KEY_ZLINK_AUTO_OPEN, mode);
     }
 
     /** Esconder a barra flutuante da NWD enquanto um app da suíte está na frente. Desligado por padrão. */
@@ -239,6 +368,39 @@ public final class LauncherConfig {
 
     public static boolean setShowSysMonitor(Context c, boolean on) {
         return put(KEY_SYS_MONITOR, on);
+    }
+
+    /** Gravar os logs dos apps em /sdcard/K4811/logs (ver LogFile). Desligado por padrão. */
+    /**
+     * Ao ligar o carro, se outro app abrir sozinho (ex.: o player de fábrica, pela última fonte), volta
+     * para a tela inicial ou para o último app da suíte em uso (launcher {@code start/StartGuard}).
+     */
+    public static boolean startGuard(Context c) {
+        return bool(KEY_START_GUARD, true);
+    }
+
+    public static boolean setStartGuard(Context c, boolean on) {
+        return put(KEY_START_GUARD, on);
+    }
+
+    /**
+     * Apaga as notificações dos apps assim que aparecem (launcher {@code nav/MediaListener}; precisa do
+     * acesso a notificações do launcher). As fixas (player tocando, serviço) o Android não deixa apagar.
+     */
+    public static boolean blockNotifications(Context c) {
+        return bool(KEY_BLOCK_NOTIFICATIONS, false);
+    }
+
+    public static boolean setBlockNotifications(Context c, boolean on) {
+        return put(KEY_BLOCK_NOTIFICATIONS, on);
+    }
+
+    public static boolean saveLogs(Context c) {
+        return bool(KEY_SAVE_LOGS, false);
+    }
+
+    public static boolean setSaveLogs(Context c, boolean on) {
+        return put(KEY_SAVE_LOGS, on);
     }
 
     /** Sol/lua ao lado do voltímetro (lua = farol aceso). */
@@ -383,6 +545,24 @@ public final class LauncherConfig {
         return put(KEY_NAV_VOICE, on);
     }
 
+    /** % da mídia enquanto a navegação fala, 0 a 100; -1 se nunca configurado (use MixVolumes). */
+    public static int navMediaPercent(Context c) {
+        return integer(KEY_NAV_MEDIA_PERCENT, -1);
+    }
+
+    public static boolean setNavMediaPercent(Context c, int percent) {
+        return put(KEY_NAV_MEDIA_PERCENT, percent);
+    }
+
+    /** % das notificações em relação ao volume, 0 a 100; -1 se nunca configurado (use MixVolumes). */
+    public static int notifyPercent(Context c) {
+        return integer(KEY_NOTIFY_PERCENT, -1);
+    }
+
+    public static boolean setNotifyPercent(Context c, int percent) {
+        return put(KEY_NOTIFY_PERCENT, percent);
+    }
+
     /** Alertas de radar (tela e voz) no mapa integrado. */
     public static boolean navCameras(Context c) {
         return bool(KEY_NAV_CAMERAS, true);
@@ -410,6 +590,42 @@ public final class LauncherConfig {
         return put(KEY_NAV_ROAD_ALERTS, on);
     }
 
+    /**
+     * Zoom dinâmico no mapa integrado, navegando: aproxima perto da próxima manobra ou do próximo
+     * alerta (radar, lombada…) e afasta quando o próximo está longe.
+     */
+    public static boolean navAutoZoom(Context c) {
+        return bool(KEY_NAV_AUTO_ZOOM, true);
+    }
+
+    public static boolean setNavAutoZoom(Context c, boolean on) {
+        return put(KEY_NAV_AUTO_ZOOM, on);
+    }
+
+    /**
+     * Mapa integrado em perspectiva com a direção do carro para cima: o chão inclinado, como uma câmera
+     * atrás do carro olhando para a frente.
+     */
+    public static boolean navPerspective(Context c) {
+        return bool(KEY_NAV_PERSPECTIVE, true);
+    }
+
+    public static boolean setNavPerspective(Context c, boolean on) {
+        return put(KEY_NAV_PERSPECTIVE, on);
+    }
+
+    /**
+     * Mapa offline do mapa integrado: baixa e desenha o mapa (ruas, água, prédios…) do raio de 100 km
+     * e das rotas, nas mesmas regras dos dados das vias.
+     */
+    public static boolean navOfflineMap(Context c) {
+        return bool(KEY_NAV_OFFLINE_MAP, true);
+    }
+
+    public static boolean setNavOfflineMap(Context c, boolean on) {
+        return put(KEY_NAV_OFFLINE_MAP, on);
+    }
+
     /** De quantos em quantos dias os dados das vias (radares, limites) são conferidos, na ordem das Configurações. */
     public static final int[] NAV_DATA_DAYS = {1, 7, 30};
 
@@ -432,6 +648,15 @@ public final class LauncherConfig {
 
     public static boolean setNavApp(Context c, String pkg) {
         return put(KEY_NAV_APP, pkg);
+    }
+
+    /** Package do app que o botão Música do dock abre; null = o MP3 da suíte (ver MusicApps). */
+    public static String musicApp(Context c) {
+        return string(KEY_MUSIC_APP, null);
+    }
+
+    public static boolean setMusicApp(Context c, String pkg) {
+        return put(KEY_MUSIC_APP, pkg);
     }
 
     /** Informação acima da música ({@link #NAV_INFOS}); relógio por padrão. */

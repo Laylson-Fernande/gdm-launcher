@@ -81,8 +81,8 @@
     <string name="home_dock_home_title">Home</string>
     <string name="home_dock_radio">RADIO</string>
     <string name="home_dock_radio_title">Radio</string>
-    <string name="home_dock_music">MP3</string>
-    <string name="home_dock_music_title">Music (USB/SD)</string>
+    <string name="home_dock_music">MUSIC</string>
+    <string name="home_dock_music_title">Music</string>
     <string name="home_dock_bt_music">BLUETOOTH</string>
     <string name="home_dock_bt_music_title">Bluetooth music</string>
     <string name="home_dock_phone">PHONE</string>
@@ -129,6 +129,7 @@
     <!-- Tela de navegação (NavHomeActivity) -->
     <string name="home_dock_nav">NAVIGATION</string>
     <string name="home_dock_nav_title">Navigation screen</string>
+    <string name="home_nav_arrival">Arrival %1$s</string>
     <string name="home_nav_open">Open navigation</string>
     <string name="home_nav_no_app">No navigation app installed</string>
     <string name="home_nav_no_split">Split screen unavailable on this unit</string>
@@ -137,4 +138,15 @@
     <!-- Indicador de RAM e CPU ao lado do voltímetro -->
     <string name="home_sys_ram" translatable="false">RAM %1$d%%</string>
     <string name="home_sys_ram_cpu" translatable="false">RAM %1$d%%  ·  CPU %2$d%%</string>
+    <string name="home_zlink_disconnect">Disconnect</string>
+    <string name="home_apps_hide">Hide</string>
+    <string name="home_apps_hide_title">Hide %1$s?</string>
+    <string name="home_apps_hide_message">It leaves this list (it stays installed). To show it again, tap \"Hidden\" at the top.</string>
+    <string name="home_apps_hidden_button">Hidden (%1$d)</string>
+    <string name="home_apps_hidden_title">Hidden apps</string>
+    <string name="home_apps_hidden_hint">Tap an app to show it again</string>
+    <string name="home_apps_hidden_none">No hidden apps</string>
+    <string name="home_apps_done">Done</string>
+    <string name="home_apps_unhidden">%1$s is back in the list</string>
+    <string name="home_dark_mode_auto">Until the next day/night change</string>
 </resources>

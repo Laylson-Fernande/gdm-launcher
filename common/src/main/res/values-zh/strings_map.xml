@@ -53,4 +53,17 @@
     <string name="map_say_camera_limit">前方%1$s有测速摄像头，限速%2$d</string>
     <string name="map_say_red_light">前方%1$s有闯红灯摄像头</string>
     <string name="map_say_slow_down">请减速，您已超速</string>
+    <string name="map_compass">指南针：车头朝上或正北朝上</string>
+    <string name="map_heading_up">车头朝上</string>
+    <string name="map_north_up">正北朝上</string>
+    <string name="map_alerts">提醒</string>
+    <string name="map_alerts_on">提醒已开启</string>
+    <string name="map_alerts_off">提醒已关闭</string>
+    <string name="map_favorites">收藏</string>
+    <string name="map_favorite_add">加入收藏</string>
+    <string name="map_favorite_remove">取消收藏</string>
+    <string name="map_favorite_saved">已加入收藏</string>
+    <string name="map_favorite_removed">已取消收藏</string>
+    <string name="map_number_approx">地图上没有 %1$s 号：显示的是街道上的大致位置。长按地图可标记准确地点。</string>
+    <string name="map_finding_address">正在查找地址…</string>
 </resources>

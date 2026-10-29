@@ -76,8 +76,8 @@
     <string name="home_dock_home_title">ホーム</string>
     <string name="home_dock_radio">ラジオ</string>
     <string name="home_dock_radio_title">ラジオ</string>
-    <string name="home_dock_music">MP3</string>
-    <string name="home_dock_music_title">音楽 (USB/SD)</string>
+    <string name="home_dock_music">音楽</string>
+    <string name="home_dock_music_title">音楽</string>
     <string name="home_dock_bt_music">Bluetooth</string>
     <string name="home_dock_bt_music_title">Bluetooth 音楽</string>
     <string name="home_dock_phone">電話</string>
@@ -121,9 +121,21 @@
     <!-- Tela de navegação (NavHomeActivity) -->
     <string name="home_dock_nav">ナビ</string>
     <string name="home_dock_nav_title">ナビ画面</string>
+    <string name="home_nav_arrival">到着 %1$s</string>
     <string name="home_nav_open">ナビを開く</string>
     <string name="home_nav_no_app">ナビアプリがありません</string>
     <string name="home_nav_no_split">この機器では画面分割を使えません</string>
     <string name="home_nav_media_access">再生中の曲を表示するにはアクセスを許可</string>
     <string name="home_nav_media_allow">許可</string>
+    <string name="home_zlink_disconnect">切断</string>
+    <string name="home_apps_hide">非表示</string>
+    <string name="home_apps_hide_title">%1$s を非表示にしますか？</string>
+    <string name="home_apps_hide_message">このリストから外れます（アンインストールはされません）。元に戻すには上の「非表示」をタップします。</string>
+    <string name="home_apps_hidden_button">非表示 (%1$d)</string>
+    <string name="home_apps_hidden_title">非表示のアプリ</string>
+    <string name="home_apps_hidden_hint">アプリをタップすると再表示します</string>
+    <string name="home_apps_hidden_none">非表示のアプリはありません</string>
+    <string name="home_apps_done">完了</string>
+    <string name="home_apps_unhidden">%1$s をリストに戻しました</string>
+    <string name="home_dark_mode_auto">次の昼夜の切り替えまで</string>
 </resources>

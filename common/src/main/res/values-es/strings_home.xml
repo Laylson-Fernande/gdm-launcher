@@ -78,8 +78,8 @@
     <string name="home_dock_home_title">Inicio</string>
     <string name="home_dock_radio">RADIO</string>
     <string name="home_dock_radio_title">Radio</string>
-    <string name="home_dock_music">MP3</string>
-    <string name="home_dock_music_title">Música (USB/SD)</string>
+    <string name="home_dock_music">MÚSICA</string>
+    <string name="home_dock_music_title">Música</string>
     <string name="home_dock_bt_music">BLUETOOTH</string>
     <string name="home_dock_bt_music_title">Música Bluetooth</string>
     <string name="home_dock_phone">TELÉFONO</string>
@@ -123,9 +123,21 @@
     <!-- Tela de navegação (NavHomeActivity) -->
     <string name="home_dock_nav">NAVEGACIÓN</string>
     <string name="home_dock_nav_title">Pantalla de navegación</string>
+    <string name="home_nav_arrival">Llegada %1$s</string>
     <string name="home_nav_open">Abrir navegación</string>
     <string name="home_nav_no_app">Ninguna app de navegación instalada</string>
     <string name="home_nav_no_split">Pantalla dividida no disponible en esta unidad</string>
     <string name="home_nav_media_access">Permite el acceso para ver lo que suena</string>
     <string name="home_nav_media_allow">Permitir</string>
+    <string name="home_zlink_disconnect">Desconectar</string>
+    <string name="home_apps_hide">Ocultar</string>
+    <string name="home_apps_hide_title">¿Ocultar %1$s?</string>
+    <string name="home_apps_hide_message">Sale de esta lista (sigue instalada). Para mostrarla de nuevo, toca \"Ocultas\" arriba.</string>
+    <string name="home_apps_hidden_button">Ocultas (%1$d)</string>
+    <string name="home_apps_hidden_title">Apps ocultas</string>
+    <string name="home_apps_hidden_hint">Toca una app para mostrarla de nuevo</string>
+    <string name="home_apps_hidden_none">Ninguna app oculta</string>
+    <string name="home_apps_done">Listo</string>
+    <string name="home_apps_unhidden">%1$s volvió a la lista</string>
+    <string name="home_dark_mode_auto">Hasta el próximo cambio de día y noche</string>
 </resources>

@@ -92,11 +92,11 @@ public final class HomeGrid {
         public final int contentHeight;
         private final Frame[] frames;
 
-        Layout(boolean portrait, int screenWidth, int screenHeight, Frame[] frames) {
+        Layout(boolean portrait, int screenWidth, int screenHeight, int dockHeight, Frame[] frames) {
             this.portrait = portrait;
             this.screenWidth = screenWidth;
             this.screenHeight = screenHeight;
-            this.contentHeight = screenHeight - DockView.HEIGHT_DP;
+            this.contentHeight = screenHeight - dockHeight;
             this.frames = frames;
         }
 
@@ -124,23 +124,35 @@ public final class HomeGrid {
         float density = a.getResources().getDisplayMetrics().density;
         int w = Math.round(wPx / density);
         int h = Math.round(hPx / density);
-        return h > w ? portrait(w, h) : landscape();
+        int dock = DockView.heightDp(a);
+        return h > w ? portrait(w, h, dock) : landscape(dock);
     }
 
-    private static Layout landscape() {
-        return new Layout(false, 1280, 720, new Frame[]{
-            new Frame(24, 100, 400, 444, Size.TALL),
-            new Frame(448, 100, 494, 260, Size.LARGE),
-            new Frame(448, 384, 494, 160, Size.WIDE),
-            new Frame(966, 100, 290, 132, Size.SMALL),
-            new Frame(966, 256, 290, 132, Size.SMALL),
-            new Frame(966, 412, 290, 132, Size.SMALL),
+    /**
+     * The 1280×720 design, drawn for the normal dock (modules from y 100 to 544). Another dock size
+     * (Settings › Dock size) stretches or shrinks the rows to the space between the top bar and the dock.
+     */
+    private static Layout landscape(int dock) {
+        float k = (720 - dock - 16 - 100) / 444f;
+        return new Layout(false, 1280, 720, dock, new Frame[]{
+            landscapeFrame(24, 100, 400, 444, Size.TALL, k),
+            landscapeFrame(448, 100, 494, 260, Size.LARGE, k),
+            landscapeFrame(448, 384, 494, 160, Size.WIDE, k),
+            landscapeFrame(966, 100, 290, 132, Size.SMALL, k),
+            landscapeFrame(966, 256, 290, 132, Size.SMALL, k),
+            landscapeFrame(966, 412, 290, 132, Size.SMALL, k),
         });
     }
 
+    private static Frame landscapeFrame(int x, int y, int w, int h, Size size, float k) {
+        int top = 100 + Math.round((y - 100) * k);
+        int bottom = 100 + Math.round((y + h - 100) * k);
+        return new Frame(x, top, w, bottom - top, size);
+    }
+
     /** Rows of 1, 2 and 3 slots sharing the height about 46 / 31 / 23 %. */
-    private static Layout portrait(int w, int h) {
-        int content = h - DockView.HEIGHT_DP;
+    private static Layout portrait(int w, int h, int dock) {
+        int content = h - dock;
         int available = content - BOTTOM - TOP_BAR - 2 * GAP;
         int rowA = Math.round(available * 0.46f);
         int rowB = Math.round(available * 0.31f);
@@ -150,7 +162,7 @@ public final class HomeGrid {
         int third = (inner - 2 * GAP) / 3;
         int yB = TOP_BAR + rowA + GAP;
         int yD = yB + rowB + GAP;
-        return new Layout(true, w, h, new Frame[]{
+        return new Layout(true, w, h, dock, new Frame[]{
             new Frame(GAP, TOP_BAR, inner, rowA, Size.LARGE),
             new Frame(GAP, yB, half, rowB, Size.LARGE),
             new Frame(GAP + half + GAP, yB, half, rowB, Size.LARGE),

@@ -30,6 +30,34 @@ val packages = linkedMapOf(
     "fan" to "com.nwd.cpumonitor",
 )
 
+/*
+ * Build pessoal (sem a chave dos apps de fábrica): os apps que instalariam por cima dos originais
+ * ganham packages próprios e ficam AO LADO deles; o dock e a suíte abrem estes (Apps.* vem desta
+ * tabela). Ligado por -Pk4811.packages=personal ou "k4811.packages=personal" no local.properties
+ * (fora do git). Ver docs/gerar-apk.md, "Build pessoal".
+ */
+val personalPackages = linkedMapOf(
+    "radio" to "com.k4811.radio",
+    "music" to "com.k4811.music",
+    "bt-music" to "com.k4811.btmusic",
+    "phone" to "com.k4811.phone",
+    "eq" to "com.k4811.eq",
+    "fan" to "com.k4811.fan",
+)
+
+fun packagesMode(): String {
+    (findProperty("k4811.packages") as String?)?.let { return it.trim() }
+    val local = rootProject.file("local.properties")
+    if (!local.isFile) return ""
+    val props = Properties().apply { local.inputStream().use { load(it) } }
+    return props.getProperty("k4811.packages", "").trim()
+}
+
+if (packagesMode() == "personal") {
+    packages.putAll(personalPackages)
+    logger.lifecycle("k4811.packages=personal: rádio, MP3, BT, telefone, EQ e ventoinha com packages próprios (ao lado dos de fábrica)")
+}
+
 /** Nome do campo no BuildConfig do common para cada módulo (PKG_RADIO, PKG_BT_MUSIC…). */
 fun fieldOf(module: String) = "PKG_" + module.uppercase().replace('-', '_')
 

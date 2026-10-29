@@ -59,4 +59,17 @@
     <string name="map_say_red_light">Red light camera in %1$s</string>
     <string name="map_say_slow_down">Slow down, you are over the limit</string>
     <string name="map_alert_with_limit" translatable="false">%1$s · %2$d km/h</string>
+    <string name="map_compass">Compass: car direction or north up</string>
+    <string name="map_heading_up">Car direction up</string>
+    <string name="map_north_up">North up</string>
+    <string name="map_alerts">Alerts</string>
+    <string name="map_alerts_on">Alerts on</string>
+    <string name="map_alerts_off">Alerts off</string>
+    <string name="map_favorites">Favorites</string>
+    <string name="map_favorite_add">Save to favorites</string>
+    <string name="map_favorite_remove">Remove from favorites</string>
+    <string name="map_favorite_saved">Saved to favorites</string>
+    <string name="map_favorite_removed">Removed from favorites</string>
+    <string name="map_number_approx">No. %1$s is not on the map: approximate point on the street. Touch and hold the map to mark the exact place.</string>
+    <string name="map_finding_address">Finding the address…</string>
 </resources>

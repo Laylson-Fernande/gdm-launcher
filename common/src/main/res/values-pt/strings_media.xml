@@ -27,6 +27,7 @@
     <string name="media_phone_auto_connect_on">Conexão automática: on</string>
     <string name="media_phone_call_caption">Chamada</string>
     <string name="media_phone_answer">Atender</string>
+    <string name="media_phone_silence">Silenciar</string>
     <string name="media_phone_hang_up">Desligar</string>
     <string name="media_phone_mute">Mudo</string>
     <string name="media_phone_mute_on">Mudo on</string>

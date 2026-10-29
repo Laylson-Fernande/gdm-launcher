@@ -53,4 +53,17 @@
     <string name="map_say_camera_limit">Radar em %1$s, limite de %2$d</string>
     <string name="map_say_red_light">Radar de semáforo em %1$s</string>
     <string name="map_say_slow_down">Atenção, reduza a velocidade</string>
+    <string name="map_compass">Bússola: direção do carro ou norte para cima</string>
+    <string name="map_heading_up">Direção do carro para cima</string>
+    <string name="map_north_up">Norte para cima</string>
+    <string name="map_alerts">Alertas</string>
+    <string name="map_alerts_on">Alertas ligados</string>
+    <string name="map_alerts_off">Alertas desligados</string>
+    <string name="map_favorites">Favoritos</string>
+    <string name="map_favorite_add">Salvar nos favoritos</string>
+    <string name="map_favorite_remove">Tirar dos favoritos</string>
+    <string name="map_favorite_saved">Salvo nos favoritos</string>
+    <string name="map_favorite_removed">Tirado dos favoritos</string>
+    <string name="map_number_approx">Nº %1$s não está no mapa: ponto aproximado na rua. Toque e segure no mapa para marcar o local exato.</string>
+    <string name="map_finding_address">Procurando o endereço…</string>
 </resources>

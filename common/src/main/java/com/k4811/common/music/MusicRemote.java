@@ -25,6 +25,8 @@ public final class MusicRemote {
     public static final int CMD_TOGGLE = 0;
     public static final int CMD_NEXT = 1;
     public static final int CMD_PREV = 2;
+    /** Retoma só se o player foi pausado por perda temporária de foco (chamada silenciada). Não inicia o player. */
+    public static final int CMD_RESUME = 3;
 
     public static final String EXTRA_HAS_TRACK = "has_track";
     public static final String EXTRA_TITLE = "title";

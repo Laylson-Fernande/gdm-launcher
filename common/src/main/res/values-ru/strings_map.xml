@@ -53,4 +53,17 @@
     <string name="map_say_camera_limit">Камера через %1$s, ограничение %2$d</string>
     <string name="map_say_red_light">Камера на светофоре через %1$s</string>
     <string name="map_say_slow_down">Внимание, снизьте скорость</string>
+    <string name="map_compass">Компас: по направлению движения или север вверху</string>
+    <string name="map_heading_up">По направлению движения</string>
+    <string name="map_north_up">Север вверху</string>
+    <string name="map_alerts">Оповещения</string>
+    <string name="map_alerts_on">Оповещения включены</string>
+    <string name="map_alerts_off">Оповещения выключены</string>
+    <string name="map_favorites">Избранное</string>
+    <string name="map_favorite_add">Добавить в избранное</string>
+    <string name="map_favorite_remove">Убрать из избранного</string>
+    <string name="map_favorite_saved">Добавлено в избранное</string>
+    <string name="map_favorite_removed">Убрано из избранного</string>
+    <string name="map_number_approx">Дома № %1$s нет на карте: точка на улице приблизительная. Нажмите и удерживайте карту, чтобы отметить точное место.</string>
+    <string name="map_finding_address">Поиск адреса…</string>
 </resources>

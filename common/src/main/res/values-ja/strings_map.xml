@@ -53,4 +53,17 @@
     <string name="map_say_camera_limit">%1$s先、速度取締機、制限%2$dキロ</string>
     <string name="map_say_red_light">%1$s先、信号無視取締機</string>
     <string name="map_say_slow_down">速度を落としてください</string>
+    <string name="map_compass">コンパス：進行方向を上 / 北を上</string>
+    <string name="map_heading_up">進行方向を上</string>
+    <string name="map_north_up">北を上</string>
+    <string name="map_alerts">警告</string>
+    <string name="map_alerts_on">警告オン</string>
+    <string name="map_alerts_off">警告オフ</string>
+    <string name="map_favorites">お気に入り</string>
+    <string name="map_favorite_add">お気に入りに保存</string>
+    <string name="map_favorite_remove">お気に入りから削除</string>
+    <string name="map_favorite_saved">お気に入りに保存しました</string>
+    <string name="map_favorite_removed">お気に入りから削除しました</string>
+    <string name="map_number_approx">%1$s 番地は地図にありません：通り上のおおよその位置です。地図を長押しして正確な場所を指定してください。</string>
+    <string name="map_finding_address">住所を検索中…</string>
 </resources>

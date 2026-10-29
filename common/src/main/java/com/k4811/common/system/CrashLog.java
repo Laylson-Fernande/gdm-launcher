@@ -46,6 +46,8 @@ public final class CrashLog {
         pw.flush();
         String text = sw.toString();
         Log.e(TAG, text);
+        // The process dies before logcat delivers the last lines: write the crash to the log file too.
+        LogFile.append("K4811Crash: " + text);
         FileOutputStream out = new FileOutputStream(new File(context.getFilesDir(), FILE));
         try {
             out.write(text.getBytes("UTF-8"));

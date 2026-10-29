@@ -78,8 +78,8 @@
     <string name="home_dock_home_title">Accueil</string>
     <string name="home_dock_radio">RADIO</string>
     <string name="home_dock_radio_title">Radio</string>
-    <string name="home_dock_music">MP3</string>
-    <string name="home_dock_music_title">Musique (USB/SD)</string>
+    <string name="home_dock_music">MUSIQUE</string>
+    <string name="home_dock_music_title">Musique</string>
     <string name="home_dock_bt_music">BLUETOOTH</string>
     <string name="home_dock_bt_music_title">Musique Bluetooth</string>
     <string name="home_dock_phone">TÉLÉPHONE</string>
@@ -123,9 +123,21 @@
     <!-- Tela de navegação (NavHomeActivity) -->
     <string name="home_dock_nav">NAVIGATION</string>
     <string name="home_dock_nav_title">Écran de navigation</string>
+    <string name="home_nav_arrival">Arrivée %1$s</string>
     <string name="home_nav_open">Ouvrir la navigation</string>
     <string name="home_nav_no_app">Aucune app de navigation installée</string>
     <string name="home_nav_no_split">Écran partagé indisponible sur cet appareil</string>
     <string name="home_nav_media_access">Autorisez l’accès pour voir ce qui joue</string>
     <string name="home_nav_media_allow">Autoriser</string>
+    <string name="home_zlink_disconnect">Déconnecter</string>
+    <string name="home_apps_hide">Masquer</string>
+    <string name="home_apps_hide_title">Masquer %1$s ?</string>
+    <string name="home_apps_hide_message">Elle quitte cette liste (elle reste installée). Pour la réafficher, touchez « Masquées » en haut.</string>
+    <string name="home_apps_hidden_button">Masquées (%1$d)</string>
+    <string name="home_apps_hidden_title">Apps masquées</string>
+    <string name="home_apps_hidden_hint">Touchez une app pour la réafficher</string>
+    <string name="home_apps_hidden_none">Aucune app masquée</string>
+    <string name="home_apps_done">Terminé</string>
+    <string name="home_apps_unhidden">%1$s est de retour dans la liste</string>
+    <string name="home_dark_mode_auto">Jusqu’au prochain passage jour/nuit</string>
 </resources>

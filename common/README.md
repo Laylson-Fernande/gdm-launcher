@@ -15,7 +15,7 @@ O car-setting é o único app que grava as configurações. O launcher e os apps
 | Idioma (8: pt, en, es, fr, ru, ja, zh, hi; padrão en) | `language` | `Ui.applyLanguage`, em toda tela e no `SuiteApp` |
 | Cor do tema (14 temas, derivados em OKLCH) | `theme` | `Ui.applyTheme` + `ThemeInflater` / `ThemeDrawables` |
 | Fonte (Exo 2, Montserrat, Rajdhani, Outfit, Inter, Public Sans) | `font` | `Ui.regular/medium/semiBold` |
-| Ícones do dock (até 5 + Início e Apps fixos) | `dock_toggles` | `DockView` |
+| Ícones do dock (até 5 + Início, Navegação e Apps fixos) | `dock_toggles` | `DockView` |
 | Nome do Z-Link no dock (Z-Link, CarPlay ou Auto) | `zlink_name` | `DockView.Item.label/icon` |
 | Esconder a barra flutuante da NWD | `hide_bottom_bar` | `BottomBar` |
 
@@ -96,7 +96,7 @@ Com "Esconder a barra inferior da NWD" ligado, a barra some enquanto qualquer ap
 
 ## "O que está tocando" do MP3 (`MusicRemote`)
 
-Contrato entre o app de música e o widget da tela inicial: estado em `com.k4811.action.MUSIC_STATE`, pedido de estado em `MUSIC_QUERY` e comandos em `MUSIC_COMMAND` (`cmd`: 0 tocar/pausar, 1 próxima, 2 anterior). Detalhes no [README da música](../music/README.md).
+Contrato entre o app de música e o widget da tela inicial: estado em `com.k4811.action.MUSIC_STATE`, pedido de estado em `MUSIC_QUERY` e comandos em `MUSIC_COMMAND` (`cmd`: 0 tocar/pausar, 1 próxima, 2 anterior, 3 retomar se uma chamada pausou). Detalhes no [README da música](../music/README.md).
 
 ## Modo desenvolvedor (`DevMode`)
 

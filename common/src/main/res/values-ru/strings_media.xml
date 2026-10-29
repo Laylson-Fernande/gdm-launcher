@@ -27,6 +27,7 @@
     <string name="media_phone_auto_connect_on">Автоподключение: вкл</string>
     <string name="media_phone_call_caption">Вызов</string>
     <string name="media_phone_answer">Ответить</string>
+    <string name="media_phone_silence">Без звука</string>
     <string name="media_phone_hang_up">Завершить</string>
     <string name="media_phone_mute">Без звука</string>
     <string name="media_phone_mute_on">Звук выкл</string>

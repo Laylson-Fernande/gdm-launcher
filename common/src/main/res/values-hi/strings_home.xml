@@ -77,8 +77,8 @@
     <string name="home_dock_home_title">होम</string>
     <string name="home_dock_radio">रेडियो</string>
     <string name="home_dock_radio_title">रेडियो</string>
-    <string name="home_dock_music">MP3</string>
-    <string name="home_dock_music_title">म्यूज़िक (USB/SD)</string>
+    <string name="home_dock_music">संगीत</string>
+    <string name="home_dock_music_title">संगीत</string>
     <string name="home_dock_bt_music">ब्लूटूथ</string>
     <string name="home_dock_bt_music_title">ब्लूटूथ म्यूज़िक</string>
     <string name="home_dock_phone">फ़ोन</string>
@@ -122,9 +122,21 @@
     <!-- Tela de navegação (NavHomeActivity) -->
     <string name="home_dock_nav">नेविगेशन</string>
     <string name="home_dock_nav_title">नेविगेशन स्क्रीन</string>
+    <string name="home_nav_arrival">पहुँच %1$s</string>
     <string name="home_nav_open">नेविगेशन खोलें</string>
     <string name="home_nav_no_app">कोई नेविगेशन ऐप इंस्टॉल नहीं है</string>
     <string name="home_nav_no_split">इस यूनिट पर स्प्लिट स्क्रीन उपलब्ध नहीं है</string>
     <string name="home_nav_media_access">जो चल रहा है उसे दिखाने के लिए अनुमति दें</string>
     <string name="home_nav_media_allow">अनुमति दें</string>
+    <string name="home_zlink_disconnect">डिस्कनेक्ट करें</string>
+    <string name="home_apps_hide">छिपाएँ</string>
+    <string name="home_apps_hide_title">%1$s छिपाएँ?</string>
+    <string name="home_apps_hide_message">यह इस सूची से हट जाएगा (इंस्टॉल रहेगा)। फिर से दिखाने के लिए ऊपर \"छिपे हुए\" छुएँ।</string>
+    <string name="home_apps_hidden_button">छिपे हुए (%1$d)</string>
+    <string name="home_apps_hidden_title">छिपे हुए ऐप</string>
+    <string name="home_apps_hidden_hint">फिर से दिखाने के लिए ऐप छुएँ</string>
+    <string name="home_apps_hidden_none">कोई छिपा हुआ ऐप नहीं</string>
+    <string name="home_apps_done">हो गया</string>
+    <string name="home_apps_unhidden">%1$s सूची में वापस आ गया</string>
+    <string name="home_dark_mode_auto">अगले दिन/रात बदलाव तक</string>
 </resources>

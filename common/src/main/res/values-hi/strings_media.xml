@@ -27,6 +27,7 @@
     <string name="media_phone_auto_connect_on">ऑटो कनेक्ट: चालू</string>
     <string name="media_phone_call_caption">कॉल</string>
     <string name="media_phone_answer">उठाएँ</string>
+    <string name="media_phone_silence">मौन करें</string>
     <string name="media_phone_hang_up">काटें</string>
     <string name="media_phone_mute">म्यूट</string>
     <string name="media_phone_mute_on">म्यूट चालू</string>

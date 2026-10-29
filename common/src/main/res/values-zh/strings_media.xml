@@ -27,6 +27,7 @@
     <string name="media_phone_auto_connect_on">自动连接：开</string>
     <string name="media_phone_call_caption">通话</string>
     <string name="media_phone_answer">接听</string>
+    <string name="media_phone_silence">静音</string>
     <string name="media_phone_hang_up">挂断</string>
     <string name="media_phone_mute">静音</string>
     <string name="media_phone_mute_on">已静音</string>

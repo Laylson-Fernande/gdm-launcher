@@ -11,6 +11,7 @@ import android.widget.Toast;
 import com.k4811.common.Apps;
 import com.k4811.common.R;
 import com.k4811.common.audio.PlayerHandoff;
+import com.k4811.common.home.MusicApps;
 import com.k4811.common.system.ExternalApps;
 
 /**
@@ -19,6 +20,7 @@ import com.k4811.common.system.ExternalApps;
  * Início volta para o launcher padrão. Dentro dos apps, rádio, música, telefone e EQ abrem depois
  * de um Splash curto com o ícone do serviço. Na tela inicial (launcher) abrem na hora, sem Splash.
  * O rádio, ao abrir, espera o MP3 parar antes de pegar a fonte (PlayerHandoff.switchToRadio).
+ * O botão Música abre o app escolhido nas Configurações (music_app, ver MusicApps) ou o MP3 da suíte.
  */
 public final class DockNavigator {
     private DockNavigator() {
@@ -47,7 +49,7 @@ public final class DockNavigator {
 
         DockView dock = new DockView(activity);
         column.addView(dock, new LinearLayout.LayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT, Math.round(Ui.dp(activity, DockView.HEIGHT_DP))));
+            ViewGroup.LayoutParams.MATCH_PARENT, Math.round(Ui.dp(activity, DockView.heightDp(activity)))));
         root.addView(column, new ViewGroup.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
 
@@ -57,6 +59,25 @@ public final class DockNavigator {
     }
 
     public static void navigate(Activity from, DockView.Item current, DockView.Item target) {
+        // Música com outro app escolhido (Spotify, YouTube Music…): abre ele, mesmo de dentro do MP3.
+        String musicApp = target == DockView.Item.MUSIC ? MusicApps.chosen(from) : null;
+        if (musicApp != null) {
+            Splash.cancel();
+            openExternal(from, musicApp);
+            return;
+        }
+        navigateSuite(from, current, target);
+    }
+
+    /**
+     * Abre o MP3 da suíte mesmo com outro app escolhido para o botão Música: para o cartão
+     * "tocando agora" do MP3 (tela inicial e navegação).
+     */
+    public static void navigateMp3(Activity from, DockView.Item current) {
+        navigateSuite(from, current, DockView.Item.MUSIC);
+    }
+
+    private static void navigateSuite(Activity from, DockView.Item current, DockView.Item target) {
         if (target == current) return;
         Splash.cancel(); // outro item tocado enquanto um Splash estava na tela: vale o último
         if (Apps.LAUNCHER.equals(from.getPackageName())) {
@@ -138,6 +159,17 @@ public final class DockNavigator {
                 // Troca entre apps do dock: crossfade rápido (o dock fica no mesmo lugar).
                 switchTo(from, launch, R.anim.screen_swap_in, R.anim.screen_swap_out);
         }
+    }
+
+    /** App de fora da suíte (o escolhido para o botão Música). */
+    private static void openExternal(Activity from, String pkg) {
+        Intent launch = from.getPackageManager().getLaunchIntentForPackage(pkg);
+        if (launch == null) {
+            Toast.makeText(from, from.getString(R.string.screen_app_missing, pkg), Toast.LENGTH_LONG).show();
+            return;
+        }
+        launch.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        switchTo(from, launch, R.anim.screen_swap_in, R.anim.screen_swap_out);
     }
 
     /** Abre o outro app e fecha esta tela, menos a tela inicial (que fica embaixo de tudo). */

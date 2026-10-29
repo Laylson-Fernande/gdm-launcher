@@ -78,8 +78,8 @@
     <string name="home_dock_home_title">主页</string>
     <string name="home_dock_radio">收音机</string>
     <string name="home_dock_radio_title">收音机</string>
-    <string name="home_dock_music">MP3</string>
-    <string name="home_dock_music_title">音乐（USB/SD）</string>
+    <string name="home_dock_music">音乐</string>
+    <string name="home_dock_music_title">音乐</string>
     <string name="home_dock_bt_music">蓝牙</string>
     <string name="home_dock_bt_music_title">蓝牙音乐</string>
     <string name="home_dock_phone">电话</string>
@@ -123,9 +123,21 @@
     <!-- Tela de navegação (NavHomeActivity) -->
     <string name="home_dock_nav">导航</string>
     <string name="home_dock_nav_title">导航界面</string>
+    <string name="home_nav_arrival">到达 %1$s</string>
     <string name="home_nav_open">打开导航</string>
     <string name="home_nav_no_app">未安装导航应用</string>
     <string name="home_nav_no_split">此设备不支持分屏</string>
     <string name="home_nav_media_access">允许访问以显示正在播放的内容</string>
     <string name="home_nav_media_allow">允许</string>
+    <string name="home_zlink_disconnect">断开连接</string>
+    <string name="home_apps_hide">隐藏</string>
+    <string name="home_apps_hide_title">隐藏 %1$s？</string>
+    <string name="home_apps_hide_message">它会从此列表中移除（仍保持安装）。要重新显示，请点按顶部的\"已隐藏\"。</string>
+    <string name="home_apps_hidden_button">已隐藏 (%1$d)</string>
+    <string name="home_apps_hidden_title">已隐藏的应用</string>
+    <string name="home_apps_hidden_hint">点按应用即可重新显示</string>
+    <string name="home_apps_hidden_none">没有已隐藏的应用</string>
+    <string name="home_apps_done">完成</string>
+    <string name="home_apps_unhidden">%1$s 已回到列表</string>
+    <string name="home_dark_mode_auto">直到下次昼夜切换</string>
 </resources>

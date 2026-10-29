@@ -20,7 +20,7 @@ public class IconView extends View {
         MENU, DIAG, POWER, EXIT, RADIO, CHEVRON_LEFT, CHEVRON_RIGHT, SKIP_PREV, SKIP_NEXT, KEYBOARD,
         MUSIC, BLUETOOTH, EQUALIZER, PLAY, PAUSE, PHONE, APPS, FAN, SETTINGS, HOME, BATTERY, VOLUME, VOLUME_MUTE, SCREEN_OFF, PLUS, MINUS,
         AUX, CAMERA_360, VIDEO, PHONE_LINK, CARPLAY, ANDROID_AUTO, NAVIGATION, SEARCH, CLOSE, LOCATE,
-        STEREO, TOWER_FAR, SUN, MOON, HELP
+        STEREO, TOWER_FAR, SUN, MOON, HELP, STAR, STAR_FILLED
     }
 
     public enum Style { NONE, CIRCLE, SQUARE, FLAT_CIRCLE, OUTLINE_CIRCLE }
@@ -307,6 +307,22 @@ public class IconView extends View {
             case MINUS:
                 c.drawLine(4, 12, 20, 12, stroke);
                 break;
+            case STAR:
+            case STAR_FILLED: {
+                // Estrela de 5 pontas (favorito): vazada ou cheia.
+                path.reset();
+                for (int k = 0; k < 10; k++) {
+                    double a = Math.toRadians(-90 + k * 36);
+                    float r = k % 2 == 0 ? 10f : 4.2f;
+                    float x = 12 + r * (float) Math.cos(a);
+                    float y = 12.8f + r * (float) Math.sin(a);
+                    if (k == 0) path.moveTo(x, y);
+                    else path.lineTo(x, y);
+                }
+                path.close();
+                c.drawPath(path, icon == Icon.STAR_FILLED ? fill : stroke);
+                break;
+            }
             case HELP:
                 // Círculo com ponto de interrogação (botão de ajuda nas configurações).
                 c.drawCircle(12, 12, 9.5f, stroke);

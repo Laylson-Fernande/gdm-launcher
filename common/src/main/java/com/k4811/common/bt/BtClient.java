@@ -292,6 +292,62 @@ public final class BtClient {
         command("setMute(" + mute + ")", f -> f.setMute(mute));
     }
 
+    /**
+     * Zera o volume do alto-falante do BT (silencia o toque sem recusar a chamada) e devolve, na
+     * thread principal, o volume que estava (-1 se não deu).
+     */
+    public void muteSpeaker(ValueListener previous) {
+        speakerCall(f -> {
+            int v = f.getSpeakerVolume();
+            f.setSpeakerVolume(0);
+            return v;
+        }, previous, 10);
+    }
+
+    /** Devolve o volume do alto-falante do BT; {@code done} recebe o valor gravado (-1 se não deu). */
+    public void setSpeakerVolume(int volume, ValueListener done) {
+        speakerCall(f -> {
+            f.setSpeakerVolume(volume);
+            return volume;
+        }, done, 10);
+    }
+
+    public interface ValueListener {
+        void onValue(int value);
+    }
+
+    private interface IntRemote {
+        int run(BTFeature f) throws Exception;
+    }
+
+    /** Como {@link #command}, mas espera o serviço conectar (até {@code tries} × 400 ms) e sempre responde. */
+    private void speakerCall(IntRemote remote, ValueListener listener, int tries) {
+        if (released) {
+            if (listener != null) listener.onValue(-1);
+            return;
+        }
+        worker.execute(() -> {
+            BTFeature f = feature;
+            if (f == null) {
+                connect();
+                if (tries > 0) {
+                    main.postDelayed(() -> speakerCall(remote, listener, tries - 1), 400);
+                } else if (listener != null) {
+                    main.post(() -> listener.onValue(-1));
+                }
+                return;
+            }
+            int v = -1;
+            try {
+                v = remote.run(f);
+            } catch (Exception e) {
+                Log.d(TAG, "speaker volume failed: " + e.getMessage());
+            }
+            int r = v;
+            if (listener != null) main.post(() -> listener.onValue(r));
+        });
+    }
+
     public void changeSoundChannel() {
         command("changeSoundChannel()", BTFeature::changeSoundChannel);
     }

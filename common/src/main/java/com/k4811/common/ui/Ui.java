@@ -96,6 +96,16 @@ public final class Ui {
         use(LauncherConfig.theme(c), LauncherConfig.darkMode(c));
     }
 
+    /**
+     * Idioma, tema, modo escuro (que pode seguir o dia e a noite), fonte e tamanho do dock: o que a tela
+     * usou ao ser criada. Telas que ficam abertas (tela inicial, navegação) guardam e, se mudar, recriam.
+     */
+    public static String lookKey(Context c) {
+        return LauncherConfig.language(c) + "|" + LauncherConfig.theme(c)
+            + "|" + LauncherConfig.darkMode(c) + "|" + LauncherConfig.font(c)
+            + "|" + LauncherConfig.dockSize(c);
+    }
+
     public static void applyTheme(Activity a) {
         use(LauncherConfig.theme(a), LauncherConfig.darkMode(a));
         ThemeInflater.install(a);
@@ -184,14 +194,33 @@ public final class Ui {
      * values/ (the default); every other language in values-<tag>/.
      */
     public static void applyLanguage(Context c) {
-        String tag = com.k4811.common.config.LauncherConfig.language(c);
-        Locale locale;
-        if ("pt".equals(tag)) locale = new Locale("pt", "BR");
-        else if ("zh".equals(tag)) locale = new Locale("zh", "CN");
-        else locale = new Locale(tag);
+        Locale locale = appLocale(c);
         Locale.setDefault(locale);
         setLocale(c.getResources(), locale);
         setLocale(c.getApplicationContext().getResources(), locale);
+    }
+
+    private static Locale appLocale(Context c) {
+        String tag = com.k4811.common.config.LauncherConfig.language(c);
+        if ("pt".equals(tag)) return new Locale("pt", "BR");
+        if ("zh".equals(tag)) return new Locale("zh", "CN");
+        return new Locale(tag);
+    }
+
+    /**
+     * Base context of every Activity ({@code attachBaseContext}) with the app language in its
+     * configuration. Since Android 11+, a window-only change (leaving split screen, for example)
+     * rebuilds the Activity resources from the system configuration without calling
+     * onConfigurationChanged, which undoes {@link #applyLanguage}; an override configuration survives.
+     * Only the locale is set (sparse configuration): screen size, orientation etc. keep following the window.
+     */
+    public static Context withLanguage(Context base) {
+        if (android.os.Build.VERSION.SDK_INT < 17) return base;
+        Locale locale = appLocale(base);
+        Configuration override = new Configuration();
+        override.setLocale(locale);
+        override.setLayoutDirection(locale);
+        return base.createConfigurationContext(override);
     }
 
     @SuppressWarnings("deprecation")

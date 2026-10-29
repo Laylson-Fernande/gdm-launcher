@@ -77,8 +77,8 @@
     <string name="home_dock_home_title">Início</string>
     <string name="home_dock_radio">RÁDIO</string>
     <string name="home_dock_radio_title">Rádio</string>
-    <string name="home_dock_music">MP3</string>
-    <string name="home_dock_music_title">Música (USB/SD)</string>
+    <string name="home_dock_music">MÚSICA</string>
+    <string name="home_dock_music_title">Música</string>
     <string name="home_dock_bt_music">BLUETOOTH</string>
     <string name="home_dock_bt_music_title">Música Bluetooth</string>
     <string name="home_dock_phone">TELEFONE</string>
@@ -122,9 +122,21 @@
     <!-- Tela de navegação (NavHomeActivity) -->
     <string name="home_dock_nav">NAVEGAÇÃO</string>
     <string name="home_dock_nav_title">Tela de navegação</string>
+    <string name="home_nav_arrival">Chegada %1$s</string>
     <string name="home_nav_open">Abrir navegação</string>
     <string name="home_nav_no_app">Nenhum app de navegação instalado</string>
     <string name="home_nav_no_split">Tela dividida indisponível nesta central</string>
     <string name="home_nav_media_access">Permita o acesso para ver o que está tocando</string>
     <string name="home_nav_media_allow">Permitir</string>
+    <string name="home_zlink_disconnect">Desconectar</string>
+    <string name="home_apps_hide">Ocultar</string>
+    <string name="home_apps_hide_title">Ocultar %1$s?</string>
+    <string name="home_apps_hide_message">Ele sai desta lista (continua instalado). Para mostrar de novo, toque em \"Ocultos\" no alto.</string>
+    <string name="home_apps_hidden_button">Ocultos (%1$d)</string>
+    <string name="home_apps_hidden_title">Apps ocultos</string>
+    <string name="home_apps_hidden_hint">Toque num app para mostrar de novo</string>
+    <string name="home_apps_hidden_none">Nenhum app oculto</string>
+    <string name="home_apps_done">Concluir</string>
+    <string name="home_apps_unhidden">%1$s voltou para a lista</string>
+    <string name="home_dark_mode_auto">Até a próxima troca de dia e noite</string>
 </resources>

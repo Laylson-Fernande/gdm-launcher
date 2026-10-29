@@ -27,6 +27,7 @@
     <string name="media_phone_auto_connect_on">Connexion auto : oui</string>
     <string name="media_phone_call_caption">Appel</string>
     <string name="media_phone_answer">Répondre</string>
+    <string name="media_phone_silence">Silence</string>
     <string name="media_phone_hang_up">Raccrocher</string>
     <string name="media_phone_mute">Muet</string>
     <string name="media_phone_mute_on">Micro coupé</string>
