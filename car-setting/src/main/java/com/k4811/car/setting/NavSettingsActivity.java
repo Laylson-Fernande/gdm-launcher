@@ -118,11 +118,13 @@ public class NavSettingsActivity extends Activity {
             on -> LauncherConfig.setNavPerspective(this, on))
             .local().help(getString(R.string.settings_help_nav_perspective));
         // Mapa offline (baixado pelo launcher como os dados das vias, ver map/.../road/RoadSync).
-        OptionList.Row offlineMap = list.toggle(getString(R.string.settings_nav_offline_map),
-            getString(R.string.settings_nav_offline_map_hint),
+        OptionList.Row offlineMap = list.toggle(getString(R.string.settings_nav_offline_map), null,
             () -> LauncherConfig.navOfflineMap(this),
-            on -> LauncherConfig.setNavOfflineMap(this, on))
-            .local().help(getString(R.string.settings_help_nav_offline_map));
+            on -> {
+                LauncherConfig.setNavOfflineMap(this, on);
+                checkMapData();
+            })
+            .local();
 
         // Volumes relativos ao volume atual (common/.../audio/MixVolumes), de 10 em 10%.
         list.section(getString(R.string.settings_nav_audio_section));
@@ -161,12 +163,27 @@ public class NavSettingsActivity extends Activity {
             .local().help(getString(R.string.settings_help_nav_home_road_alerts));
         String[] dayLabels = {getString(R.string.settings_nav_home_data_day),
             getString(R.string.settings_nav_home_data_week), getString(R.string.settings_nav_home_data_month)};
-        OptionList.Row roadData = list.choice(getString(R.string.settings_nav_home_data_days),
-            getString(R.string.settings_nav_home_data_days_hint),
+        OptionList.Row roadData = list.choice(getString(R.string.settings_nav_home_data_days), null,
             dayLabels, LauncherConfig.NAV_DATA_DAYS,
             () -> LauncherConfig.navDataDays(this),
-            days -> LauncherConfig.setNavDataDays(this, days))
-            .local().help(getString(R.string.settings_help_nav_home_data_days));
+            days -> {
+                LauncherConfig.setNavDataDays(this, days);
+                checkMapData();
+            })
+            .local();
+        // Raio de tudo o que é baixado (vias, mapa, rota, endereços); o launcher confere de novo ao mudar.
+        String[] kmLabels = new String[LauncherConfig.NAV_DATA_KM.length];
+        for (int i = 0; i < kmLabels.length; i++) {
+            kmLabels[i] = getString(R.string.settings_nav_data_km_value, LauncherConfig.NAV_DATA_KM[i]);
+        }
+        list.choice(getString(R.string.settings_nav_data_km), getString(R.string.settings_nav_data_km_hint),
+            kmLabels, LauncherConfig.NAV_DATA_KM,
+            () -> LauncherConfig.navDataKm(this),
+            km -> {
+                LauncherConfig.setNavDataKm(this, km);
+                checkMapData();
+            })
+            .local().help(getString(R.string.settings_help_nav_data_km));
 
         // App externo: automático + os apps de navegação instalados agora.
         list.section(getString(R.string.settings_nav_external_section));
@@ -191,23 +208,51 @@ public class NavSettingsActivity extends Activity {
             boolean on = NavApps.mediaAccess(this);
             access.setNote(getString(on ? R.string.settings_nav_home_media_access_on
                 : R.string.settings_nav_home_media_access_off), !on);
+            // Textos com o raio escolhido (mudam junto com a opção do raio).
+            int km = LauncherConfig.navDataKm(this);
+            int move = Math.max(8, km * 3 / 10);
+            roadData.setSubtitle(getString(R.string.settings_nav_home_data_days_hint, km));
+            roadData.help(getString(R.string.settings_help_nav_home_data_days, km, move));
+            offlineMap.setSubtitle(getString(R.string.settings_nav_offline_map_hint, km));
+            offlineMap.help(getString(R.string.settings_help_nav_offline_map, km));
             roadData.setNote(dataStatus("roads"), false);
-            offlineMap.setNote(dataStatus("maps"), false);
+            // Mapa, grafo da rota e índice de endereços: o tamanho é a soma dos três.
+            offlineMap.setNote(dataStatus("maps", "graph", "places"), false);
         });
     }
 
     /**
      * "52 áreas, 4,5 MB, conferido em 27/10/2026", do estado gravado pelo launcher (RoadSync) em
-     * K4811/nav/{@code pack}/state.json ("roads" = dados das vias, "maps" = mapa offline).
+     * K4811/nav/{@code pack}/state.json ("roads" = dados das vias, "maps" = mapa offline, "graph" = grafo
+     * da rota, "places" = índice de endereços). Com mais de um pacote, as áreas e a data são as do
+     * primeiro e o tamanho é a soma.
      */
-    private String dataStatus(String pack) {
-        JSONObject state = NwdConfigs.read(new File(Environment.getExternalStorageDirectory(), "K4811/nav/" + pack + "/state.json"));
+    private String dataStatus(String... packs) {
+        JSONObject state = state(packs[0]);
         JSONObject cells = state == null ? null : state.optJSONObject("cells");
         if (cells == null || cells.length() == 0) return getString(R.string.settings_nav_home_data_none);
         long updated = state.optLong("updated", 0);
+        long bytes = 0;
+        for (String pack : packs) {
+            JSONObject s = state(pack);
+            if (s != null) bytes += s.optLong("bytes", 0);
+        }
         String when = updated > 0 ? android.text.format.DateFormat.getDateFormat(this).format(new java.util.Date(updated)) : "—";
         return getString(R.string.settings_nav_home_data_status, cells.length(),
-            android.text.format.Formatter.formatShortFileSize(this, state.optLong("bytes", 0)), when);
+            android.text.format.Formatter.formatShortFileSize(this, bytes), when);
+    }
+
+    private static JSONObject state(String pack) {
+        return NwdConfigs.read(new File(Environment.getExternalStorageDirectory(), "K4811/nav/" + pack + "/state.json"));
+    }
+
+    /** O launcher confere já os dados baixados com a opção nova (raio, período, mapa offline). */
+    private void checkMapData() {
+        Intent check = new Intent(Apps.ACTION_NAV_DATA_CHECK);
+        check.setPackage(Apps.LAUNCHER);
+        // A NWD dá force-stop em apps: sem a flag, o launcher parado não recebe.
+        check.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
+        sendBroadcast(check);
     }
 
     private void openNavHome() {

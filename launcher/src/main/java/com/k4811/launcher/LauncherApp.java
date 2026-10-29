@@ -12,6 +12,7 @@ import com.k4811.launcher.overlay.EdgeMenuService;
 import com.k4811.launcher.overlay.VolumeOverlayService;
 import com.k4811.launcher.start.StartGuard;
 import com.k4811.launcher.status.DayNightWatcher;
+import com.k4811.map.road.RoadSync;
 
 /**
  * Aplicação: base da suíte, Bluetooth conectado (o widget pausa a música BT), SettingService, o
@@ -29,6 +30,9 @@ public class LauncherApp extends SuiteApp {
         if (ExternalApps.hasZlink(this)) ZlinkMonitor.get(this);
         // Dia e noite por horário (brilho) e tema seguindo o dia e a noite, com ou sem tela aberta.
         DayNightWatcher.get(this);
+        // Dados do mapa (vias, mapa offline, rota e endereços): carga inicial logo após instalar e
+        // conferência periódica, com ou sem o mapa aberto.
+        RoadSync.start(this);
         // Telas do launcher na frente: o vigia da partida não as reabre por cima delas mesmas.
         registerActivityLifecycleCallbacks(new ActivityLifecycleCallbacks() {
             @Override

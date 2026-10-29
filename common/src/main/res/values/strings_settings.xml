@@ -228,7 +228,7 @@
     <string name="settings_nav_home_road_alerts">Other road alerts</string>
     <string name="settings_nav_home_road_alerts_hint">Speed bumps, toll booths and railway crossings</string>
     <string name="settings_nav_home_data_days">Update road data</string>
-    <string name="settings_nav_home_data_days_hint">With internet: 100 km around the car and along the route</string>
+    <string name="settings_nav_home_data_days_hint">With internet: %1$d km around the car and along the route</string>
     <string name="settings_nav_home_data_day">Every day</string>
     <string name="settings_nav_home_data_week">Every week</string>
     <string name="settings_nav_home_data_month">Every month</string>
@@ -237,7 +237,7 @@
     <string name="settings_help_nav_home_cameras">Fixed speed and red light cameras from OpenStreetMap. The alert shows about 20 seconds ahead with the distance and the limit, and the voice announces it once. If you are above the limit close to the camera, it also asks you to slow down. Only cameras on your route (or ahead of you, without a route) and in your direction count. The data comes from the community: cameras that were not mapped do not appear, and mobile radars never do.</string>
     <string name="settings_help_nav_home_speed_limit">Shows the limit of the road you are on, as mapped in OpenStreetMap, next to your speed; your speed turns red above the limit. Roads without a mapped limit show no sign (common outside large cities).</string>
     <string name="settings_help_nav_home_road_alerts">Shows speed bumps, toll booths and railway crossings ahead on the built-in map, without voice.</string>
-    <string name="settings_help_nav_home_data_days">Cameras, limits and other alerts are stored in the unit (K4811/nav/roads) and work without internet. When there is internet, the launcher checks the area within 100 km of the car at the chosen interval (and when the car moves 30 km away), and the areas along a route as soon as it is calculated, even outside those 100 km. Only what changed is downloaded: a few MB for a large city. The data comes from OpenStreetMap and is regenerated every week.</string>
+    <string name="settings_help_nav_home_data_days">Cameras, limits and other alerts are stored in the unit (K4811/nav/roads) and work without internet. When there is internet, the launcher checks the area within %1$d km of the car at the chosen interval (and when the car moves %2$d km away), and the areas along a route as soon as it is calculated, even outside those %1$d km. Only what changed is downloaded: a few MB for a large city. The data comes from OpenStreetMap and is regenerated every week.</string>
     <string name="settings_save_logs">Save diagnostic log</string>
     <string name="settings_save_logs_hint">Writes what the apps do to K4811/logs on the unit</string>
     <string name="settings_help_save_logs">Each app of the suite writes its log (including errors and crashes) to K4811/logs/&lt;app>.log on the internal storage, starting the next time it opens. Turn it on when testing or when something goes wrong, then copy the folder to a USB drive with a file manager (or adb pull /sdcard/K4811/logs) and attach the files when reporting the problem. Each file goes up to 2 MB and keeps one previous file. Turn it off afterwards: it uses a little processor and storage.</string>
@@ -275,8 +275,8 @@
     <string name="settings_zlink_open_yes">Yes</string>
     <string name="settings_zlink_open_last">If it was open</string>
     <string name="settings_nav_offline_map">Offline map</string>
-    <string name="settings_nav_offline_map_hint">Stores the map 100 km around the car and along routes</string>
-    <string name="settings_help_nav_offline_map">The built-in map draws its own map (streets and their names, water, sea, rivers, neighbourhood and city names) from data stored in the unit (K4811/nav/maps), so it works without internet. It downloads the area within 100 km of the car and the areas along a route, at the same interval as the road data (around São Paulo, about 22 MB the first time; later only what changed). Where nothing was downloaded yet, the OpenStreetMap map from the internet is used. The data comes from OpenStreetMap and is regenerated every week.</string>
+    <string name="settings_nav_offline_map_hint">Stores the map %1$d km around the car and along routes</string>
+    <string name="settings_help_nav_offline_map">The built-in map draws its own map (streets and their names, water, sea, rivers, neighbourhood and city names) from data stored in the unit (K4811/nav/maps), so it works without internet. It downloads the area within %1$d km of the car and the areas along a route, at the same interval as the road data (around São Paulo, about 22 MB the first time; later only what changed). Where nothing was downloaded yet, the OpenStreetMap map from the internet is used. The data comes from OpenStreetMap and is regenerated every week. Along with the map it stores the street graph and an address index (K4811/nav/graph and places), so without internet the map also suggests addresses and places as you type (house numbers from the IBGE CNEFE 2022 register) and calculates and recalculates routes.</string>
     <string name="settings_nav_perspective">Perspective view</string>
     <string name="settings_nav_perspective_hint">Map tilted, as if seen from behind the car</string>
     <string name="settings_help_nav_perspective">With the car direction up (compass), the built-in map tilts like a camera behind the car looking ahead: what is near stays at the same size and the road ahead goes into the distance, so more of the way ahead fits on the screen. With north up and in the route preview, the map is seen from above. Turn it off to always see the map from above.</string>
@@ -324,4 +324,8 @@
     <string name="settings_music_app_hint">What opens when you tap Music in the dock</string>
     <string name="settings_music_app_suite">MP3 (USB/SD)</string>
     <string name="settings_help_music_app">MP3 opens the suite player (music folder, USB and SD). You can choose a music app installed on the head unit instead, such as Spotify, YouTube Music or Deezer: the list shows the apps that Android identifies as music players. When MP3 is playing, its card on the home and navigation screens still opens the MP3 player.</string>
+    <string name="settings_nav_data_km">Area of downloaded data</string>
+    <string name="settings_nav_data_km_hint">Radius around the car kept in the unit for the map, routes, addresses and alerts</string>
+    <string name="settings_nav_data_km_value">%1$d km</string>
+    <string name="settings_help_nav_data_km">The offline map, offline routing and search, and the cameras and limits are downloaded for this radius around the car as soon as the launcher is installed and the unit has internet (even without opening the map), and checked again at the update interval above, or when the car moves about a third of the radius away. A larger radius uses more space and takes longer the first time. The areas along a calculated route are always downloaded, even outside the radius.</string>
 </resources>

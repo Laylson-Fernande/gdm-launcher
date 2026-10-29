@@ -228,7 +228,7 @@
     <string name="settings_nav_home_road_alerts">其他道路提醒</string>
     <string name="settings_nav_home_road_alerts_hint">减速带、收费站和铁路道口</string>
     <string name="settings_nav_home_data_days">更新道路数据</string>
-    <string name="settings_nav_home_data_days_hint">联网时：车辆周围100公里及沿途</string>
+    <string name="settings_nav_home_data_days_hint">联网时：车辆周围%1$d公里及沿途</string>
     <string name="settings_nav_home_data_day">每天</string>
     <string name="settings_nav_home_data_week">每周</string>
     <string name="settings_nav_home_data_month">每月</string>
@@ -237,7 +237,7 @@
     <string name="settings_help_nav_home_cameras">来自OpenStreetMap的固定测速和闯红灯摄像头。提前约20秒显示距离和限速，并语音提醒一次。如果在摄像头附近超速，还会提醒减速。只计算路线上（无路线时为前方）且与行驶方向一致的摄像头。数据来自社区：未标注的摄像头不会显示，移动测速永远不会显示。</string>
     <string name="settings_help_nav_home_speed_limit">在车速旁显示当前道路的限速（来自OpenStreetMap）；超速时车速变红。未标注限速的道路不显示（大城市以外较常见）。</string>
     <string name="settings_help_nav_home_road_alerts">在内置地图上显示前方的减速带、收费站和铁路道口，无语音。</string>
-    <string name="settings_help_nav_home_data_days">摄像头、限速和其他提醒保存在主机中（K4811/nav/roads），无网络也能使用。联网时，启动器会按所选间隔检查车辆周围100公里的区域（车辆移动30公里时也会检查），计算路线后立即检查沿途区域，即使在100公里以外。只下载有变化的部分：大城市也只需几MB。数据来自OpenStreetMap，每周重新生成。</string>
+    <string name="settings_help_nav_home_data_days">摄像头、限速和其他提醒保存在主机中（K4811/nav/roads），无网络也能使用。联网时，启动器会按所选间隔检查车辆周围%1$d公里的区域（车辆移动%2$d公里时也会检查），计算路线后立即检查沿途区域，即使在%1$d公里以外。只下载有变化的部分：大城市也只需几MB。数据来自OpenStreetMap，每周重新生成。</string>
     <string name="settings_save_logs">保存诊断日志</string>
     <string name="settings_save_logs_hint">将应用运行记录写入主机的 K4811/logs</string>
     <string name="settings_help_save_logs">套件中的每个应用会从下次打开开始，把日志（包括错误和崩溃）写入内部存储的 K4811/logs/&lt;app>.log。测试时或出现问题时打开，然后用文件管理器把文件夹复制到U盘（或 adb pull /sdcard/K4811/logs），报告问题时附上这些文件。每个文件最大2 MB，并保留一个旧文件。用完请关闭：会占用少量处理器和空间。</string>
@@ -275,8 +275,8 @@
     <string name="settings_zlink_open_yes">是</string>
     <string name="settings_zlink_open_last">如果之前打开</string>
     <string name="settings_nav_offline_map">离线地图</string>
-    <string name="settings_nav_offline_map_hint">保存车辆周围 100 公里和路线沿途的地图</string>
-    <string name="settings_help_nav_offline_map">内置地图根据保存在主机中的数据（K4811/nav/maps）自行绘制地图（街道及其名称、水域、海洋、河流、街区和城市名称），因此无需网络也能使用。它按照与道路数据相同的间隔，下载车辆周围 100 公里以及路线经过的区域（圣保罗周边首次约 22 MB，之后只下载变化部分）。尚未下载的地方，会通过网络使用 OpenStreetMap 地图。数据来自 OpenStreetMap，每周重新生成。</string>
+    <string name="settings_nav_offline_map_hint">保存车辆周围 %1$d 公里和路线沿途的地图</string>
+    <string name="settings_help_nav_offline_map">内置地图根据保存在主机中的数据（K4811/nav/maps）自行绘制地图（街道及其名称、水域、海洋、河流、街区和城市名称），因此无需网络也能使用。它按照与道路数据相同的间隔，下载车辆周围 %1$d 公里以及路线经过的区域（圣保罗周边首次约 22 MB，之后只下载变化部分）。尚未下载的地方，会通过网络使用 OpenStreetMap 地图。数据来自 OpenStreetMap，每周重新生成。 地图之外还会保存道路图和地址索引(K4811/nav/graph 和 places):没有网络时,地图也能在输入时提示地址和地点(门牌号来自 IBGE 的 CNEFE 2022),并计算和重新计算路线。</string>
     <string name="settings_nav_perspective">透视视图</string>
     <string name="settings_nav_perspective_hint">地图倾斜，像从车后方看过去</string>
     <string name="settings_help_nav_perspective">车头朝上（指南针）时，内置地图会像车后方向前看的摄像机一样倾斜：近处大小不变，前方道路延伸到远处，屏幕上能看到更多前方路线。正北朝上和路线预览时，地图从正上方显示。关闭后始终从正上方显示。</string>
@@ -324,4 +324,8 @@
     <string name="settings_music_app_hint">点击程序坞中的音乐时打开的应用</string>
     <string name="settings_music_app_suite">MP3 (USB/SD)</string>
     <string name="settings_help_music_app">MP3会打开套件的播放器（音乐文件夹、USB和SD）。也可以改为选择主机上安装的音乐应用，如Spotify、YouTube Music或Deezer：列表中是Android识别为音乐播放器的应用。MP3播放时，主屏幕和导航中的卡片仍会打开MP3。</string>
+    <string name="settings_nav_data_km">下载数据的半径</string>
+    <string name="settings_nav_data_km_hint">为地图、路线、地址和提醒在主机中保存的车辆周围范围</string>
+    <string name="settings_nav_data_km_value">%1$d 公里</string>
+    <string name="settings_help_nav_data_km">离线地图、无网络路线和搜索以及测速摄像头和限速数据，会在安装启动器且主机联网后立即（即使不打开地图）按车辆周围的这个半径下载，并按上面的更新间隔、或车辆离开约三分之一半径时再次检查。半径越大，占用空间越多，首次下载也越久。计算出的路线经过的区域总会下载，即使在半径之外。</string>
 </resources>

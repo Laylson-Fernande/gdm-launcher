@@ -228,7 +228,7 @@
     <string name="settings_nav_home_road_alerts">Outros avisos da via</string>
     <string name="settings_nav_home_road_alerts_hint">Lombadas, pedágios e passagens de nível</string>
     <string name="settings_nav_home_data_days">Atualizar dados das vias</string>
-    <string name="settings_nav_home_data_days_hint">Com internet: 100 km em volta do carro e ao longo da rota</string>
+    <string name="settings_nav_home_data_days_hint">Com internet: %1$d km em volta do carro e ao longo da rota</string>
     <string name="settings_nav_home_data_day">Todo dia</string>
     <string name="settings_nav_home_data_week">Toda semana</string>
     <string name="settings_nav_home_data_month">Todo mês</string>
@@ -237,7 +237,7 @@
     <string name="settings_help_nav_home_cameras">Radares fixos e de semáforo do OpenStreetMap. O aviso aparece uns 20 segundos antes, com a distância e o limite, e a voz avisa uma vez. Se você estiver acima do limite perto do radar, ela também pede para reduzir. Só contam os radares na sua rota (ou à frente, sem rota) e no seu sentido. Os dados vêm da comunidade: radar que não foi mapeado não aparece, e radar móvel nunca aparece.</string>
     <string name="settings_help_nav_home_speed_limit">Mostra o limite da via em que você está, como está no OpenStreetMap, ao lado da velocidade; a velocidade fica vermelha acima do limite. Via sem limite mapeado fica sem placa (comum fora das cidades grandes).</string>
     <string name="settings_help_nav_home_road_alerts">Mostra no mapa integrado as lombadas, pedágios e passagens de nível à frente, sem voz.</string>
-    <string name="settings_help_nav_home_data_days">Radares, limites e os outros avisos ficam guardados na central (K4811/nav/roads) e funcionam sem internet. Com internet, o launcher confere a área de 100 km em volta do carro no intervalo escolhido (e quando o carro se afasta 30 km), e as áreas por onde passa uma rota assim que ela é calculada, mesmo fora desses 100 km. Só baixa o que mudou: poucos MB para uma cidade grande. Os dados vêm do OpenStreetMap e são gerados de novo toda semana.</string>
+    <string name="settings_help_nav_home_data_days">Radares, limites e os outros avisos ficam guardados na central (K4811/nav/roads) e funcionam sem internet. Com internet, o launcher confere a área de %1$d km em volta do carro no intervalo escolhido (e quando o carro se afasta %2$d km), e as áreas por onde passa uma rota assim que ela é calculada, mesmo fora desses %1$d km. Só baixa o que mudou: poucos MB para uma cidade grande. Os dados vêm do OpenStreetMap e são gerados de novo toda semana.</string>
     <string name="settings_save_logs">Gravar log para diagnóstico</string>
     <string name="settings_save_logs_hint">Grava o que os apps fazem em K4811/logs, na central</string>
     <string name="settings_help_save_logs">Cada app da suíte grava o seu log (inclusive erros e travamentos) em K4811/logs/&lt;app>.log, na memória interna, a partir da próxima vez que abrir. Ligue ao testar ou quando algo der errado, depois copie a pasta para um pen drive com um gerenciador de arquivos (ou adb pull /sdcard/K4811/logs) e anexe os arquivos ao relatar o problema. Cada arquivo vai até 2 MB e guarda um anterior. Desligue depois: gasta um pouco de processador e de espaço.</string>
@@ -275,8 +275,8 @@
     <string name="settings_zlink_open_yes">Sim</string>
     <string name="settings_zlink_open_last">Se estava aberto</string>
     <string name="settings_nav_offline_map">Mapa offline</string>
-    <string name="settings_nav_offline_map_hint">Guarda o mapa de 100 km em volta do carro e das rotas</string>
-    <string name="settings_help_nav_offline_map">O mapa integrado desenha o próprio mapa (ruas e nomes, água, mar, rios, nomes de bairros e cidades) a partir de dados guardados na central (K4811/nav/maps), então funciona sem internet. Ele baixa a área de 100 km em volta do carro e as áreas por onde passa uma rota, no mesmo intervalo dos dados das vias (em volta de São Paulo, uns 22 MB na primeira vez; depois só o que mudou). Onde ainda não há nada baixado, usa o mapa do OpenStreetMap pela internet. Os dados vêm do OpenStreetMap e são gerados de novo toda semana.</string>
+    <string name="settings_nav_offline_map_hint">Guarda o mapa de %1$d km em volta do carro e das rotas</string>
+    <string name="settings_help_nav_offline_map">O mapa integrado desenha o próprio mapa (ruas e nomes, água, mar, rios, nomes de bairros e cidades) a partir de dados guardados na central (K4811/nav/maps), então funciona sem internet. Ele baixa a área de %1$d km em volta do carro e as áreas por onde passa uma rota, no mesmo intervalo dos dados das vias (em volta de São Paulo, uns 22 MB na primeira vez; depois só o que mudou). Onde ainda não há nada baixado, usa o mapa do OpenStreetMap pela internet. Os dados vêm do OpenStreetMap e são gerados de novo toda semana. Junto com o mapa ficam o grafo de ruas e um índice de endereços (K4811/nav/graph e places): sem internet, o mapa também sugere endereços e lugares enquanto você digita (números de casa do CNEFE 2022 do IBGE) e calcula e recalcula rotas.</string>
     <string name="settings_nav_perspective">Visão em perspectiva</string>
     <string name="settings_nav_perspective_hint">Mapa inclinado, como visto de trás do carro</string>
     <string name="settings_help_nav_perspective">Com a direção do carro para cima (bússola), o mapa integrado inclina como uma câmera atrás do carro olhando para a frente: o que está perto fica do mesmo tamanho e a rua à frente vai ao longe, então cabe mais do caminho na tela. Com o norte para cima e na prévia da rota, o mapa fica visto de cima. Desligue para ver sempre de cima.</string>
@@ -324,4 +324,8 @@
     <string name="settings_music_app_hint">O que abre ao tocar em Música no dock</string>
     <string name="settings_music_app_suite">MP3 (USB/SD)</string>
     <string name="settings_help_music_app">MP3 abre o player da suíte (pasta de música, USB e SD). Você pode escolher no lugar dele um app de música instalado na central, como Spotify, YouTube Music ou Deezer: a lista mostra os apps que o Android identifica como players de música. Quando o MP3 está tocando, o cartão dele na tela inicial e na navegação continua abrindo o MP3.</string>
+    <string name="settings_nav_data_km">Raio dos dados baixados</string>
+    <string name="settings_nav_data_km_hint">Área em volta do carro guardada na central para mapa, rotas, endereços e alertas</string>
+    <string name="settings_nav_data_km_value">%1$d km</string>
+    <string name="settings_help_nav_data_km">O mapa offline, a rota e a busca sem internet e os radares e limites são baixados nesse raio em volta do carro assim que o launcher é instalado e a central tem internet (mesmo sem abrir o mapa), e conferidos de novo no intervalo de atualização acima, ou quando o carro se afasta cerca de um terço do raio. Raio maior ocupa mais espaço e demora mais na primeira vez. As áreas por onde passa uma rota calculada são sempre baixadas, mesmo fora do raio.</string>
 </resources>

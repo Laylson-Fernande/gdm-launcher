@@ -228,7 +228,7 @@
     <string name="settings_nav_home_road_alerts">その他の道路情報</string>
     <string name="settings_nav_home_road_alerts_hint">減速帯、料金所、踏切</string>
     <string name="settings_nav_home_data_days">道路データの更新</string>
-    <string name="settings_nav_home_data_days_hint">ネット接続時：車の周囲100 kmとルート沿い</string>
+    <string name="settings_nav_home_data_days_hint">ネット接続時：車の周囲%1$d kmとルート沿い</string>
     <string name="settings_nav_home_data_day">毎日</string>
     <string name="settings_nav_home_data_week">毎週</string>
     <string name="settings_nav_home_data_month">毎月</string>
@@ -237,7 +237,7 @@
     <string name="settings_help_nav_home_cameras">OpenStreetMapの固定式速度取締機と信号無視取締機です。約20秒前に距離と制限速度を表示し、音声で1回知らせます。取締機の近くで制限を超えていると、減速するよう案内します。ルート上（ルートがなければ前方）で進行方向の取締機だけが対象です。データはコミュニティによるもので、登録されていない取締機や移動式は表示されません。</string>
     <string name="settings_help_nav_home_speed_limit">走行中の道路の制限速度（OpenStreetMapのデータ）を速度の横に表示します。超えると速度が赤になります。制限が登録されていない道路では表示されません（大都市以外ではよくあります）。</string>
     <string name="settings_help_nav_home_road_alerts">内蔵マップに前方の減速帯、料金所、踏切を表示します（音声なし）。</string>
-    <string name="settings_help_nav_home_data_days">取締機、制限速度などのデータは本体（K4811/nav/roads）に保存され、ネットなしでも使えます。ネット接続時は、選んだ間隔で車の周囲100 km（車が30 km移動したときも）を、ルートを計算したときはその沿線を（100 kmの外でも）確認します。変更分だけをダウンロードし、大都市でも数MBです。データはOpenStreetMapから毎週作り直されます。</string>
+    <string name="settings_help_nav_home_data_days">取締機、制限速度などのデータは本体（K4811/nav/roads）に保存され、ネットなしでも使えます。ネット接続時は、選んだ間隔で車の周囲%1$d km（車が%2$d km移動したときも）を、ルートを計算したときはその沿線を（%1$d kmの外でも）確認します。変更分だけをダウンロードし、大都市でも数MBです。データはOpenStreetMapから毎週作り直されます。</string>
     <string name="settings_save_logs">診断ログを保存</string>
     <string name="settings_save_logs_hint">アプリの動作を本体の K4811/logs に記録</string>
     <string name="settings_help_save_logs">スイートの各アプリが、次に起動したときから内部ストレージの K4811/logs/&lt;app>.log にログ（エラーやクラッシュを含む）を記録します。テスト中や問題が起きたときにオンにし、ファイルマネージャーでフォルダーをUSBメモリにコピー（または adb pull /sdcard/K4811/logs）して、問題の報告に添付してください。各ファイルは最大2 MBで、1つ前のファイルを残します。終わったらオフにしてください（プロセッサと容量を少し使います）。</string>
@@ -275,8 +275,8 @@
     <string name="settings_zlink_open_yes">はい</string>
     <string name="settings_zlink_open_last">開いていた場合</string>
     <string name="settings_nav_offline_map">オフライン地図</string>
-    <string name="settings_nav_offline_map_hint">車の周囲 100 km とルート沿いの地図を保存</string>
-    <string name="settings_help_nav_offline_map">内蔵地図は、本体に保存したデータ（K4811/nav/maps）から自前の地図（道路とその名前、水域、海、川、地区と市の名前）を描くので、インターネットなしでも使えます。車の周囲 100 km とルートが通る範囲を、道路データと同じ間隔でダウンロードします（サンパウロ周辺で初回約 22 MB、その後は変更分のみ）。まだダウンロードしていない場所では、インターネット経由の OpenStreetMap の地図を使います。データは OpenStreetMap から毎週作り直されます。</string>
+    <string name="settings_nav_offline_map_hint">車の周囲 %1$d km とルート沿いの地図を保存</string>
+    <string name="settings_help_nav_offline_map">内蔵地図は、本体に保存したデータ（K4811/nav/maps）から自前の地図（道路とその名前、水域、海、川、地区と市の名前）を描くので、インターネットなしでも使えます。車の周囲 %1$d km とルートが通る範囲を、道路データと同じ間隔でダウンロードします（サンパウロ周辺で初回約 22 MB、その後は変更分のみ）。まだダウンロードしていない場所では、インターネット経由の OpenStreetMap の地図を使います。データは OpenStreetMap から毎週作り直されます。 地図と一緒に道路グラフと住所インデックス(K4811/nav/graph と places)も保存するので、インターネットがなくても入力中に住所や場所を候補表示し(番地は IBGE の CNEFE 2022 から)、ルートの計算と再計算ができます。</string>
     <string name="settings_nav_perspective">遠近表示</string>
     <string name="settings_nav_perspective_hint">車の後ろから見たように地図を傾ける</string>
     <string name="settings_help_nav_perspective">進行方向を上（コンパス）にすると、内蔵地図は車の後ろから前を見るカメラのように傾きます。近くは同じ大きさのまま、前方の道は遠くへ続くので、画面により先まで表示されます。北を上にしたときとルートのプレビューでは真上から表示します。オフにすると常に真上から表示します。</string>
@@ -324,4 +324,8 @@
     <string name="settings_music_app_hint">ドックの音楽をタップしたときに開くアプリ</string>
     <string name="settings_music_app_suite">MP3 (USB/SD)</string>
     <string name="settings_help_music_app">MP3はスイートのプレーヤー（音楽フォルダ、USB、SD）を開きます。代わりにSpotify、YouTube Music、Deezerなど、ユニットにインストールされた音楽アプリを選べます。一覧にはAndroidが音楽プレーヤーと認識したアプリが表示されます。MP3の再生中は、ホーム画面とナビゲーションのカードからは引き続きMP3が開きます。</string>
+    <string name="settings_nav_data_km">ダウンロードするデータの半径</string>
+    <string name="settings_nav_data_km_hint">地図・ルート・住所・警告のために本体に保存する車の周囲の範囲</string>
+    <string name="settings_nav_data_km_value">%1$d km</string>
+    <string name="settings_help_nav_data_km">オフライン地図、インターネットなしのルートと検索、取締機と制限速度は、ランチャーをインストールして本体がインターネットにつながるとすぐに（地図を開かなくても）車の周囲のこの半径でダウンロードされ、上の更新間隔で、または車が半径の約3分の1離れたときに再確認されます。半径が大きいほど容量を使い、初回は時間がかかります。計算したルートが通る範囲は、半径の外でも常にダウンロードされます。</string>
 </resources>
