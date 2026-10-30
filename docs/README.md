@@ -9,6 +9,7 @@ Guias para quem vai desenvolver, testar ou gerar os APKs da suíte K4811.
 | [Gerar o APK](gerar-apk.md) | Build de release, assinatura, versão, conferência do APK, cópia para o pen drive e CI |
 | [Tela de navegação](tela-de-navegacao.md) | A "Home 2": mapa integrado (OpenStreetMap) ou app externo em tela dividida, música e informação; decisões, validação e como testar |
 | [adb na central](adb-na-central.md) | Verificar se a central tem adb, conectar pelo Wi-Fi, identificar e desativar apps de fábrica (build pessoal) |
+| [Plano: Google no mapa integrado](plano-mapa-google.md) | Proposta: Google como provedor opcional do mapa integrado (termos, offline, cotas, cache, etapas) |
 | [Desempenho](desempenho.md) | Regras para central de 2 GB / 1,5 GHz, medições no emulador, indicador de RAM/CPU |
 
 Outros documentos do repositório:

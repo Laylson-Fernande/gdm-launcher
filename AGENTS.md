@@ -131,6 +131,30 @@ Com targetSdk 19, broadcast implícito ainda chega em receiver declarado no mani
 - **Modo desenvolvedor:** diagnósticos, último erro e o menu Avançado só aparecem com `/sdcard/LAUNCHER_DEV_MODE.txt` (`DevMode.enabled()`).
 - **Aliases:** os apps que substituem originais têm um `activity-alias` com o nome da Activity original (ex.: `com.nwd.radio.home_horizontalActivity`), porque o sistema e outros apps abrem por esse componente. Não remova.
 
+## Mapa integrado: OpenStreetMap e Google
+
+O mapa integrado (`map/`, `MapScreen`) tem dois provedores, escolhidos nas Configurações: **OpenStreetMap** (padrão, funciona sem internet) e **Google** (tiles, busca e rota do Google, só com internet). Plano e decisões em [`docs/plano-mapa-google.md`](docs/plano-mapa-google.md).
+
+- **Os dois seguem as mesmas regras de layout e comportamento:** mesma tela, mesmos botões e posições, mesma busca, prévia, faixa da manobra, voz, alertas, linha da rota, gestos, zoom e tema. Toda mudança no mapa vale para os dois provedores e é testada nos dois.
+- **Quando não for possível manter os dois iguais** (limite técnico, termos de uso, custo), **pergunte ao dono antes de implementar**, explicando a diferença e as opções. Não decida sozinho.
+- O provedor é escolhido ao abrir a tela e nunca troca no meio de uma navegação. Sem internet ou sem cota, vale o OpenStreetMap.
+- **Termos do Google:** conteúdo do Google (rota, lugares, tiles) só aparece sobre o mapa do Google, nunca sobre o OpenStreetMap ou o mapa offline; nada de guardar conteúdo do Google além do que os termos permitem (coordenadas por até 30 dias, `place_id` à vontade); nada de baixar em massa. Na dúvida, pergunte.
+- **Custo:** só dentro das cotas gratuitas mensais, com contador no aparelho e cache em memória (detalhes no plano). Nunca uma chamada nova sem cota e sem cache.
+- A chave da API nunca vai para o git nem para os APKs publicados.
+
+## Skills (Claude)
+
+Use as skills instaladas no Claude quando a tarefa pedir:
+
+| Skill | Quando |
+|---|---|
+| `skill-creator` | criar ou melhorar as skills deste projeto (em `.claude/skills/`), como a do mapa integrado |
+| `frontend-design` | decisões visuais (telas, cores, ícones, tema claro e escuro); aplique os princípios às Views do Android, sem bibliotecas |
+| `deep-research` | pesquisar APIs, preços e termos de uso antes de integrar um serviço externo (os preços e termos mudam: confira sempre) |
+| `docs` | documentos para compartilhar fora do repositório (relatórios, planos para revisão) |
+
+Nenhuma skill troca as regras deste arquivo: Java puro, sem bibliotecas, targetSdk 19.
+
 ## Como trabalhar
 
 - Mudança que afeta mais de um app quase sempre vai no `common`. Verifique se o contrato entre apps (tabela acima) continua igual.
