@@ -1,6 +1,6 @@
 # Plano: Google no mapa integrado
 
-Estado: **proposta, com as decisões do dono de 30/10/2026** (Google como opção nas Configurações, rota com trânsito, voz com frases próprias). Nada implementado ainda, exceto a linha da rota percorrida (branch `mapa/linha-percorrida`), que vale para os dois provedores.
+Estado: **implementado na branch `mapa/google`** (30/10/2026), ainda **não compilado com o Android SDK nem testado na central**. Decisões do dono: Google como opção nas Configurações, rota com trânsito, voz com frases próprias, alertas só do OSM.
 
 ## O pedido
 

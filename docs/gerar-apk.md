@@ -65,6 +65,17 @@ Os de fábrica continuam instalados e ativos:
 
 Para esconder um app de fábrica sem root: `adb shell pm disable-user --user 0 <package>`. Para desfazer: `adb shell pm enable <package>`. Teste um de cada vez: se a central abrir o app de fábrica por um componente fixo (tecla de modo, volante), esse atalho deixa de funcionar com ele desligado. O `com.nwd.audioset` pode ser o serviço de DSP que o sistema usa; evite desligá-lo.
 
+## Chave do Google (mapa integrado no modo Google)
+
+Opcional. A chave da API do Google Maps Platform pode ser digitada na central (Configurações › Customizar navegação › Chave da API do Google) ou entrar no build:
+
+```properties
+# local.properties (fora do git)
+k4811.googleMapsKey=AIza...
+```
+
+ou `./gradlew assembleRelease -Pk4811.googleMapsKey=AIza...`. O build avisa: `k4811.googleMapsKey: chave do Google no build (não publique este APK)`. Ela **não** vem de variável de ambiente, de propósito: os workflows de release e beta nunca põem a chave nos APKs publicados. Como criar e restringir a chave: [`plano-mapa-google.md`](plano-mapa-google.md#chave-da-api).
+
 ## Versão
 
 Cada app define a sua em `<app>/build.gradle.kts`:

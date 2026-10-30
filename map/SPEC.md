@@ -51,6 +51,12 @@ Mapa e navegação feitos do zero sobre o OpenStreetMap, para a tela de navegaç
 | `road/RoadStore` | arquivos `K4811/nav/roads/cells/<cx>_<cy>.bin` e cache em memória dos quadrados lidos (até 12 MB) |
 | `road/RoadCell` | um quadrado lido: vias (limite por sentido, mão única) com índice de 32×32 baldes, e pontos de alerta |
 | `road/RoadWatcher` | thread própria: limite da via atual e próximo alerta, a cada posição; resultado na thread principal |
+| `google/GoogleKey` | chave da API (Configurações ou build) e o SHA-1 da assinatura do APK para o cabeçalho `X-Android-Cert` |
+| `google/GoogleHttp` | pedidos às APIs do Google com `X-Goog-Api-Key`, `X-Android-Package`, `X-Android-Cert` e `X-Goog-FieldMask`; erro com o código HTTP |
+| `google/GoogleQuota` | uso do mês por SKU (fuso de Los Angeles), limite em ~90% da cota grátis (`google_limits` no nav.config.json), suspensão de 10 min em erro de chave ou cota; `K4811/nav/google/usage.json` |
+| `google/GoogleTiles` | Map Tiles API: sessão por tema (claro e noturno), tile 2D, atribuição do viewport |
+| `google/GooglePlaces` | Autocomplete (New) com token de sessão e Place Details só com campos Essentials; cache de sugestões (1 h, memória) e de lugares (30 dias, `K4811/nav/google/places.json`) |
+| `google/GoogleRoutes` | Routes API `computeRoutes` com trânsito (Pro) ou sem (Essentials) → `Route`, manobras convertidas para os tipos do OSRM, instrução do Google só para a tela; cache de 5/30 min |
 
 ## Serviços (padrão em `nav.config.json`, editável)
 
@@ -71,6 +77,7 @@ Mapa e navegação feitos do zero sobre o OpenStreetMap, para a tela de navegaç
 | `place_data` | o dos dados das vias com `places/v1/` | índice de endereços da busca sem internet; não é gravado no arquivo |
 | `place_data_mb` | 300 | espaço do índice (100 km em volta de Garanhuns ≈ 2,6 MB) |
 | `map_hide` | `["buildings", "paths", "green", "lines"]` | camadas do mapa offline que não são desenhadas (desempenho): `buildings` (prédios), `paths` (vias de serviço, calçadões, trilhas, caminhos), `casings` (contorno das vias), `green` (parques, matas, areia), `lines` (limites, trilhos, córregos), `road_names` (nomes das ruas), `antialias` (bordas suavizadas). Sem `buildings` nem `paths`, a seção de detalhe dos blocos nem é lida. Essas 4 camadas do padrão também não vêm mais nos dados (ver `tools/road-data/README.md`): tirá-las da lista só tem efeito com dados gerados de novo com elas Vale para os tiles desenhados depois da mudança (reabrir o launcher para refazer todos) |
+| `google_limits` | ausente | limites mensais do modo Google por serviço (`tiles` 90000, `routes_pro` 4500, `routes` 9000, `autocomplete` 9000, `details` 9000); o que faltar fica com o padrão |
 | `map_log_ms` | 400 | tile do mapa offline mais lento que isso vai para o log (`K4811MapData`); 0 = todos, para medir |
 
 Para trocar de servidor (outro de tiles, OSRM próprio), basta editar o arquivo; ele é relido quando muda.
@@ -120,6 +127,7 @@ O app desenha o próprio mapa a partir de dados baixados (gerador `tools/road-da
 - Enquanto o tile certo não chega, desenha um pedaço ampliado de um tile de zoom menor que já está em memória.
 - Animação a ~30 qps só enquanto algo se mexe (`Choreographer`, espera de 20 ms entre quadros); posição repetida não anima; janela invisível (tela atrás de outra) não pede quadros.
 - Rota: pontos a menos de 2,5 dp do anterior são pulados e trechos inteiros fora da tela não vão para o desenho.
+- Rota navegando: a linha é dividida a cada quadro no ponto mais perto da seta (que anima entre as posições do GPS); o trecho percorrido sai azul-claro (no escuro, um azul apagado), como no Waze, e o resto azul. Com a seta a mais de ~30 m da linha, divide no começo do trecho atual.
 
 ## Busca
 
@@ -151,11 +159,25 @@ Dois pacotes baixados como os dados das vias (`RoadSync`, mesmas regras de raio,
 - Mapa: o mapa offline (acima) no raio de 100 km e ao longo das rotas já calculadas com internet; fora disso, os tiles do cache em disco e os de arquivos `.mbtiles` em `K4811/nav/` (SQLite com PNG/JPG, numeração TMS), lidos antes da internet.
 - Busca e rota: com o índice de endereços e o grafo baixados (acima), no raio de 100 km e ao longo das rotas já calculadas com internet. Fora disso, sem internet, não há busca nem rota nova; uma rota já calculada continua guiando.
 
+## Modo Google
+
+Segundo provedor do mapa integrado (`nav_map_provider = google`), com a mesma tela e o mesmo comportamento. Regras completas na skill `.claude/skills/mapa-integrado/` e em [`docs/plano-mapa-google.md`](../docs/plano-mapa-google.md).
+
+- **Escolha** (`MapScreen.chooseProvider`, ao abrir a tela e ao voltar a ela, nunca navegando): Google com chave, internet, cota de tiles e sem suspensão; senão OpenStreetMap, com o motivo uma vez (`map_google_*`).
+- **Tiles:** `Tiles.setGoogle` troca a fonte inteira (memória limpa, pedidos pendentes descartados): só tiles do Google, sem mapa offline, `.mbtiles` nem OSM por baixo. Disco em `K4811/nav/cache-google/<tema>/z/x/y.png`, com a validade do `Cache-Control` na data de modificação; vencido é apagado e não é usado sem internet. Os tiles já vêm no tema (estilo noturno), sem o filtro escuro.
+- **Atribuição:** o `copyright` do viewport do Google (pedido quando a área muda meia tela ou um nível de zoom, no máximo a cada 15 s) no lugar do "© OpenStreetMap".
+- **Busca:** as sugestões do Google no lugar das do Photon (índice baixado continua na frente, como no OSM); Enter usa as sugestões do Google (do cache) e, sem nenhuma, o Nominatim. Lugar do Google sem coordenadas (`Places.Place.needsDetails`) passa pelo Place Details ao ser escolhido ou salvo nos favoritos.
+- **Favoritos e recentes:** guardam o `place_id` e a data; as coordenadas do Google valem 30 dias (depois, Details de novo). No modo OpenStreetMap, um lugar do Google é procurado de novo pelo nome (as coordenadas dele não podem ir para outro mapa).
+- **Rota:** Google com trânsito → sem trânsito → OSRM → grafo baixado. As opções do aparelho (rotas de costume) completam a lista como hoje.
+- **Voz:** frases da suíte (`Phrases`), sem nome de rua: os passos do Google têm `name` vazio e o texto do Google só em `Route.Step.instruction`, que vai para a faixa da manobra e para a tela inicial, nunca para o TextToSpeech.
+- **Alertas da via:** os mesmos dados do OSM nos dois provedores.
+
 ## Regras
 
 - Sem bibliotecas: o mapa é desenhado à mão; não troque por osmdroid/Mapbox.
 - Strings visíveis no common (`strings_map.xml`, 8 idiomas); só o que não se traduz (`map_attribution`, `map_meters`…) fica só no `values/`.
-- A atribuição "© OpenStreetMap" não pode sair da tela.
+- A atribuição "© OpenStreetMap" (ou, no modo Google, a do Google) não pode sair da tela.
+- Conteúdo do Google só com os tiles do Google na tela; nada de chamada ao Google sem passar pelo `GoogleQuota` e pelo cache.
 
 ## Lacunas
 
