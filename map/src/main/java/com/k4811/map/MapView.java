@@ -185,7 +185,10 @@ public class MapView extends View implements Tiles.Listener {
     private final Rect src = new Rect();
     private final RectF dst = new RectF();
     private final float[] pt = new float[2];
-    private final String attribution;
+    /** Atribuição na tela: a do OpenStreetMap ou, no modo Google, a do viewport do Google. */
+    private String attribution;
+    private final String osmAttribution;
+    private boolean google;
     private boolean dark;
 
     private final GestureDetector gestures;
@@ -217,7 +220,8 @@ public class MapView extends View implements Tiles.Listener {
         dp = c.getResources().getDisplayMetrics().density;
         tilePx = 256 * dp;
         maxTileZoom = MapConfig.get(c).maxZoom;
-        attribution = c.getString(R.string.map_attribution);
+        osmAttribution = c.getString(R.string.map_attribution);
+        attribution = osmAttribution;
 
         emptyPaint.setColor(0xFFE8E4DC);
         casingPaint.setStyle(Paint.Style.STROKE);
@@ -380,6 +384,44 @@ public class MapView extends View implements Tiles.Listener {
         textBg.setColor(on ? 0x99000000 : 0xB3FFFFFF);
         setPassedColors();
         invalidate();
+    }
+
+    /**
+     * Modo Google (tiles do Google no lugar do OpenStreetMap e do mapa offline) ou OpenStreetMap.
+     * Ver {@link Tiles#setGoogle}.
+     */
+    public void setGoogle(boolean on) {
+        // O Tiles é um só no processo: confere também o estado dele (outra tela pode ter mudado).
+        if (google == on && tiles.isGoogle() == on) return;
+        google = on;
+        tiles.setGoogle(on);
+        attribution = on ? "Google" : osmAttribution;
+        invalidate();
+    }
+
+    public boolean isGoogle() {
+        return google;
+    }
+
+    /** Texto de atribuição do Google para a área na tela (do viewport); null mantém o atual. */
+    public void setGoogleCopyright(String text) {
+        if (!google || text == null || text.isEmpty()) return;
+        attribution = text.contains("Google") ? text : "Google · " + text;
+        invalidate();
+    }
+
+    /**
+     * Retângulo aproximado do que está na tela {norte, sul, leste, oeste} em graus (o círculo que
+     * contém a tela, então vale com o mapa girado). Para o viewport do Google.
+     */
+    public double[] visibleBounds() {
+        double scale = tilePx * Math.pow(2, zoom);
+        double r = Math.hypot(getWidth(), getHeight()) / 2 / scale;
+        double north = Geo.lat(Math.max(0, cy - r));
+        double south = Geo.lat(Math.min(1, cy + r));
+        double west = (cx - r) * 360 - 180;
+        double east = (cx + r) * 360 - 180;
+        return new double[]{north, south, Math.min(180, east), Math.max(-180, west)};
     }
 
     /** Internet disponível para baixar tiles. */

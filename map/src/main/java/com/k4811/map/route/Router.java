@@ -101,6 +101,11 @@ public final class Router {
 
     /** Polyline com precisão de 6 casas (formato do Google, usado pelo OSRM). */
     static double[][] decode(String s) {
+        return decode(s, 1e6);
+    }
+
+    /** Polyline codificada do Google com a precisão dada (1e5 na Routes API, 1e6 no OSRM). */
+    public static double[][] decode(String s, double factor) {
         int n = s.length();
         double[] la = new double[n / 2 + 1];
         double[] lo = new double[n / 2 + 1];
@@ -115,8 +120,8 @@ public final class Router {
             r = next(s, i);
             lon += r[0];
             i = (int) r[1];
-            la[count] = lat / 1e6;
-            lo[count] = lon / 1e6;
+            la[count] = lat / factor;
+            lo[count] = lon / factor;
             count++;
         }
         double[] outLa = new double[count];

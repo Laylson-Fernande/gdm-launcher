@@ -69,4 +69,8 @@
     <string name="map_favorite_removed">Tirado dos favoritos</string>
     <string name="map_number_approx">Nº %1$s não está no mapa: ponto aproximado na rua. Toque e segure no mapa para marcar o local exato.</string>
     <string name="map_finding_address">Procurando o endereço…</string>
+    <string name="map_google_no_key">Google: sem chave da API. Usando o OpenStreetMap.</string>
+    <string name="map_google_offline">Sem internet: usando o OpenStreetMap.</string>
+    <string name="map_google_blocked">O Google recusou o pedido (chave ou cota). Usando o OpenStreetMap por enquanto.</string>
+    <string name="map_google_quota">A cota grátis do Google deste mês acabou. Usando o OpenStreetMap.</string>
 </resources>

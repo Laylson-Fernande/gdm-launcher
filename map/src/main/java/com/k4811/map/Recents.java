@@ -30,7 +30,7 @@ final class Recents {
         for (int i = 0; i < arr.length(); i++) {
             JSONObject o = arr.optJSONObject(i);
             if (o == null) continue;
-            out.add(new Places.Place(o.optString("name"), o.optString("detail"), o.optDouble("lat"), o.optDouble("lon")));
+            out.add(Places.Place.fromJson(o));
         }
         return out;
     }
@@ -39,15 +39,13 @@ final class Recents {
     static void add(Places.Place p) {
         List<Places.Place> list = load();
         for (int i = list.size() - 1; i >= 0; i--) {
-            Places.Place o = list.get(i);
-            if (Math.abs(o.lat - p.lat) < 1e-4 && Math.abs(o.lon - p.lon) < 1e-4) list.remove(i);
+            if (list.get(i).same(p)) list.remove(i);
         }
         list.add(0, p);
         JSONArray arr = new JSONArray();
         try {
             for (int i = 0; i < Math.min(MAX, list.size()); i++) {
-                Places.Place o = list.get(i);
-                arr.put(new JSONObject().put("name", o.name).put("detail", o.detail).put("lat", o.lat).put("lon", o.lon));
+                arr.put(list.get(i).toJson());
             }
             NwdConfigs.write(file(), new JSONObject().put("recent", arr));
         } catch (JSONException ignored) {

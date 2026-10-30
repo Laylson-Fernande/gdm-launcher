@@ -32,26 +32,73 @@ public final class Places {
     }
 
     public static final class Place {
+        /** Coordenadas do Google podem ficar guardadas no máximo 30 dias (termos); depois, Details de novo. */
+        public static final long GOOGLE_COORDS_MS = 30L * 24 * 3600 * 1000;
+
         public final String name;
         public final String detail;
+        /** NaN num lugar do Google ainda sem coordenadas (sugestão do Autocomplete): ver {@link #needsDetails}. */
         public final double lat;
         public final double lon;
         /** Número digitado que não está no mapa: o ponto é o da rua, não o da casa. */
         public final boolean approximate;
         /** O número digitado (para o aviso), ou null. */
         public final String number;
+        /** {@code place_id} do Google (lugar achado no modo Google), ou null. */
+        public final String placeId;
+        /** Quando as coordenadas do Google foram obtidas (ms); 0 se não são do Google. */
+        public final long fetchedAt;
 
         public Place(String name, String detail, double lat, double lon) {
             this(name, detail, lat, lon, false, null);
         }
 
         public Place(String name, String detail, double lat, double lon, boolean approximate, String number) {
+            this(name, detail, lat, lon, approximate, number, null, 0);
+        }
+
+        public Place(String name, String detail, double lat, double lon, boolean approximate, String number,
+                     String placeId, long fetchedAt) {
             this.name = name;
             this.detail = detail;
             this.lat = lat;
             this.lon = lon;
             this.approximate = approximate;
             this.number = number;
+            this.placeId = placeId;
+            this.fetchedAt = fetchedAt;
+        }
+
+        /** Lugar do Google sem coordenadas (ou com as de mais de 30 dias): pedir o Place Details antes de usar. */
+        public boolean needsDetails() {
+            return placeId != null && (Double.isNaN(lat) || Double.isNaN(lon));
+        }
+
+        /** Mesmo lugar: o mesmo {@code place_id} ou, sem ele, até ~10 m de diferença. */
+        public boolean same(Place o) {
+            if (placeId != null && o.placeId != null) return placeId.equals(o.placeId);
+            return Math.abs(lat - o.lat) < 1e-4 && Math.abs(lon - o.lon) < 1e-4;
+        }
+
+        /** Para recentes e favoritos. Coordenadas só se existem (o JSON não aceita NaN). */
+        public JSONObject toJson() throws org.json.JSONException {
+            JSONObject o = new JSONObject().put("name", name).put("detail", detail);
+            if (!Double.isNaN(lat) && !Double.isNaN(lon)) o.put("lat", lat).put("lon", lon);
+            if (placeId != null) o.put("place_id", placeId).put("fetched_at", fetchedAt);
+            return o;
+        }
+
+        /** De {@link #toJson}: as coordenadas de um lugar do Google com mais de 30 dias são descartadas. */
+        public static Place fromJson(JSONObject o) {
+            String id = o.has("place_id") ? o.optString("place_id", null) : null;
+            long at = o.optLong("fetched_at", 0);
+            double lat = o.optDouble("lat");
+            double lon = o.optDouble("lon");
+            if (id != null && System.currentTimeMillis() - at > GOOGLE_COORDS_MS) {
+                lat = Double.NaN;
+                lon = Double.NaN;
+            }
+            return new Place(o.optString("name"), o.optString("detail"), lat, lon, false, null, id, at);
         }
     }
 

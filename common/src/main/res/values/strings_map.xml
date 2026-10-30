@@ -75,4 +75,8 @@
     <string name="map_favorite_removed">Removed from favorites</string>
     <string name="map_number_approx">No. %1$s is not on the map: approximate point on the street. Touch and hold the map to mark the exact place.</string>
     <string name="map_finding_address">Finding the address…</string>
+    <string name="map_google_no_key">Google maps: no API key. Using OpenStreetMap.</string>
+    <string name="map_google_offline">No internet: using OpenStreetMap.</string>
+    <string name="map_google_blocked">Google refused the request (API key or quota). Using OpenStreetMap for now.</string>
+    <string name="map_google_quota">This month’s free Google quota is used up. Using OpenStreetMap.</string>
 </resources>

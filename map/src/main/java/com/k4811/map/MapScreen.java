@@ -30,6 +30,11 @@ import com.k4811.common.ui.IconView;
 import com.k4811.common.ui.ThemeDrawables;
 import com.k4811.common.ui.Touch;
 import com.k4811.common.ui.Ui;
+import com.k4811.map.geo.Geo;
+import com.k4811.map.google.GoogleKey;
+import com.k4811.map.google.GooglePlaces;
+import com.k4811.map.google.GoogleQuota;
+import com.k4811.map.google.GoogleRoutes;
 import com.k4811.map.route.GraphStore;
 import com.k4811.map.route.Navigator;
 import com.k4811.map.route.OfflineRouter;
@@ -169,6 +174,9 @@ public class MapScreen extends FrameLayout implements GpsClient.Listener, MapVie
     private final GpsClient gps;
     private Voice voice;
     private boolean voiceEnabled = true;
+    private static final long COPYRIGHT_CHECK_MS = 5000;
+    /** Atribuição do Google: no máximo um pedido do viewport a cada tanto. */
+    private static final long COPYRIGHT_MIN_MS = 15000;
     private State state = State.BROWSE;
     private Route route;
     private Navigator navigator;
@@ -181,6 +189,33 @@ public class MapScreen extends FrameLayout implements GpsClient.Listener, MapVie
     private float speedKmh;
     /** Metros até o alerta na tela (da última leitura do RoadWatcher); NaN sem alerta. */
     private double alertMeters = Double.NaN;
+    /**
+     * Provedor em uso: Google (tiles, busca e rota do Google) ou OpenStreetMap. Escolhido ao abrir a
+     * tela ({@link #chooseProvider}), nunca no meio de uma navegação.
+     */
+    private boolean google;
+    /** Motivo (string) da última vez que o Google foi pedido e não pôde ser usado; 0 = nenhum. */
+    private int googleReason;
+    /** Última área pedida ao viewport do Google (atribuição): centro no mundo, zoom e hora. */
+    private double copyrightX = Double.NaN;
+    private double copyrightY;
+    private int copyrightZoom;
+    private long copyrightAt;
+
+    /** Recebe um lugar já com coordenadas (do Place Details, se precisou). */
+    private interface OnPlace {
+        void place(Places.Place p);
+    }
+
+    /** No modo Google, confere de tempos em tempos se a área mudou e pede a atribuição dela. */
+    private final Runnable copyrightCheck = new Runnable() {
+        @Override
+        public void run() {
+            if (!started || !google) return;
+            updateCopyright();
+            main.postDelayed(this, COPYRIGHT_CHECK_MS);
+        }
+    };
 
     private final Runnable hideMessage = new Runnable() {
         @Override
@@ -332,6 +367,7 @@ public class MapScreen extends FrameLayout implements GpsClient.Listener, MapVie
         boolean dark = LauncherConfig.darkMode(getContext());
         map.setDark(dark);
         map.setOnline(MapConfig.online(getContext()));
+        chooseProvider();
         map.setAutoZoom(LauncherConfig.navAutoZoom(getContext()));
         map.setPerspective(LauncherConfig.navPerspective(getContext()));
         gps.start();
@@ -373,12 +409,71 @@ public class MapScreen extends FrameLayout implements GpsClient.Listener, MapVie
             });
         }
         saveCamera();
+        main.removeCallbacks(copyrightCheck);
+        GoogleQuota.get().flush(getContext().getApplicationContext());
         // Navegando, a voz continua pronta para quando a tela voltar; fora disso, libera o motor.
         if (state != State.NAVIGATE && voice != null) {
             voice.shutdown();
             voice = null;
         }
         if (state != State.NAVIGATE) stopRoads();
+    }
+
+    /**
+     * Provedor do mapa ao abrir a tela: Google quando escolhido nas Configurações e há chave, internet,
+     * cota de tiles e o Google não está suspenso; senão OpenStreetMap, com o motivo mostrado uma vez.
+     * Navegando, nada muda (a rota em curso continua no mesmo mapa).
+     */
+    private void chooseProvider() {
+        if (state == State.NAVIGATE) {
+            if (google) main.postDelayed(copyrightCheck, 0);
+            return;
+        }
+        Context c = getContext();
+        boolean want = LauncherConfig.NAV_PROVIDER_GOOGLE.equals(LauncherConfig.navMapProvider(c));
+        int reason = 0;
+        if (want) {
+            if (!GoogleKey.has(c)) reason = R.string.map_google_no_key;
+            else if (!MapConfig.online(c)) reason = R.string.map_google_offline;
+            else if (GoogleQuota.get().blocked()) reason = R.string.map_google_blocked;
+            else if (!GoogleQuota.get().has(c, GoogleQuota.Sku.TILES)) reason = R.string.map_google_quota;
+        }
+        boolean use = want && reason == 0;
+        if (use != google) copyrightX = Double.NaN;
+        google = use;
+        map.setGoogle(use);
+        if (reason != 0 && reason != googleReason) showMessage(reason);
+        googleReason = reason;
+        if (use) {
+            GooglePlaces.newSession();
+            main.removeCallbacks(copyrightCheck);
+            main.postDelayed(copyrightCheck, 1500);
+        }
+    }
+
+    /** Pede a atribuição do Google se a área na tela mudou bastante (zoom inteiro ou meia tela). */
+    private void updateCopyright() {
+        double[] b = map.visibleBounds();
+        double x = Geo.worldX(map.centerLon());
+        double y = Geo.worldY(map.centerLat());
+        int zoom = Math.round(map.getZoom());
+        double half = Math.abs(Geo.worldY(b[1]) - Geo.worldY(b[0])) / 4;
+        boolean moved = Double.isNaN(copyrightX) || zoom != copyrightZoom
+            || Math.abs(x - copyrightX) > half || Math.abs(y - copyrightY) > half;
+        long now = System.currentTimeMillis();
+        if (!moved || now - copyrightAt < COPYRIGHT_MIN_MS) return;
+        copyrightX = x;
+        copyrightY = y;
+        copyrightZoom = zoom;
+        copyrightAt = now;
+        boolean dark = map.isDark();
+        Context app = getContext().getApplicationContext();
+        net.execute(() -> {
+            String text = com.k4811.map.google.GoogleTiles.copyright(app, zoom, b[0], b[1], b[2], b[3], dark);
+            main.post(() -> {
+                if (google) map.setGoogleCopyright(text);
+            });
+        });
     }
 
     /** Para os alertas e devolve a memória dos dados das vias. */
@@ -606,6 +701,8 @@ public class MapScreen extends FrameLayout implements GpsClient.Listener, MapVie
         if (search.getText().length() == 0) showRecents();
         search.requestFocus();
         keyboard(true);
+        // Uma sessão de busca do Google por abertura da busca (encerrada pelo lugar escolhido).
+        if (google) GooglePlaces.newSession();
         // O índice de endereços em volta já vai sendo lido: a primeira sugestão sai sem espera.
         double lat = nearLat(), lon = nearLon();
         suggestions.execute(() -> PlaceIndex.get().warm(lat, lon));
@@ -643,11 +740,16 @@ public class MapScreen extends FrameLayout implements GpsClient.Listener, MapVie
             suggestions.execute(() -> {
                 if (gen != suggestGen) return;
                 List<Places.Place> online;
-                try {
-                    online = Places.suggest(getContext(), text, lat, lon, lang);
-                } catch (Exception e) {
-                    android.util.Log.w("K4811Map", "sugestões: " + e);
-                    return;
+                if (google) {
+                    // Modo Google: as sugestões do Google no lugar das do Photon (mesmo lugar na lista).
+                    online = GooglePlaces.autocomplete(getContext(), text, lat, lon, lang);
+                } else {
+                    try {
+                        online = Places.suggest(getContext(), text, lat, lon, lang);
+                    } catch (Exception e) {
+                        android.util.Log.w("K4811Map", "sugestões: " + e);
+                        return;
+                    }
                 }
                 List<Places.Place> local = PlaceIndex.get().search(text, lat, lon, RESULTS);
                 List<Places.Place> merged = Places.merge(local.subList(0, Math.min(5, local.size())), online, RESULTS);
@@ -698,12 +800,18 @@ public class MapScreen extends FrameLayout implements GpsClient.Listener, MapVie
         double nearLon = nearLon();
         String lang = LauncherConfig.language(getContext());
         boolean online = MapConfig.online(getContext());
+        boolean useGoogle = google;
         if (online) showMessage(R.string.map_searching);
         net.execute(() -> {
-            // O índice baixado sempre; com internet, o Nominatim na frente (e o índice completando).
+            // O índice baixado sempre; com internet, o Nominatim (ou, no modo Google, as sugestões do
+            // Google, quase sempre já no cache da digitação) na frente e o índice completando.
             List<Places.Place> local = PlaceIndex.get().search(query, nearLat, nearLon, RESULTS);
             List<Places.Place> found = null;
-            if (online) {
+            if (online && useGoogle) {
+                List<Places.Place> g = GooglePlaces.autocomplete(getContext(), query, nearLat, nearLon, lang);
+                if (!g.isEmpty()) found = Places.merge(g, local, RESULTS);
+            }
+            if (online && found == null) {
                 try {
                     found = Places.merge(Places.search(getContext(), query, nearLat, nearLon, lang), local, RESULTS);
                 } catch (Exception e) {
@@ -822,6 +930,11 @@ public class MapScreen extends FrameLayout implements GpsClient.Listener, MapVie
     /** Salva ou tira {@code p} dos favoritos; a estrela muda na hora e o aviso confirma. */
     private void toggleFavorite(Places.Place p, IconView star) {
         if (p == null) return;
+        if (p.needsDetails() && google) {
+            // Sugestão do Google ainda sem coordenadas: o favorito guarda o lugar completo.
+            resolve(p, done -> toggleFavorite(done, star));
+            return;
+        }
         boolean next = !star.isActivated();
         renderStar(star, next);
         net.execute(() -> {
@@ -837,10 +950,53 @@ public class MapScreen extends FrameLayout implements GpsClient.Listener, MapVie
 
     /** Destino escolhido: guarda nos recentes, calcula e mostra a prévia. */
     private void pick(Places.Place p) {
+        if (p.needsDetails()) {
+            if (google) {
+                resolve(p, this::pick);
+            } else {
+                // Lugar do Google (favorito ou recente de mais de 30 dias) no modo OpenStreetMap: as
+                // coordenadas do Google não podem ir para outro mapa; procura o mesmo nome no OSM.
+                String query = p.detail.isEmpty() ? p.name : p.name + ", " + p.detail;
+                search.setText(query);
+                search.setSelection(query.length());
+                runSearch(query);
+            }
+            return;
+        }
+        if (p.placeId != null && !google) {
+            // Coordenadas do Google, mas o mapa agora é o OpenStreetMap: idem.
+            String query = p.detail.isEmpty() ? p.name : p.name + ", " + p.detail;
+            search.setText(query);
+            search.setSelection(query.length());
+            runSearch(query);
+            return;
+        }
         destination = p;
         net.execute(() -> Recents.add(p));
         map.setDestination(p.lat, p.lon);
         calculate(false);
+    }
+
+    /**
+     * Coordenadas de um lugar do Google (Place Details, do cache se houver) e depois {@code then}, na
+     * thread principal. Sem cota ou com falha, avisa e não segue.
+     */
+    private void resolve(Places.Place p, OnPlace then) {
+        showMessage(R.string.map_finding_address);
+        int gen = ++requestGen;
+        String lang = LauncherConfig.language(getContext());
+        net.execute(() -> {
+            Places.Place done = GooglePlaces.details(getContext(), p, lang);
+            main.post(() -> {
+                if (gen != requestGen) return;
+                if (done == null || done.needsDetails()) {
+                    showMessage(R.string.map_search_error);
+                    return;
+                }
+                hideMessageNow();
+                then.place(done);
+            });
+        });
     }
 
     private void calculate(boolean reroute) {
@@ -856,9 +1012,18 @@ public class MapScreen extends FrameLayout implements GpsClient.Listener, MapVie
         int gen = ++requestGen;
         // Na prévia, até 3 opções; recalculando, só a melhor.
         int max = reroute ? 1 : MAX_ROUTES;
+        boolean useGoogle = google;
+        boolean traffic = LauncherConfig.navGoogleTraffic(getContext());
+        String lang = LauncherConfig.language(getContext());
         net.execute(() -> {
             List<Route> list = new ArrayList<>();
-            if (online) {
+            if (online && useGoogle) {
+                // Modo Google: com trânsito (Pro) → sem trânsito (Essentials); sem cota, o OSRM abaixo.
+                List<Route> g = GoogleRoutes.routes(getContext(), fromLat, fromLon, heading, p.lat, p.lon, p.name,
+                    max, traffic, lang);
+                if (g != null) list.addAll(g);
+            }
+            if (online && list.isEmpty()) {
                 try {
                     list.addAll(Router.routes(getContext(), fromLat, fromLon, heading, p.lat, p.lon, p.name, max));
                 } catch (Exception e) {
@@ -1186,7 +1351,8 @@ public class MapScreen extends FrameLayout implements GpsClient.Listener, MapVie
             turn.setShape(Phrases.shape(next));
             turnDistance.setText(phrases.distance(n.distanceToNext()));
             String street = Phrases.street(next);
-            cue = street.isEmpty() ? phrases.action(next) : street;
+            // Rota do Google: o texto da instrução dele (só na tela; a voz usa as frases da suíte).
+            cue = !street.isEmpty() ? street : next.instruction != null ? next.instruction : phrases.action(next);
             turnStreet.setText(cue);
             Route.Step after = n.stepAfterNext();
             boolean soon = after != null && n.route().along[after.index] - n.route().along[next.index] < 150;

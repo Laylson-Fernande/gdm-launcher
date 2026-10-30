@@ -20,9 +20,6 @@ final class Favorites {
     private Favorites() {
     }
 
-    /** Mesmo lugar: até ~10 m de diferença. */
-    private static final double SAME = 1e-4;
-
     private static File file() {
         return new File(MapConfig.dir(), "favorites.json");
     }
@@ -35,7 +32,7 @@ final class Favorites {
         for (int i = 0; i < arr.length(); i++) {
             JSONObject o = arr.optJSONObject(i);
             if (o == null) continue;
-            out.add(new Places.Place(o.optString("name"), o.optString("detail"), o.optDouble("lat"), o.optDouble("lon")));
+            out.add(Places.Place.fromJson(o));
         }
         return out;
     }
@@ -57,8 +54,7 @@ final class Favorites {
 
     private static int indexOf(List<Places.Place> list, Places.Place p) {
         for (int i = 0; i < list.size(); i++) {
-            Places.Place o = list.get(i);
-            if (Math.abs(o.lat - p.lat) < SAME && Math.abs(o.lon - p.lon) < SAME) return i;
+            if (list.get(i).same(p)) return i;
         }
         return -1;
     }
@@ -67,7 +63,7 @@ final class Favorites {
         JSONArray arr = new JSONArray();
         try {
             for (Places.Place o : list) {
-                arr.put(new JSONObject().put("name", o.name).put("detail", o.detail).put("lat", o.lat).put("lon", o.lon));
+                arr.put(o.toJson());
             }
             NwdConfigs.write(file(), new JSONObject().put("favorites", arr));
         } catch (JSONException ignored) {

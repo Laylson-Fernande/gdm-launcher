@@ -27,9 +27,20 @@ public final class Route {
         public final double duration;
         /** Índice do ponto da linha onde está a manobra. */
         public final int index;
+        /**
+         * Texto pronto da instrução vindo do serviço da rota (Google), só para a tela; null nos outros.
+         * Nunca vai para a voz (termos do Google): a voz usa {@link Phrases} com o tipo e a distância.
+         */
+        public final String instruction;
 
         public Step(String type, String modifier, int exit, String name, String ref,
                     double distance, double duration, int index) {
+            this(type, modifier, exit, name, ref, distance, duration, index, null);
+        }
+
+        public Step(String type, String modifier, int exit, String name, String ref,
+                    double distance, double duration, int index, String instruction) {
+            this.instruction = instruction;
             this.type = type;
             this.modifier = modifier;
             this.exit = exit;

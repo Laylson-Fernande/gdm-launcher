@@ -69,4 +69,8 @@
     <string name="map_favorite_removed">已取消收藏</string>
     <string name="map_number_approx">地图上没有 %1$s 号：显示的是街道上的大致位置。长按地图可标记准确地点。</string>
     <string name="map_finding_address">正在查找地址…</string>
+    <string name="map_google_no_key">Google：没有 API 密钥。使用 OpenStreetMap。</string>
+    <string name="map_google_offline">无网络：使用 OpenStreetMap。</string>
+    <string name="map_google_blocked">Google 拒绝了请求（密钥或配额）。暂时使用 OpenStreetMap。</string>
+    <string name="map_google_quota">本月 Google 免费额度已用完。使用 OpenStreetMap。</string>
 </resources>

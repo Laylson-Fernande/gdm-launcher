@@ -84,6 +84,12 @@ public final class MapConfig {
     public final int mapLogMs;
     /** User-Agent das requisições (as políticas do OSM pedem um que identifique o app). */
     public final String userAgent;
+    /**
+     * Limites mensais de uso do Google por serviço ({@code google_limits} no arquivo:
+     * {@code tiles}, {@code routes_pro}, {@code routes}, {@code autocomplete}, {@code details}); o que
+     * faltar fica com o padrão de {@link com.k4811.map.google.GoogleQuota}. Nunca null.
+     */
+    public final JSONObject googleLimits;
 
     private static MapConfig cached;
     private static long cachedModified = -1;
@@ -112,6 +118,8 @@ public final class MapConfig {
         else for (int i = 0; i < h.length(); i++) hide.add(h.optString(i));
         mapHide = Collections.unmodifiableSet(hide);
         mapLogMs = Math.max(0, j.optInt("map_log_ms", 400));
+        JSONObject limits = j.optJSONObject("google_limits");
+        googleLimits = limits == null ? new JSONObject() : limits;
         this.userAgent = userAgent;
     }
 

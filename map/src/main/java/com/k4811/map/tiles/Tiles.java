@@ -12,6 +12,7 @@ import android.os.Process;
 import android.util.Log;
 
 import com.k4811.map.MapConfig;
+import com.k4811.map.google.GoogleTiles;
 import com.k4811.map.vector.MapStore;
 import com.k4811.map.vector.TileRenderer;
 
@@ -85,6 +86,10 @@ public final class Tiles {
     private volatile int frame;
     private volatile boolean online = true;
     private long diskBytes = -1;
+    /** Mapa integrado no modo Google: só os tiles do Google (sem mapa offline, .mbtiles nem OSM). */
+    private volatile boolean google;
+    /** Muda a cada troca de fonte: tile pedido antes da troca não entra na memória. */
+    private volatile int sourceGen;
 
     private Tiles(Context c) {
         context = c.getApplicationContext();
@@ -130,7 +135,31 @@ public final class Tiles {
         generation++;
     }
 
-    /** O tile veio do mapa próprio (desenhado no tema, sem filtro de cor). */
+    /**
+     * Fonte dos tiles: Google (Map Tiles API) ou OpenStreetMap (mapa offline, .mbtiles, cache, OSM).
+     * Os termos do Google não deixam misturar as duas no mesmo mapa: ao trocar, a memória é limpa e
+     * os pedidos pendentes são descartados. Na thread principal.
+     */
+    public void setGoogle(boolean on) {
+        if (google == on) return;
+        google = on;
+        sourceGen++;
+        memory.clear();
+        memoryGen.clear();
+        generation++;
+        synchronized (queue) {
+            queue.clear();
+            pending.clear();
+            failedAt.clear();
+        }
+        notifyLoaded();
+    }
+
+    public boolean isGoogle() {
+        return google;
+    }
+
+    /** O tile já vem no tema (mapa próprio ou Google com o estilo noturno): sem filtro de cor. */
     public boolean isVector(Bitmap b) {
         return vector.contains(b);
     }
@@ -229,6 +258,7 @@ public final class Tiles {
             int y = (int) (k & 0x1FFFFFFF);
             Bitmap b = null;
             boolean[] fromVector = new boolean[1];
+            int gen = sourceGen;
             try {
                 b = load(z, x, y, fromVector);
             } catch (Throwable t) {
@@ -244,7 +274,7 @@ public final class Tiles {
                 synchronized (queue) {
                     pending.remove(k);
                 }
-                if (loaded == null) return;
+                if (loaded == null || gen != sourceGen) return;
                 if (isVector) vector.add(loaded);
                 put(k, loaded);
                 notifyLoaded();
@@ -274,6 +304,11 @@ public final class Tiles {
     }
 
     private Bitmap load(int z, int x, int y, boolean[] fromVector) throws Exception {
+        if (google) {
+            Bitmap b = loadGoogle(z, x, y);
+            fromVector[0] = b != null;
+            return b;
+        }
         // Mapa próprio com a área toda baixada: sempre ele.
         int cover = renderer.coverage(z, x, y);
         if (cover == TileRenderer.FULL) {
@@ -307,6 +342,34 @@ public final class Tiles {
         if (data == null) return f.isFile() ? decode(readFile(f)) : null;
         Bitmap b = decode(data);
         if (b != null) save(f, data);
+        return b;
+    }
+
+    /**
+     * Tile do Google: do disco enquanto vale o {@code Cache-Control} da resposta (a data de
+     * modificação do arquivo é a validade), senão da internet. Vencido e sem internet: nada (os
+     * termos não deixam usar depois do prazo).
+     */
+    private Bitmap loadGoogle(int z, int x, int y) {
+        boolean night = dark;
+        File f = new File(MapConfig.dir(), "cache-google/" + (night ? "dark" : "light") + "/" + z + "/" + x + "/" + y + ".png");
+        long now = System.currentTimeMillis();
+        if (f.isFile()) {
+            if (f.lastModified() > now) {
+                Bitmap b = decode(readFile(f));
+                if (b != null) return b;
+            } else {
+                f.delete();
+            }
+        }
+        if (!online) return null;
+        GoogleTiles.Tile t = GoogleTiles.download(context, z, x, y, night);
+        if (t == null) return null;
+        Bitmap b = decode(t.data);
+        if (b != null && t.expiresAt > now) {
+            save(f, t.data);
+            f.setLastModified(t.expiresAt);
+        }
         return b;
     }
 
@@ -394,6 +457,37 @@ public final class Tiles {
         }
         synchronized (this) {
             diskBytes = total;
+        }
+        pruneGoogle(limit / 2);
+    }
+
+    /** Cache dos tiles do Google: apaga os vencidos e, acima de {@code limit}, os que vencem antes. */
+    private static void pruneGoogle(long limit) {
+        List<File> files = new ArrayList<>();
+        collect(new File(MapConfig.dir(), "cache-google"), files);
+        long now = System.currentTimeMillis();
+        long total = 0;
+        List<File> alive = new ArrayList<>();
+        for (File f : files) {
+            if (f.lastModified() <= now) {
+                f.delete();
+            } else {
+                alive.add(f);
+                total += f.length();
+            }
+        }
+        if (total <= limit) return;
+        Collections.sort(alive, new Comparator<File>() {
+            @Override
+            public int compare(File a, File b) {
+                long x = a.lastModified(), y = b.lastModified();
+                return x < y ? -1 : x > y ? 1 : 0;
+            }
+        });
+        for (File f : alive) {
+            if (total <= limit * 0.8) break;
+            long len = f.length();
+            if (f.delete()) total -= len;
         }
     }
 

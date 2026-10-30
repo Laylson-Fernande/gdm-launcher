@@ -69,4 +69,8 @@
     <string name="map_favorite_removed">Убрано из избранного</string>
     <string name="map_number_approx">Дома № %1$s нет на карте: точка на улице приблизительная. Нажмите и удерживайте карту, чтобы отметить точное место.</string>
     <string name="map_finding_address">Поиск адреса…</string>
+    <string name="map_google_no_key">Google: нет ключа API. Используется OpenStreetMap.</string>
+    <string name="map_google_offline">Нет интернета: используется OpenStreetMap.</string>
+    <string name="map_google_blocked">Google отклонил запрос (ключ или квота). Пока используется OpenStreetMap.</string>
+    <string name="map_google_quota">Бесплатная квота Google на этот месяц исчерпана. Используется OpenStreetMap.</string>
 </resources>
