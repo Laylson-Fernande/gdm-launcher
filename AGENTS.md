@@ -144,10 +144,13 @@ O mapa integrado (`map/`, `MapScreen`) tem dois provedores, escolhidos nas Confi
 
 ## Skills (Claude)
 
-Use as skills instaladas no Claude quando a tarefa pedir:
+Use as skills quando a tarefa pedir. As do repositório ficam em [`.claude/skills/`](.claude/skills/README.md) (origem e versão no README de lá):
 
 | Skill | Quando |
 |---|---|
+| `using-superpowers` (repositório) | no começo de cada tarefa: conferir quais skills se aplicam e usá-las antes de agir. As regras deste arquivo vêm antes dela |
+| `find-skills` (repositório) | tarefa nova sem skill que sirva: procurar uma (`npx skills find`), conferir origem e popularidade e propor ao dono antes de instalar |
+| `limrun-android-emulator` (repositório) | instalar e testar o APK num emulador Android na nuvem (Limrun): telas, mapa, logs. Os serviços da NWD (rádio, BT, MCU) não existem no emulador; com Android 14+ o targetSdk 19 pode ser recusado na instalação. Precisa do CLI `lim` e de `LIM_API_KEY` |
 | `skill-creator` | criar ou melhorar as skills deste projeto (em `.claude/skills/`), como a do mapa integrado |
 | `frontend-design` | decisões visuais (telas, cores, ícones, tema claro e escuro); aplique os princípios às Views do Android, sem bibliotecas |
 | `deep-research` | pesquisar APIs, preços e termos de uso antes de integrar um serviço externo (os preços e termos mudam: confira sempre) |
