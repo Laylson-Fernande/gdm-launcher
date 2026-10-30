@@ -26,7 +26,7 @@ Em **Configurações › Customizar › Customizar navegação** (gravadas no `l
 | Lado da música | `nav_panel_right` | esquerda (padrão) ou direita; só no mapa integrado |
 | Instruções por voz | `nav_voice` | ligado (padrão) ou desligado; só no mapa integrado |
 | Serviços do mapa | `nav_map_provider` | OpenStreetMap (padrão, funciona sem internet) ou Google (tiles, busca de lugares e rota com trânsito do Google; precisa de internet e da chave). Mesma tela e comportamento; sem internet, chave ou cota, abre no OpenStreetMap e diz o motivo. Ver [`plano-mapa-google.md`](plano-mapa-google.md) |
-| Chave da API do Google | `google_key` | digitada nas Configurações (ou `k4811.googleMapsKey` no `local.properties`); mostra só o final |
+| Chave da API do Google | — | só mostra se o build tem a chave (`k4811.googleMapsKey` no `local.properties`) e o final dela; não se digita na central |
 | Trânsito em tempo real | `nav_google_traffic` | ligado (padrão): rota do Google com trânsito (5 mil/mês grátis), depois sem trânsito (10 mil), depois OSRM; só no modo Google |
 | Uso do Google neste mês | — | pedidos de cada serviço contra o limite (~90% da cota grátis) e o último erro, de `K4811/nav/google/usage.json`; só no modo Google |
 | Mapa offline | `nav_offline_map` | ligado (padrão): baixa e desenha o mapa do raio escolhido e das rotas, e baixa o grafo e o índice de endereços da rota e da busca sem internet, com as mesmas regras dos dados das vias; mostra quantas áreas estão baixadas, o tamanho e a data |

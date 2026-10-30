@@ -10,7 +10,6 @@ import android.os.Environment;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.k4811.car.setting.ui.InputDialog;
 import com.k4811.car.setting.ui.OptionList;
 import com.k4811.common.Apps;
 import com.k4811.common.audio.MixVolumes;
@@ -136,9 +135,9 @@ public class NavSettingsActivity extends Activity {
             () -> Arrays.asList(LauncherConfig.NAV_PROVIDERS).indexOf(LauncherConfig.navMapProvider(this)),
             i -> LauncherConfig.setNavMapProvider(this, LauncherConfig.NAV_PROVIDERS[i]))
             .local().help(getString(R.string.settings_help_nav_map_provider));
-        OptionList.Row googleKey = list.action(getString(R.string.settings_nav_google_key),
-            getString(R.string.settings_nav_google_key_hint), getString(R.string.settings_nav_google_key_edit),
-            this::editGoogleKey)
+        // A chave vem só do build (k4811.googleMapsKey no local.properties): aqui só o estado dela.
+        OptionList.Row googleKey = list.plain(getString(R.string.settings_nav_google_key),
+            getString(R.string.settings_nav_google_key_hint))
             .help(getString(R.string.settings_help_nav_google_key));
         list.toggle(getString(R.string.settings_nav_google_traffic), getString(R.string.settings_nav_google_traffic_hint),
             () -> LauncherConfig.navGoogleTraffic(this),
@@ -241,7 +240,8 @@ public class NavSettingsActivity extends Activity {
             roadData.setNote(dataStatus("roads"), false);
             // Mapa, grafo da rota e índice de endereços: o tamanho é a soma dos três.
             offlineMap.setNote(dataStatus("maps", "graph", "places"), false);
-            String key = LauncherConfig.googleKey(this);
+            String key = com.k4811.common.BuildConfig.GOOGLE_MAPS_KEY == null ? ""
+                : com.k4811.common.BuildConfig.GOOGLE_MAPS_KEY.trim();
             googleKey.setNote(key.isEmpty() ? getString(R.string.settings_nav_google_key_none)
                 : getString(R.string.settings_nav_google_key_set, key.substring(Math.max(0, key.length() - 4))),
                 key.isEmpty() && googleOn());
@@ -252,22 +252,6 @@ public class NavSettingsActivity extends Activity {
 
     private boolean googleOn() {
         return LauncherConfig.NAV_PROVIDER_GOOGLE.equals(LauncherConfig.navMapProvider(this));
-    }
-
-    /** Digitar ou apagar a chave da API do Google (vazio apaga). */
-    private void editGoogleKey() {
-        InputDialog.show(this, getString(R.string.settings_nav_google_key),
-            getString(R.string.settings_nav_google_key_dialog), LauncherConfig.googleKey(this), false,
-            getString(R.string.settings_apply), text -> {
-                String k = text.trim();
-                // Chave do Google: "AIza" e 35 caracteres de letras, números, "-" e "_".
-                if (!k.isEmpty() && !k.matches("AIza[0-9A-Za-z_\\-]{35}")) {
-                    return getString(R.string.settings_nav_google_key_invalid);
-                }
-                LauncherConfig.setGoogleKey(this, k);
-                list.renderAll();
-                return null;
-            });
     }
 
     /**

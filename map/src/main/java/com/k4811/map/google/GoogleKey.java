@@ -5,7 +5,6 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
 
-import com.k4811.common.config.LauncherConfig;
 import com.k4811.map.BuildConfig;
 
 import java.security.MessageDigest;
@@ -13,8 +12,7 @@ import java.security.MessageDigest;
 /**
  * Chave da API do Google Maps Platform e a identificação do app nos pedidos.
  *
- * A chave vem das Configurações ({@code google_key} no launcher.json) ou, sem ela, do build
- * ({@code k4811.googleMapsKey} no local.properties). Os pedidos levam {@code X-Android-Package} e
+ * A chave vem só do build ({@code k4811.googleMapsKey} no local.properties, fora do git). Os pedidos levam {@code X-Android-Package} e
  * {@code X-Android-Cert} (SHA-1 da assinatura do APK), para a chave poder ser restrita a este app no
  * Google Cloud.
  */
@@ -26,8 +24,6 @@ public final class GoogleKey {
 
     /** A chave em uso, ou "" se não há nenhuma. */
     public static String key(Context c) {
-        String k = LauncherConfig.googleKey(c);
-        if (!k.isEmpty()) return k;
         return BuildConfig.GOOGLE_MAPS_KEY == null ? "" : BuildConfig.GOOGLE_MAPS_KEY.trim();
     }
 

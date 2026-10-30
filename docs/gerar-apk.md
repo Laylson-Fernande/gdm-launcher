@@ -67,7 +67,7 @@ Para esconder um app de fábrica sem root: `adb shell pm disable-user --user 0 <
 
 ## Chave do Google (mapa integrado no modo Google)
 
-Opcional. A chave da API do Google Maps Platform pode ser digitada na central (Configurações › Customizar navegação › Chave da API do Google) ou entrar no build:
+A chave da API do Google Maps Platform vai dentro dos APKs, no build (não se digita na central). Sem ela, o modo Google abre no OpenStreetMap com o aviso "sem chave da API".
 
 ```properties
 # local.properties (fora do git)

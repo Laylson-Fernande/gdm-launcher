@@ -78,8 +78,6 @@ public final class LauncherConfig {
     private static final String KEY_NAV_MAP_PROVIDER = "nav_map_provider";
     /** Rota do Google com trânsito em tempo real (cota menor, ver map/.../google/GoogleQuota). */
     private static final String KEY_NAV_GOOGLE_TRAFFIC = "nav_google_traffic";
-    /** Chave da API do Google Maps Platform digitada nas Configurações ("" ou ausente = a do build). */
-    private static final String KEY_GOOGLE_KEY = "google_key";
     /** % da mídia durante a voz da navegação (-1 = nunca configurado). Ver MixVolumes. */
     private static final String KEY_NAV_MEDIA_PERCENT = "nav_media_percent";
     /** % das notificações em relação ao volume (-1 = nunca configurado). Ver MixVolumes. */
@@ -659,18 +657,6 @@ public final class LauncherConfig {
 
     public static boolean setNavGoogleTraffic(Context c, boolean on) {
         return put(KEY_NAV_GOOGLE_TRAFFIC, on);
-    }
-
-    /** Chave da API do Google digitada nas Configurações; "" se não há (vale a do build, se houver). */
-    public static String googleKey(Context c) {
-        String k = string(KEY_GOOGLE_KEY, "");
-        return k == null ? "" : k.trim();
-    }
-
-    /** null ou "" apaga a chave. */
-    public static boolean setGoogleKey(Context c, String key) {
-        String k = key == null ? "" : key.trim();
-        return put(KEY_GOOGLE_KEY, k.isEmpty() ? null : k);
     }
 
     /** De quantos em quantos dias os dados das vias (radares, limites) são conferidos, na ordem das Configurações. */

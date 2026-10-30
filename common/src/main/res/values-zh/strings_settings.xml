@@ -333,13 +333,10 @@
     <string name="settings_nav_map_provider_hint">OpenStreetMap 可离线使用；Google 提供实时路况和商户搜索</string>
     <string name="settings_help_nav_map_provider">OpenStreetMap（默认）：地图、搜索和路线使用 OpenStreetMap 数据，包括已下载的地图、搜索和路线，因此没有网络也能正常使用。Google：地图、地点搜索（商户、地址）和结合实时路况的路线来自 Google；需要网络和您自己的 Google Maps Platform API 密钥。两种模式的界面、按钮和操作完全相同。没有网络、没有密钥或本月免费额度用完时，界面会用 OpenStreetMap 打开并说明原因；这在打开界面时决定，绝不会在导航途中切换。测速摄像头、限速和其他道路提醒始终来自 OpenStreetMap（Google 不提供）。Google 的条款不允许其数据显示在其他地图上：地图为 OpenStreetMap 时，收藏或最近记录中的 Google 地点会按名称重新搜索。Google 路线的语音使用本套件自己的语句（只有动作和距离，不含街道名称）。</string>
     <string name="settings_nav_google_key">Google API 密钥</string>
-    <string name="settings_nav_google_key_hint">使用 Google 地图所需的 Google Maps Platform 密钥</string>
-    <string name="settings_nav_google_key_edit">编辑</string>
-    <string name="settings_nav_google_key_dialog">粘贴密钥（以 AIza 开头）。留空则删除。</string>
-    <string name="settings_nav_google_key_invalid">这不是 Google API 密钥（AIza 加 35 个字符）。</string>
-    <string name="settings_nav_google_key_none">没有密钥</string>
-    <string name="settings_nav_google_key_set">已设置密钥（结尾为 %1$s）</string>
-    <string name="settings_help_nav_google_key" formatted="false">在 Google Cloud 控制台创建项目，启用结算以及 Map Tiles API、Routes API 和 Places API (New)，然后创建 API 密钥。为安全起见，请将密钥限制为这三个 API 和本 Android 应用（包名和 SHA-1 证书）。另外请创建 1 美元的预算提醒，以便知道任何费用。本套件只使用每月免费额度，并在约 90% 时停止。密钥保存在车机的 /sdcard/nwd-configs/launcher.json 中。</string>
+    <string name="settings_nav_google_key_hint">随应用构建提供（k4811.googleMapsKey）</string>
+    <string name="settings_nav_google_key_set">此构建中有密钥（结尾为 %1$s）</string>
+    <string name="settings_nav_google_key_none">此构建中没有密钥</string>
+    <string name="settings_help_nav_google_key" formatted="false">Google Maps Platform 密钥内置在应用中：生成 APK 之前，在 local.properties（不在 git 中）里写入 k4811.googleMapsKey=AIza…。获取方法：在 Google Cloud 控制台创建项目，启用结算以及 Map Tiles API、Routes API 和 Places API (New)，然后创建仅限这三个 API 和本 Android 应用（包名和 SHA-1 证书）的 API 密钥。另外请创建 1 美元的预算提醒。本套件只使用每月免费额度，并在约 90% 时停止。</string>
     <string name="settings_nav_google_traffic">实时路况</string>
     <string name="settings_nav_google_traffic_hint">结合路况的路线（每月免费 5,000 次）；之后不考虑路况</string>
     <string name="settings_help_nav_google_traffic">开启：Google 路线会考虑当前路况和出发时车辆的朝向。Google 每月免费提供 5,000 次此类路线；约 4,500 次后，路线改为不考虑路况（每月免费 10,000 次），再之后由 OpenStreetMap 计算。每次偏离路线后的重新计算都算作一次新路线。</string>

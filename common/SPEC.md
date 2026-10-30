@@ -66,7 +66,6 @@ Declara `READ_EXTERNAL_STORAGE` e o receiver `com.k4811.common.system.BottomBar$
 | `nav_offline_map` | bool | true | mapa offline do mapa integrado: baixa e desenha o mapa do raio de 100 km e das rotas (ver `map/SPEC.md`) |
 | `nav_map_provider` | string | `osm` | serviços do mapa integrado: `osm` (OpenStreetMap, funciona sem internet) ou `google` (tiles, busca e rota do Google; sem internet, chave ou cota, abre no OpenStreetMap). Ver `map/SPEC.md`, "Modo Google" |
 | `nav_google_traffic` | bool | true | rota do Google com trânsito em tempo real (cota Pro, 5 mil/mês grátis); desligado ou sem cota, sem trânsito |
-| `google_key` | string | ausente | chave da API do Google Maps Platform digitada nas Configurações; ausente = a do build (`k4811.googleMapsKey`) |
 | `nav_data_days` | int | 7 | período de conferência dos dados baixados do mapa: vias, mapa offline, rota e endereços (1, 7 ou 30 dias; ver `map/SPEC.md`) |
 | `nav_data_km` | int | 100 | raio em volta do carro dos dados baixados do mapa (25, 50, 100, 200, 300 ou 500 km; ver `map/SPEC.md`) |
 | `dock_size` | int | 100 | tamanho do dock em % (60, 75, 85, 100, 110): altura, ícones e textos; `DockView.heightDp`, e a grade da tela inicial redistribui os módulos |

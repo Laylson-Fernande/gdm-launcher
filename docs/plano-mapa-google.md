@@ -88,7 +88,7 @@ O provedor nunca troca no meio de uma navegação. Ao voltar à tela, se o Googl
 
 ## Chave da API
 
-- Digitada nas Configurações (`google_key` no `launcher.json`) ou no build (`k4811.googleMapsKey` no `local.properties`, fora do git). Nunca no workflow de release.
+- Só no build: `k4811.googleMapsKey` no `local.properties` (fora do git) ou `-Pk4811.googleMapsKey=`. Decisão do dono (30/10/2026): a chave vai no app, não se digita na central. Nunca no git nem no workflow de release (os APKs publicados ficam sem chave).
 - Pedidos com `X-Android-Package` e `X-Android-Cert` (SHA-1 da assinatura), para a chave poder ser restrita ao app no Google Cloud.
 - APIs a ativar no projeto do Google Cloud: Map Tiles API, Routes API, Places API (New). Recomendado: alerta de orçamento de US$ 1.
 
@@ -116,7 +116,7 @@ Radares, limites de velocidade, lombadas, pedágios e passagens de nível contin
 | # | Etapa | Entrega |
 |---|---|---|
 | 0 | Regras e skills | `AGENTS.md` (feito), contexto do projeto, skill `mapa-integrado` em `.claude/skills/` com o `skill-creator` |
-| 1 | Configuração | `nav_map_provider`, `google_key`, `nav_google_traffic` no `LauncherConfig`; seção no car-setting (provedor, chave, trânsito, uso do mês, aviso dos termos); strings nos 8 idiomas; desenho das telas com o `frontend-design` |
+| 1 | Configuração | `nav_map_provider`, `nav_google_traffic` no `LauncherConfig`; seção no car-setting (provedor, estado da chave do build, trânsito, uso do mês, aviso dos termos); strings nos 8 idiomas; desenho das telas com o `frontend-design` |
 | 2 | Base do Google | `map/.../google/`: `GoogleHttp` (cabeçalhos, field mask), `GoogleQuota`, `GoogleCache`, `GoogleKey` |
 | 3 | Tiles | provedor de tiles no `Tiles` (OSM ou Google), sessão por tema, estilo escuro, cache em disco pelo `Cache-Control`, atribuição pelo viewport |
 | 4 | Busca | `Places.Place` com `placeId`; Autocomplete com token de sessão; Details ao escolher; favoritos e recentes com `place_id` |
