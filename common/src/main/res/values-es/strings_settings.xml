@@ -328,4 +328,24 @@
     <string name="settings_nav_data_km_hint">Zona alrededor del coche guardada en la unidad para mapa, rutas, direcciones y alertas</string>
     <string name="settings_nav_data_km_value">%1$d km</string>
     <string name="settings_help_nav_data_km">El mapa sin conexión, la ruta y la búsqueda sin internet y los radares y límites se descargan en este radio alrededor del coche en cuanto se instala el launcher y la unidad tiene internet (aunque no se abra el mapa), y se revisan de nuevo en el intervalo de actualización de arriba, o cuando el coche se aleja cerca de un tercio del radio. Un radio mayor ocupa más espacio y tarda más la primera vez. Las zonas por donde pasa una ruta calculada siempre se descargan, aunque estén fuera del radio.</string>
+    <string name="settings_nav_google_section">Servicios del mapa</string>
+    <string name="settings_nav_map_provider">Servicios del mapa integrado</string>
+    <string name="settings_nav_map_provider_hint">OpenStreetMap funciona sin internet; Google añade tráfico y búsqueda de negocios</string>
+    <string name="settings_help_nav_map_provider">OpenStreetMap (predeterminado): el mapa, la búsqueda y la ruta usan datos de OpenStreetMap, incluidos el mapa, la búsqueda y la ruta descargados, así que todo funciona sin internet. Google: el mapa, la búsqueda de lugares (negocios, direcciones) y la ruta con tráfico en tiempo real vienen de Google; necesita internet y tu propia clave de API de Google Maps Platform. La pantalla, los botones y el comportamiento son iguales en ambos. Sin internet, sin clave o tras agotar la cuota gratuita del mes, la pantalla abre con OpenStreetMap e indica el motivo; se decide al abrir la pantalla, nunca en medio de una ruta. Radares, límites de velocidad y demás alertas de la vía vienen siempre de OpenStreetMap (Google no los ofrece). Los términos de Google no permiten sus datos en otro mapa: un lugar de Google guardado en favoritos o recientes se vuelve a buscar por nombre cuando el mapa es OpenStreetMap. La voz en una ruta de Google usa las frases propias de la suite (maniobra y distancia, sin el nombre de la calle).</string>
+    <string name="settings_nav_google_key">Clave de API de Google</string>
+    <string name="settings_nav_google_key_hint">Tu clave de Google Maps Platform, necesaria para el mapa de Google</string>
+    <string name="settings_nav_google_key_edit">Editar</string>
+    <string name="settings_nav_google_key_dialog">Pega la clave (empieza por AIza). Déjala vacía para borrarla.</string>
+    <string name="settings_nav_google_key_invalid">Esto no es una clave de API de Google (AIza y 35 caracteres más).</string>
+    <string name="settings_nav_google_key_none">Sin clave</string>
+    <string name="settings_nav_google_key_set">Clave configurada (termina en %1$s)</string>
+    <string name="settings_help_nav_google_key" formatted="false">Crea un proyecto en la consola de Google Cloud, activa la facturación y las API Map Tiles API, Routes API y Places API (New), y crea una clave de API. Para protegerla, restringe la clave a esas tres API y a esta app de Android (paquete y certificado SHA-1). Crea también una alerta de presupuesto de US$ 1 para enterarte de cualquier cargo. La suite solo usa las cuotas gratuitas mensuales y se detiene en torno al 90% de ellas. La clave se guarda en /sdcard/nwd-configs/launcher.json en la radio.</string>
+    <string name="settings_nav_google_traffic">Tráfico en tiempo real</string>
+    <string name="settings_nav_google_traffic_hint">Rutas con tráfico (5.000 gratis al mes); después, sin tráfico</string>
+    <string name="settings_help_nav_google_traffic">Activado: las rutas de Google tienen en cuenta el tráfico actual y la dirección del coche al salir. Google da 5.000 de estas rutas gratis al mes; tras unas 4.500, las rutas se calculan sin tráfico (10.000 gratis al mes) y, después, con OpenStreetMap. Cada recálculo fuera de la ruta cuenta como una ruta nueva.</string>
+    <string name="settings_nav_google_usage">Uso de Google este mes</string>
+    <string name="settings_nav_google_usage_value">Mapa %1$s · Rutas con tráfico %2$s, sin %3$s · Sugerencias %4$s · Lugares %5$s</string>
+    <string name="settings_nav_google_usage_none">Sin uso este mes</string>
+    <string name="settings_nav_google_error">Google en pausa unos minutos: %1$s</string>
+    <string name="settings_help_nav_google_usage" formatted="false">Solicitudes de este mes (el mes de Google, hora del Pacífico) frente al límite de cada servicio, cerca del 90% de la cuota gratuita: teselas del mapa 100.000, rutas con tráfico 5.000, rutas sin tráfico 10.000, sugerencias de búsqueda 10.000, detalles de lugar 10.000. Cuando un servicio llega a su límite, el mapa usa OpenStreetMap para él hasta el mes siguiente. Los límites se pueden cambiar en K4811/nav/nav.config.json (google_limits). Las búsquedas y rutas repetidas salen de la caché y no cuentan.</string>
 </resources>

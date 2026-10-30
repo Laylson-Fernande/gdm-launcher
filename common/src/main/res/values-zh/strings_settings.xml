@@ -328,4 +328,24 @@
     <string name="settings_nav_data_km_hint">为地图、路线、地址和提醒在主机中保存的车辆周围范围</string>
     <string name="settings_nav_data_km_value">%1$d 公里</string>
     <string name="settings_help_nav_data_km">离线地图、无网络路线和搜索以及测速摄像头和限速数据，会在安装启动器且主机联网后立即（即使不打开地图）按车辆周围的这个半径下载，并按上面的更新间隔、或车辆离开约三分之一半径时再次检查。半径越大，占用空间越多，首次下载也越久。计算出的路线经过的区域总会下载，即使在半径之外。</string>
+    <string name="settings_nav_google_section">地图服务</string>
+    <string name="settings_nav_map_provider">内置地图服务</string>
+    <string name="settings_nav_map_provider_hint">OpenStreetMap 可离线使用；Google 提供实时路况和商户搜索</string>
+    <string name="settings_help_nav_map_provider">OpenStreetMap（默认）：地图、搜索和路线使用 OpenStreetMap 数据，包括已下载的地图、搜索和路线，因此没有网络也能正常使用。Google：地图、地点搜索（商户、地址）和结合实时路况的路线来自 Google；需要网络和您自己的 Google Maps Platform API 密钥。两种模式的界面、按钮和操作完全相同。没有网络、没有密钥或本月免费额度用完时，界面会用 OpenStreetMap 打开并说明原因；这在打开界面时决定，绝不会在导航途中切换。测速摄像头、限速和其他道路提醒始终来自 OpenStreetMap（Google 不提供）。Google 的条款不允许其数据显示在其他地图上：地图为 OpenStreetMap 时，收藏或最近记录中的 Google 地点会按名称重新搜索。Google 路线的语音使用本套件自己的语句（只有动作和距离，不含街道名称）。</string>
+    <string name="settings_nav_google_key">Google API 密钥</string>
+    <string name="settings_nav_google_key_hint">使用 Google 地图所需的 Google Maps Platform 密钥</string>
+    <string name="settings_nav_google_key_edit">编辑</string>
+    <string name="settings_nav_google_key_dialog">粘贴密钥（以 AIza 开头）。留空则删除。</string>
+    <string name="settings_nav_google_key_invalid">这不是 Google API 密钥（AIza 加 35 个字符）。</string>
+    <string name="settings_nav_google_key_none">没有密钥</string>
+    <string name="settings_nav_google_key_set">已设置密钥（结尾为 %1$s）</string>
+    <string name="settings_help_nav_google_key" formatted="false">在 Google Cloud 控制台创建项目，启用结算以及 Map Tiles API、Routes API 和 Places API (New)，然后创建 API 密钥。为安全起见，请将密钥限制为这三个 API 和本 Android 应用（包名和 SHA-1 证书）。另外请创建 1 美元的预算提醒，以便知道任何费用。本套件只使用每月免费额度，并在约 90% 时停止。密钥保存在车机的 /sdcard/nwd-configs/launcher.json 中。</string>
+    <string name="settings_nav_google_traffic">实时路况</string>
+    <string name="settings_nav_google_traffic_hint">结合路况的路线（每月免费 5,000 次）；之后不考虑路况</string>
+    <string name="settings_help_nav_google_traffic">开启：Google 路线会考虑当前路况和出发时车辆的朝向。Google 每月免费提供 5,000 次此类路线；约 4,500 次后，路线改为不考虑路况（每月免费 10,000 次），再之后由 OpenStreetMap 计算。每次偏离路线后的重新计算都算作一次新路线。</string>
+    <string name="settings_nav_google_usage">本月 Google 用量</string>
+    <string name="settings_nav_google_usage_value">地图 %1$s · 有路况路线 %2$s，无路况 %3$s · 建议 %4$s · 地点 %5$s</string>
+    <string name="settings_nav_google_usage_none">本月尚未使用</string>
+    <string name="settings_nav_google_error">Google 暂停几分钟：%1$s</string>
+    <string name="settings_help_nav_google_usage" formatted="false">本月（Google 的月份，太平洋时间）的请求数与各服务上限（约为免费额度的 90%）：地图图块 100,000，有路况路线 5,000，无路况路线 10,000，搜索建议 10,000，地点详情 10,000。某项服务达到上限后，地图在下个月之前对该服务使用 OpenStreetMap。上限可在 K4811/nav/nav.config.json（google_limits）中修改。重复的搜索和路线来自缓存，不计入用量。</string>
 </resources>

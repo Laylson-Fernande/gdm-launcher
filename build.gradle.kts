@@ -99,6 +99,23 @@ fun roadDataUrl(): String {
 
 val roadData = roadDataUrl()
 
+/*
+ * Chave da API do Google Maps Platform para o mapa integrado no modo Google (opcional; também pode
+ * ser digitada nas Configurações). Só de -Pk4811.googleMapsKey=... ou "k4811.googleMapsKey=..." no
+ * local.properties (fora do git): nunca de variável de ambiente, para não entrar nos APKs publicados
+ * pelo CI. Vazio = sem chave no build. Ver docs/plano-mapa-google.md.
+ */
+fun googleMapsKey(): String {
+    (findProperty("k4811.googleMapsKey") as String?)?.takeIf { it.isNotBlank() }?.let { return it.trim() }
+    val local = rootProject.file("local.properties")
+    if (!local.isFile) return ""
+    val props = Properties().apply { local.inputStream().use { load(it) } }
+    return props.getProperty("k4811.googleMapsKey", "").trim()
+}
+
+val googleKey = googleMapsKey()
+if (googleKey.isNotEmpty()) logger.lifecycle("k4811.googleMapsKey: chave do Google no build (não publique este APK)")
+
 subprojects {
     plugins.withId("com.android.application") {
         extensions.configure<ApplicationExtension> {
@@ -132,6 +149,7 @@ subprojects {
             buildFeatures.buildConfig = true
             for ((module, pkg) in packages) defaultConfig.buildConfigField("String", fieldOf(module), "\"$pkg\"")
             defaultConfig.buildConfigField("String", "ROAD_DATA_URL", "\"$roadData\"")
+            defaultConfig.buildConfigField("String", "GOOGLE_MAPS_KEY", "\"$googleKey\"")
         }
     }
 }

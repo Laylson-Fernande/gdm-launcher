@@ -10,6 +10,7 @@ import android.os.Environment;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.k4811.car.setting.ui.InputDialog;
 import com.k4811.car.setting.ui.OptionList;
 import com.k4811.common.Apps;
 import com.k4811.common.audio.MixVolumes;
@@ -126,6 +127,28 @@ public class NavSettingsActivity extends Activity {
             })
             .local();
 
+        // Serviços do mapa integrado: OpenStreetMap ou Google (map/.../google/, docs/plano-mapa-google.md).
+        list.section(getString(R.string.settings_nav_google_section));
+        String[] providerLabels = {getString(R.string.settings_nav_provider_osm),
+            getString(R.string.settings_nav_provider_google)};
+        list.choice(getString(R.string.settings_nav_map_provider), getString(R.string.settings_nav_map_provider_hint),
+            providerLabels, new int[]{0, 1},
+            () -> Arrays.asList(LauncherConfig.NAV_PROVIDERS).indexOf(LauncherConfig.navMapProvider(this)),
+            i -> LauncherConfig.setNavMapProvider(this, LauncherConfig.NAV_PROVIDERS[i]))
+            .local().help(getString(R.string.settings_help_nav_map_provider));
+        OptionList.Row googleKey = list.action(getString(R.string.settings_nav_google_key),
+            getString(R.string.settings_nav_google_key_hint), getString(R.string.settings_nav_google_key_edit),
+            this::editGoogleKey)
+            .help(getString(R.string.settings_help_nav_google_key));
+        list.toggle(getString(R.string.settings_nav_google_traffic), getString(R.string.settings_nav_google_traffic_hint),
+            () -> LauncherConfig.navGoogleTraffic(this),
+            on -> LauncherConfig.setNavGoogleTraffic(this, on))
+            .visibleWhen(this::googleOn)
+            .local().help(getString(R.string.settings_help_nav_google_traffic));
+        OptionList.Row googleUsage = list.plain(getString(R.string.settings_nav_google_usage), null)
+            .visibleWhen(this::googleOn)
+            .help(getString(R.string.settings_help_nav_google_usage));
+
         // Volumes relativos ao volume atual (common/.../audio/MixVolumes), de 10 em 10%.
         list.section(getString(R.string.settings_nav_audio_section));
         list.stepper(getString(R.string.settings_nav_media_volume), getString(R.string.settings_nav_media_volume_hint),
@@ -218,7 +241,66 @@ public class NavSettingsActivity extends Activity {
             roadData.setNote(dataStatus("roads"), false);
             // Mapa, grafo da rota e índice de endereços: o tamanho é a soma dos três.
             offlineMap.setNote(dataStatus("maps", "graph", "places"), false);
+            String key = LauncherConfig.googleKey(this);
+            googleKey.setNote(key.isEmpty() ? getString(R.string.settings_nav_google_key_none)
+                : getString(R.string.settings_nav_google_key_set, key.substring(Math.max(0, key.length() - 4))),
+                key.isEmpty() && googleOn());
+            googleUsage.setSubtitle(googleUsage());
+            googleUsage.setNote(googleError(), true);
         });
+    }
+
+    private boolean googleOn() {
+        return LauncherConfig.NAV_PROVIDER_GOOGLE.equals(LauncherConfig.navMapProvider(this));
+    }
+
+    /** Digitar ou apagar a chave da API do Google (vazio apaga). */
+    private void editGoogleKey() {
+        InputDialog.show(this, getString(R.string.settings_nav_google_key),
+            getString(R.string.settings_nav_google_key_dialog), LauncherConfig.googleKey(this), false,
+            getString(R.string.settings_apply), text -> {
+                String k = text.trim();
+                // Chave do Google: "AIza" e 35 caracteres de letras, números, "-" e "_".
+                if (!k.isEmpty() && !k.matches("AIza[0-9A-Za-z_\\-]{35}")) {
+                    return getString(R.string.settings_nav_google_key_invalid);
+                }
+                LauncherConfig.setGoogleKey(this, k);
+                list.renderAll();
+                return null;
+            });
+    }
+
+    /**
+     * "Mapa 1.234/90.000 · Rotas 12/4.500 + 0/9.000 · Busca 40/9.000 · Lugares 8/9.000", do uso gravado
+     * pelo launcher em K4811/nav/google/usage.json (map/.../google/GoogleQuota).
+     */
+    private String googleUsage() {
+        JSONObject j = NwdConfigs.read(new File(Environment.getExternalStorageDirectory(), "K4811/nav/google/usage.json"));
+        JSONObject used = j == null ? null : j.optJSONObject("used");
+        JSONObject limits = j == null ? null : j.optJSONObject("limits");
+        // O mês da cobrança do Google (fuso de Los Angeles), como o GoogleQuota grava.
+        java.text.SimpleDateFormat fmt = new java.text.SimpleDateFormat("yyyy-MM", java.util.Locale.US);
+        fmt.setTimeZone(java.util.TimeZone.getTimeZone("America/Los_Angeles"));
+        String month = fmt.format(new java.util.Date());
+        if (used == null || limits == null || !month.equals(j.optString("month"))) {
+            return getString(R.string.settings_nav_google_usage_none);
+        }
+        return getString(R.string.settings_nav_google_usage_value,
+            pair(used, limits, "tiles"), pair(used, limits, "routes_pro"), pair(used, limits, "routes"),
+            pair(used, limits, "autocomplete"), pair(used, limits, "details"));
+    }
+
+    private static String pair(JSONObject used, JSONObject limits, String id) {
+        java.text.NumberFormat f = java.text.NumberFormat.getIntegerInstance();
+        return f.format(used.optInt(id, 0)) + "/" + f.format(limits.optInt(id, 0));
+    }
+
+    /** Último erro do Google (chave recusada, cota), se ainda está suspenso; null se não. */
+    private String googleError() {
+        JSONObject j = NwdConfigs.read(new File(Environment.getExternalStorageDirectory(), "K4811/nav/google/usage.json"));
+        if (j == null || j.optLong("blocked_until", 0) < System.currentTimeMillis()) return null;
+        String e = j.optString("last_error", "");
+        return e.isEmpty() ? null : getString(R.string.settings_nav_google_error, e);
     }
 
     /**

@@ -328,4 +328,26 @@
     <string name="settings_nav_data_km_hint">Radius around the car kept in the unit for the map, routes, addresses and alerts</string>
     <string name="settings_nav_data_km_value">%1$d km</string>
     <string name="settings_help_nav_data_km">The offline map, offline routing and search, and the cameras and limits are downloaded for this radius around the car as soon as the launcher is installed and the unit has internet (even without opening the map), and checked again at the update interval above, or when the car moves about a third of the radius away. A larger radius uses more space and takes longer the first time. The areas along a calculated route are always downloaded, even outside the radius.</string>
+    <string name="settings_nav_google_section">Map services</string>
+    <string name="settings_nav_map_provider">Built-in map services</string>
+    <string name="settings_nav_map_provider_hint">OpenStreetMap works offline; Google adds live traffic and business search</string>
+    <string name="settings_help_nav_map_provider">OpenStreetMap (default): the map, search and route use OpenStreetMap data, including the downloaded offline map, search and routing, so everything keeps working without internet. Google: the map tiles, the place search (businesses, addresses) and the route with live traffic come from Google; it needs internet and your own Google Maps Platform API key. The screen, buttons and behaviour are the same in both. Without internet, without a key or after the free monthly quota, the screen opens with OpenStreetMap and says why; this is decided when the screen opens, never in the middle of a route. Speed cameras, speed limits and other road alerts always come from OpenStreetMap (Google does not provide them). Google’s terms do not allow its data on another map: a Google place saved in favourites or recents is searched again by name when the map is OpenStreetMap. Voice instructions on a Google route use the suite’s own phrases (manoeuvre and distance, without the street name).</string>
+    <string name="settings_nav_google_key">Google API key</string>
+    <string name="settings_nav_google_key_hint">Your Google Maps Platform key, needed for the Google map</string>
+    <string name="settings_nav_google_key_edit">Edit</string>
+    <string name="settings_nav_google_key_dialog">Paste the key (starts with AIza). Leave it empty to remove it.</string>
+    <string name="settings_nav_google_key_invalid">This is not a Google API key (AIza followed by 35 characters).</string>
+    <string name="settings_nav_google_key_none">No key</string>
+    <string name="settings_nav_google_key_set">Key set (ends in %1$s)</string>
+    <string name="settings_help_nav_google_key" formatted="false">Create a project in the Google Cloud console, enable billing and the Map Tiles API, Routes API and Places API (New), and create an API key. To keep it safe, restrict the key to these three APIs and to this Android app (package and SHA-1 certificate). Also create a budget alert of US$ 1 so you are warned of any charge. The suite only uses the monthly free quotas and stops at about 90% of them. The key is stored in /sdcard/nwd-configs/launcher.json on the unit.</string>
+    <string name="settings_nav_google_traffic">Live traffic</string>
+    <string name="settings_nav_google_traffic_hint">Routes with traffic (5,000 free per month); then without traffic</string>
+    <string name="settings_help_nav_google_traffic">On: Google routes consider current traffic and the direction the car is facing at the start. Google gives 5,000 of these routes free per month; after about 4,500, routes are calculated without traffic (10,000 free per month) and, after that, by OpenStreetMap. Each recalculation off the route counts as a new route.</string>
+    <string name="settings_nav_google_usage">Google usage this month</string>
+    <string name="settings_nav_google_usage_value">Map %1$s · Routes with traffic %2$s, without %3$s · Suggestions %4$s · Places %5$s</string>
+    <string name="settings_nav_google_usage_none">No usage this month</string>
+    <string name="settings_nav_google_error">Google paused for a few minutes: %1$s</string>
+    <string name="settings_help_nav_google_usage" formatted="false">Requests this month (Google’s month, Pacific time) against the limit of each service, about 90% of the free quota: map tiles 100,000, routes with traffic 5,000, routes without traffic 10,000, search suggestions 10,000, place details 10,000. When a service reaches its limit, the map uses OpenStreetMap for it until next month. Limits can be changed in K4811/nav/nav.config.json (google_limits). Repeated searches and routes come from the cache and do not count.</string>
+    <string name="settings_nav_provider_osm" translatable="false">OpenStreetMap</string>
+    <string name="settings_nav_provider_google" translatable="false">Google</string>
 </resources>

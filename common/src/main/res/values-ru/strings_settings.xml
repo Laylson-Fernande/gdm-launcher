@@ -328,4 +328,24 @@
     <string name="settings_nav_data_km_hint">Область вокруг машины, хранимая в магнитоле для карты, маршрутов, адресов и предупреждений</string>
     <string name="settings_nav_data_km_value">%1$d км</string>
     <string name="settings_help_nav_data_km">Офлайн-карта, маршруты и поиск без интернета, а также камеры и ограничения загружаются в этом радиусе вокруг машины сразу после установки лаунчера, как только у магнитолы есть интернет (даже без открытия карты), и проверяются снова с периодичностью обновления выше или когда машина отъезжает примерно на треть радиуса. Больший радиус занимает больше места и дольше загружается в первый раз. Участки вдоль рассчитанного маршрута загружаются всегда, даже за пределами радиуса.</string>
+    <string name="settings_nav_google_section">Сервисы карты</string>
+    <string name="settings_nav_map_provider">Сервисы встроенной карты</string>
+    <string name="settings_nav_map_provider_hint">OpenStreetMap работает без интернета; Google добавляет пробки и поиск заведений</string>
+    <string name="settings_help_nav_map_provider">OpenStreetMap (по умолчанию): карта, поиск и маршрут используют данные OpenStreetMap, включая загруженные карту, поиск и маршруты, поэтому всё работает без интернета. Google: карта, поиск мест (заведения, адреса) и маршрут с учётом пробок берутся из Google; нужны интернет и ваш собственный ключ API Google Maps Platform. Экран, кнопки и поведение одинаковы в обоих режимах. Без интернета, без ключа или после исчерпания бесплатной месячной квоты экран открывается с OpenStreetMap и показывает причину; это решается при открытии экрана, никогда посреди маршрута. Камеры, ограничения скорости и другие дорожные предупреждения всегда берутся из OpenStreetMap (Google их не предоставляет). Условия Google не разрешают его данные на другой карте: место Google в избранном или недавних ищется заново по названию, когда карта — OpenStreetMap. Голос на маршруте Google использует собственные фразы приложения (манёвр и расстояние, без названия улицы).</string>
+    <string name="settings_nav_google_key">Ключ API Google</string>
+    <string name="settings_nav_google_key_hint">Ваш ключ Google Maps Platform, нужен для карты Google</string>
+    <string name="settings_nav_google_key_edit">Изменить</string>
+    <string name="settings_nav_google_key_dialog">Вставьте ключ (начинается с AIza). Оставьте пустым, чтобы удалить.</string>
+    <string name="settings_nav_google_key_invalid">Это не ключ API Google (AIza и ещё 35 символов).</string>
+    <string name="settings_nav_google_key_none">Нет ключа</string>
+    <string name="settings_nav_google_key_set">Ключ задан (заканчивается на %1$s)</string>
+    <string name="settings_help_nav_google_key" formatted="false">Создайте проект в консоли Google Cloud, включите оплату и API Map Tiles API, Routes API и Places API (New), затем создайте ключ API. Для защиты ограничьте ключ этими тремя API и этим приложением Android (пакет и сертификат SHA-1). Создайте также оповещение о бюджете на 1 доллар США, чтобы узнать о любом списании. Приложение использует только бесплатные месячные квоты и останавливается примерно на 90% от них. Ключ хранится в /sdcard/nwd-configs/launcher.json на магнитоле.</string>
+    <string name="settings_nav_google_traffic">Пробки в реальном времени</string>
+    <string name="settings_nav_google_traffic_hint">Маршруты с пробками (5000 бесплатно в месяц); затем без пробок</string>
+    <string name="settings_help_nav_google_traffic">Включено: маршруты Google учитывают текущие пробки и направление машины при старте. Google даёт 5000 таких маршрутов в месяц бесплатно; примерно после 4500 маршруты строятся без пробок (10 000 бесплатно в месяц), а затем через OpenStreetMap. Каждый перерасчёт при сходе с маршрута считается новым маршрутом.</string>
+    <string name="settings_nav_google_usage">Использование Google в этом месяце</string>
+    <string name="settings_nav_google_usage_value">Карта %1$s · Маршруты с пробками %2$s, без %3$s · Подсказки %4$s · Места %5$s</string>
+    <string name="settings_nav_google_usage_none">В этом месяце не использовалось</string>
+    <string name="settings_nav_google_error">Google приостановлен на несколько минут: %1$s</string>
+    <string name="settings_help_nav_google_usage" formatted="false">Запросы в этом месяце (месяц Google, тихоокеанское время) против лимита каждого сервиса, около 90% бесплатной квоты: тайлы карты 100 000, маршруты с пробками 5000, маршруты без пробок 10 000, подсказки поиска 10 000, сведения о месте 10 000. Когда сервис достигает лимита, карта использует для него OpenStreetMap до следующего месяца. Лимиты можно изменить в K4811/nav/nav.config.json (google_limits). Повторные поиски и маршруты берутся из кэша и не учитываются.</string>
 </resources>

@@ -328,4 +328,24 @@
     <string name="settings_nav_data_km_hint">地図・ルート・住所・警告のために本体に保存する車の周囲の範囲</string>
     <string name="settings_nav_data_km_value">%1$d km</string>
     <string name="settings_help_nav_data_km">オフライン地図、インターネットなしのルートと検索、取締機と制限速度は、ランチャーをインストールして本体がインターネットにつながるとすぐに（地図を開かなくても）車の周囲のこの半径でダウンロードされ、上の更新間隔で、または車が半径の約3分の1離れたときに再確認されます。半径が大きいほど容量を使い、初回は時間がかかります。計算したルートが通る範囲は、半径の外でも常にダウンロードされます。</string>
+    <string name="settings_nav_google_section">地図サービス</string>
+    <string name="settings_nav_map_provider">内蔵マップのサービス</string>
+    <string name="settings_nav_map_provider_hint">OpenStreetMapはオフラインで動作、Googleは渋滞情報と店舗検索を追加</string>
+    <string name="settings_help_nav_map_provider">OpenStreetMap（既定）：地図・検索・ルートはOpenStreetMapのデータを使い、ダウンロード済みの地図・検索・ルートも含むため、インターネットなしでもすべて動作します。Google：地図、場所検索（店舗・住所）、リアルタイム渋滞を考慮したルートはGoogleから取得します。インターネットとご自身のGoogle Maps Platform APIキーが必要です。画面・ボタン・動作はどちらも同じです。インターネットがない、キーがない、または今月の無料枠を使い切った場合は、OpenStreetMapで開き理由を表示します。これは画面を開くときに決まり、ルート案内の途中では変わりません。速度取締機、制限速度などの道路アラートは常にOpenStreetMapから取得します（Googleは提供していません）。Googleの規約ではそのデータを他の地図に表示できないため、お気に入りや履歴のGoogleの場所は、地図がOpenStreetMapのときは名前で再検索されます。Googleルートの音声案内はスイート独自のフレーズ（操作と距離のみ、通り名なし）を使います。</string>
+    <string name="settings_nav_google_key">Google APIキー</string>
+    <string name="settings_nav_google_key_hint">Googleマップに必要なGoogle Maps Platformのキー</string>
+    <string name="settings_nav_google_key_edit">編集</string>
+    <string name="settings_nav_google_key_dialog">キーを貼り付けてください（AIzaで始まります）。空にすると削除されます。</string>
+    <string name="settings_nav_google_key_invalid">GoogleのAPIキーではありません（AIzaに続く35文字）。</string>
+    <string name="settings_nav_google_key_none">キーなし</string>
+    <string name="settings_nav_google_key_set">キー設定済み（末尾 %1$s）</string>
+    <string name="settings_help_nav_google_key" formatted="false">Google Cloudコンソールでプロジェクトを作成し、課金とMap Tiles API、Routes API、Places API (New)を有効にして、APIキーを作成します。安全のため、キーをこの3つのAPIとこのAndroidアプリ（パッケージとSHA-1証明書）に制限してください。料金の発生に気づけるよう、1米ドルの予算アラートも作成してください。スイートは毎月の無料枠のみを使い、その約90%で停止します。キーはユニットの /sdcard/nwd-configs/launcher.json に保存されます。</string>
+    <string name="settings_nav_google_traffic">リアルタイム渋滞情報</string>
+    <string name="settings_nav_google_traffic_hint">渋滞を考慮したルート（月5,000回無料）、その後は渋滞なし</string>
+    <string name="settings_help_nav_google_traffic">オン：Googleのルートは現在の渋滞と出発時の車の向きを考慮します。Googleはこのルートを月5,000回まで無料で提供します。約4,500回を超えると渋滞なしのルート（月10,000回無料）になり、その後はOpenStreetMapで計算します。ルートを外れたときの再計算も1回のルートとして数えます。</string>
+    <string name="settings_nav_google_usage">今月のGoogle使用量</string>
+    <string name="settings_nav_google_usage_value">地図 %1$s · 渋滞ありルート %2$s、なし %3$s · 候補 %4$s · 場所 %5$s</string>
+    <string name="settings_nav_google_usage_none">今月の使用はありません</string>
+    <string name="settings_nav_google_error">Googleを数分間一時停止中：%1$s</string>
+    <string name="settings_help_nav_google_usage" formatted="false">今月（Googleの月、太平洋時間）のリクエスト数と各サービスの上限（無料枠の約90%）：地図タイル100,000、渋滞ありルート5,000、渋滞なしルート10,000、検索候補10,000、場所の詳細10,000。上限に達したサービスは翌月までOpenStreetMapを使います。上限は K4811/nav/nav.config.json（google_limits）で変更できます。同じ検索やルートはキャッシュから取得され、数えられません。</string>
 </resources>
