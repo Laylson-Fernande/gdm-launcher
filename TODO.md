@@ -15,3 +15,9 @@
 8 - Maps, salvar endereços favoritos. O mapa não consegue indicar o número da casa corretamente
 
 9 - A tela de aplicativos está muito lenda na multimidia, existem muitos aplicativos padrão que não consigo apagar e que atrapalham o visual. Quero que os aplicativos proprietarios do laucher fiquem no começo em ordem alfabetica, em seguida os outros aplicativos também em ordem alfabetica, quero pode ocultar aplicativos, para melhorar o visual removendo aplicativos que não uso, e talvez melhorar o carregamento da tela. Se possivel deixar a lista de aplicativos salva em um cache para deixar o load inicial mais rapido e depois de iniciar, caso tenham novos aplicativos que não estão na lista, ele atualiza.
+
+10 - Voz integrada: a central não tem serviço de texto para fala (TTS) instalado, então as instruções por voz do mapa integrado não saem (o `map/.../route/Voice.java` usa o TextToSpeech do Android e fica mudo sem um motor). Vale para os dois provedores (OpenStreetMap e Google). Opções a avaliar:
+   - instalar na central um motor de TTS livre que funciona sem internet e fala português (eSpeak NG ou RHVoice, ambos no F-Droid): nenhuma mudança no código, a suíte já usa o motor padrão do Android; conferir a qualidade da voz e se a ROM da NWD aceita trocar o motor padrão;
+   - frases gravadas em áudio dentro da suíte (manobras, números e distâncias), montadas na hora: sem depender de motor, mas é preciso gravar os 8 idiomas e o pacote cresce;
+   - embutir um motor na suíte: esbarra na regra de não usar bibliotecas (código nativo) e no tamanho.
+   Na tela de Configurações, mostrar se há motor de TTS e o idioma dele, com um botão para testar a voz.

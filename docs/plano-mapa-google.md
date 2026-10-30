@@ -1,6 +1,6 @@
 # Plano: Google no mapa integrado
 
-Estado: **proposta** (30/10/2026). Nada implementado ainda, exceto a linha da rota percorrida (branch `mapa/linha-percorrida`), que vale para os dois provedores.
+Estado: **proposta, com as decisões do dono de 30/10/2026** (Google como opção nas Configurações, rota com trânsito, voz com frases próprias). Nada implementado ainda, exceto a linha da rota percorrida (branch `mapa/linha-percorrida`), que vale para os dois provedores.
 
 ## O pedido
 
@@ -57,7 +57,7 @@ Configurações: Serviços do mapa = OpenStreetMap | Google
 | Toque longo | Nominatim (endereço do ponto) | igual (dado OSM sobre o mapa do Google é permitido) |
 | Rota | OSRM → grafo baixado | Routes API com trânsito → sem trânsito → OSRM → grafo baixado |
 | Radares, limites | dados das vias (OSM) | iguais |
-| Voz | TextToSpeech | pendente (abaixo) |
+| Voz | TextToSpeech, frases próprias | frases próprias, sem nome de rua nem instrução do Google |
 
 O provedor nunca troca no meio de uma navegação. Ao voltar à tela, se o Google ficou indisponível, abre no OpenStreetMap e mostra o motivo uma vez ("Sem internet", "Cota do mês do Google atingida", "Chave do Google recusada").
 
@@ -92,13 +92,24 @@ O provedor nunca troca no meio de uma navegação. Ao voltar à tela, se o Googl
 - Pedidos com `X-Android-Package` e `X-Android-Cert` (SHA-1 da assinatura), para a chave poder ser restrita ao app no Google Cloud.
 - APIs a ativar no projeto do Google Cloud: Map Tiles API, Routes API, Places API (New). Recomendado: alerta de orçamento de US$ 1.
 
-## Decisão pendente: voz com rota do Google
+## Voz com rota do Google (decidido: frases próprias)
 
-Os termos proíbem usar conteúdo do Google com texto para fala. Opções:
+Os termos proíbem usar conteúdo do Google com texto para fala (3.2.3(a)(iv)). Decisão do dono (30/10/2026): **frases próprias**.
 
-1. **Sem voz no modo Google:** só a faixa da manobra na tela (alertas de radar continuam falados, são dados OSM).
-2. **Voz com frases próprias** montadas do tipo de manobra (ex.: "vire à direita em 300 metros", sem o nome da rua do Google). Ainda usa a geometria e a manobra do Google: zona cinzenta.
-3. **Voz completa, por sua conta e risco.**
+- A voz monta a frase com as strings da suíte (`map_*`, 8 idiomas), a partir do tipo da manobra e da distância: "Em 300 metros, vire à direita". **O nome da rua e o texto da instrução do Google nunca vão para a voz.**
+- Na tela (faixa da manobra), o texto da instrução do Google pode aparecer: é exibição, não fala.
+- Os alertas de radar, lombada etc. continuam falados como hoje (dados do OSM).
+- Ainda é zona cinzenta (a manobra e a distância vêm da rota do Google); o risco foi aceito pelo dono.
+
+**A central não tem serviço de texto para fala instalado**, então hoje nenhuma voz sai, nem no OpenStreetMap. Está no [`TODO.md`](../TODO.md) (item 10) como pendência à parte, valendo para os dois provedores.
+
+## Alertas da via: só OpenStreetMap
+
+Radares, limites de velocidade, lombadas, pedágios e passagens de nível continuam vindo só dos dados das vias (OSM, `tools/road-data`), nos dois provedores. O Google não oferece esses dados para este uso:
+
+- **Limites de velocidade:** a Roads API tem, mas só para quem compra a licença Asset Tracking (cerca de US$ 10 mil por ano, pela equipe de vendas), a US$ 20 por mil chamadas, sem cota grátis.
+- **Radares e lombadas:** nenhuma API pública da Google Maps Platform tem esses dados. Os alertas da comunidade do Waze só chegam a parceiros do programa Waze for Cities, e não como API de app.
+- **O que o Google acrescenta:** trânsito na rota. A Routes API pode devolver a velocidade do trânsito ao longo da linha (`TRAFFIC_ON_POLYLINE`, normal / lento / parado), para colorir a rota como no Waze. Fica como melhoria opcional depois da etapa 5, já que a rota com trânsito já usa a cota Pro.
 
 ## Etapas
 
@@ -109,7 +120,7 @@ Os termos proíbem usar conteúdo do Google com texto para fala. Opções:
 | 2 | Base do Google | `map/.../google/`: `GoogleHttp` (cabeçalhos, field mask), `GoogleQuota`, `GoogleCache`, `GoogleKey` |
 | 3 | Tiles | provedor de tiles no `Tiles` (OSM ou Google), sessão por tema, estilo escuro, cache em disco pelo `Cache-Control`, atribuição pelo viewport |
 | 4 | Busca | `Places.Place` com `placeId`; Autocomplete com token de sessão; Details ao escolher; favoritos e recentes com `place_id` |
-| 5 | Rota | `GoogleRoutes` (Routes API → `Route`), conversão das manobras para os tipos do OSRM, texto da instrução no passo; cadeia de reserva |
+| 5 | Rota | `GoogleRoutes` (Routes API → `Route`), conversão das manobras para os tipos do OSRM, texto da instrução só para a tela; voz com frases próprias (`Phrases`, sem rua); cadeia de reserva |
 | 6 | Escolha do provedor | `MapScreen` decide ao abrir; aviso do motivo quando cai para o OpenStreetMap |
 | 7 | Documentação e verificação | `map/SPEC.md`, `docs/tela-de-navegacao.md`, `common/SPEC.md`; `./gradlew assembleRelease`; teste na central nos dois provedores |
 
