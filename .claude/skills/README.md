@@ -9,3 +9,9 @@ Skills de terceiros copiadas para cá (o equivalente a `npx skills add`), carreg
 | `limrun-android-emulator` | [limrun-inc/skills](https://github.com/limrun-inc/skills) (`ad9559c`) | instalar e testar o APK num emulador Android na nuvem (Limrun); precisa do CLI `lim` (`npm install --global lim`) e de `LIM_API_KEY` |
 
 Para atualizar: copie de novo a pasta da skill do repositório de origem e troque o commit acima.
+
+Skills próprias do projeto:
+
+| Skill | Para quê |
+|---|---|
+| `mapa-integrado` | regras do mapa integrado com os dois provedores (OpenStreetMap e Google): mesmo comportamento, termos do Google, cotas grátis, escolha do provedor |
