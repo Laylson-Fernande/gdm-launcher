@@ -157,6 +157,8 @@ public class MapView extends View implements Tiles.Listener {
     /** Prévia com mais de uma rota: as outras, desenhadas em cinza por baixo da escolhida. */
     private List<Route> alternatives = Collections.emptyList();
     private int routeFrom;
+    /** Navegando: a linha é dividida na posição do carro (percorrido mais claro, o resto em azul). */
+    private boolean routeProgress;
     private double destX = Double.NaN;
     private double destY;
     private float[] lines = new float[0];
@@ -167,6 +169,9 @@ public class MapView extends View implements Tiles.Listener {
     private final Paint emptyPaint = new Paint();
     private final Paint casingPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint routePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    /** Trecho já percorrido da rota: mais claro, como no Waze. */
+    private final Paint passedCasing = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final Paint passedPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint altCasing = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint altPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint carPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -221,6 +226,11 @@ public class MapView extends View implements Tiles.Listener {
         routePaint.setStyle(Paint.Style.STROKE);
         routePaint.setStrokeCap(Paint.Cap.ROUND);
         routePaint.setColor(0xFF3D8BFF);
+        passedCasing.setStyle(Paint.Style.STROKE);
+        passedCasing.setStrokeCap(Paint.Cap.ROUND);
+        passedPaint.setStyle(Paint.Style.STROKE);
+        passedPaint.setStrokeCap(Paint.Cap.ROUND);
+        setPassedColors();
         altCasing.setStyle(Paint.Style.STROKE);
         altCasing.setStrokeCap(Paint.Cap.ROUND);
         altCasing.setColor(0xFF5F6B7A);
@@ -368,6 +378,7 @@ public class MapView extends View implements Tiles.Listener {
         emptyPaint.setColor(on ? 0xFF1B1E22 : 0xFFE8E4DC);
         textPaint.setColor(on ? 0xFFCCCCCC : 0xFF333333);
         textBg.setColor(on ? 0x99000000 : 0xB3FFFFFF);
+        setPassedColors();
         invalidate();
     }
 
@@ -586,10 +597,11 @@ public class MapView extends View implements Tiles.Listener {
     public void setRoute(Route r) {
         route = r;
         routeFrom = 0;
+        routeProgress = false;
         if (r != null) {
             destX = Geo.worldX(r.lon[r.size() - 1]);
             destY = Geo.worldY(r.lat[r.size() - 1]);
-            if (lines.length < r.size() * 4) lines = new float[r.size() * 4];
+            ensureLines(r);
         }
         invalidate();
     }
@@ -597,8 +609,14 @@ public class MapView extends View implements Tiles.Listener {
     /** As outras rotas da prévia (vazia ou null: nenhuma). */
     public void setAlternatives(List<Route> list) {
         alternatives = list == null ? Collections.<Route>emptyList() : list;
-        for (Route r : alternatives) if (lines.length < r.size() * 4) lines = new float[r.size() * 4];
+        for (Route r : alternatives) ensureLines(r);
         invalidate();
+    }
+
+    /** Espaço para os segmentos da rota e mais dois pontos (a divisão na posição do carro). */
+    private void ensureLines(Route r) {
+        int need = (r.size() + 2) * 4;
+        if (lines.length < need) lines = new float[need];
     }
 
     /** A alternativa a até ~28 dp do toque (a mais perto), ou null. */
@@ -631,10 +649,15 @@ public class MapView extends View implements Tiles.Listener {
         return Math.hypot(x - (ax + dx * t), y - (ay + dy * t));
     }
 
-    /** A rota antes deste ponto já foi percorrida e some do desenho. */
+    /**
+     * Navegando: o carro está no trecho que começa no ponto {@code fromIndex} da rota. A linha é
+     * dividida na posição do carro a cada quadro (a seta anima entre as posições do GPS e a divisão vai
+     * junto): o que ficou para trás sai mais claro, como no Waze, e o resto continua azul.
+     */
     public void setRouteProgress(int fromIndex) {
-        if (fromIndex == routeFrom) return;
+        if (fromIndex == routeFrom && routeProgress) return;
         routeFrom = fromIndex;
+        routeProgress = true;
         invalidate();
     }
 
@@ -847,13 +870,67 @@ public class MapView extends View implements Tiles.Listener {
 
     private void drawRoute(Canvas canvas, float ax, float ay) {
         // As alternativas por baixo, a escolhida por cima.
-        for (Route alt : alternatives) drawLine(canvas, alt, 0, ax, ay, altCasing, altPaint);
+        for (Route alt : alternatives) {
+            drawLine(canvas, alt, 0, alt.size() - 1, Double.NaN, 0, Double.NaN, 0, ax, ay, altCasing, altPaint);
+        }
         Route rt = route;
         if (rt == null) return;
-        drawLine(canvas, rt, routeFrom, ax, ay, casingPaint, routePaint);
+        int last = rt.size() - 1;
+        if (!routeProgress) {
+            drawLine(canvas, rt, 0, last, Double.NaN, 0, Double.NaN, 0, ax, ay, casingPaint, routePaint);
+            return;
+        }
+        // Divide no ponto da linha mais perto da seta (na posição animada, não só na do último GPS).
+        double[] at = splitPoint(rt);
+        int seg = (int) at[0];
+        double sx = at[1];
+        double sy = at[2];
+        // Percorrido (do começo até o carro), por baixo; o que falta (do carro ao destino), por cima.
+        drawLine(canvas, rt, 0, seg, Double.NaN, 0, sx, sy, ax, ay, passedCasing, passedPaint);
+        drawLine(canvas, rt, seg + 1, last, sx, sy, Double.NaN, 0, ax, ay, casingPaint, routePaint);
     }
 
-    private void drawLine(Canvas canvas, Route rt, int start, float ax, float ay, Paint casing, Paint paint) {
+    /**
+     * Onde a linha da rota é dividida: {trecho, x, y do mundo}. A seta do carro projetada nos trechos em
+     * volta de {@link #routeFrom}; com a seta longe da linha (fora da rota, sem posição), o começo do
+     * trecho atual, como antes.
+     */
+    private double[] splitPoint(Route rt) {
+        int n = rt.size();
+        int base = Math.max(0, Math.min(routeFrom, n - 2));
+        double[] out = {base, rt.wx[base], rt.wy[base]};
+        if (Double.isNaN(carX) || n < 2) return out;
+        double best = Double.MAX_VALUE;
+        for (int i = Math.max(0, base - 4); i <= Math.min(n - 2, base + 4); i++) {
+            double ax = rt.wx[i], ay = rt.wy[i], bx = rt.wx[i + 1], by = rt.wy[i + 1];
+            double t = Geo.project(carX, carY, ax, ay, bx, by);
+            double qx = ax + (bx - ax) * t;
+            double qy = ay + (by - ay) * t;
+            double d = Math.hypot(carX - qx, carY - qy);
+            // Empate: fica com o trecho mais à frente (a seta passou do ponto).
+            if (d < best || (d == best && i > out[0])) {
+                best = d;
+                out[0] = i;
+                out[1] = qx;
+                out[2] = qy;
+            }
+        }
+        // Mais de ~30 m da linha: fora da rota (o recálculo vem); divide no começo do trecho atual.
+        if (best * Geo.metersPerWorld(Geo.lat(carY)) > 30) {
+            out[0] = base;
+            out[1] = rt.wx[base];
+            out[2] = rt.wy[base];
+        }
+        return out;
+    }
+
+    /**
+     * Linha da rota do ponto {@code start} ao {@code end} (inclusive). {@code headX/headY} (mundo), se não
+     * for NaN, entra antes de {@code start}; {@code tailX/tailY}, depois de {@code end}: as pontas da
+     * divisão na posição do carro.
+     */
+    private void drawLine(Canvas canvas, Route rt, int start, int end, double headX, double headY,
+                          double tailX, double tailY, float ax, float ay, Paint casing, Paint paint) {
         double scale = tilePx * Math.pow(2, zoom);
         double rad = Math.toRadians(-bearing);
         float cos = (float) Math.cos(rad);
@@ -871,10 +948,28 @@ public class MapView extends View implements Tiles.Listener {
         // Último ponto usado, no plano e na tela (a tela só vale se ele não foi cortado).
         float pfx = 0;
         float pfy = 0;
-        int from = Math.max(0, Math.min(start, rt.size() - 1));
-        for (int i = from; i < rt.size(); i++) {
-            float dx = (float) ((rt.wx[i] - cx) * scale);
-            float dy = (float) ((rt.wy[i] - cy) * scale);
+        boolean head = !Double.isNaN(headX);
+        boolean tail = !Double.isNaN(tailX);
+        int from = Math.max(0, start);
+        int to = Math.min(end, rt.size() - 1);
+        // Índices "virtuais": from - 1 é a ponta de cima (head), to + 1 a de baixo (tail).
+        int first = head ? from - 1 : from;
+        int last = tail ? to + 1 : to;
+        for (int i = first; i <= last; i++) {
+            double wx;
+            double wy;
+            if (head && i == from - 1) {
+                wx = headX;
+                wy = headY;
+            } else if (tail && i == to + 1) {
+                wx = tailX;
+                wy = tailY;
+            } else {
+                wx = rt.wx[i];
+                wy = rt.wy[i];
+            }
+            float dx = (float) ((wx - cx) * scale);
+            float dy = (float) ((wy - cy) * scale);
             float fx = dx * cos - dy * sin;
             float fy = dx * sin + dy * cos;
             if (!have) {
@@ -914,7 +1009,7 @@ public class MapView extends View implements Tiles.Listener {
             float sx = ax + pt[0];
             float sy = ay + pt[1];
             // Pontos colados não mudam nada na tela: pula (menos o último).
-            if (pfy >= farY && i < rt.size() - 1 && Math.abs(sx - sx0) < minStep && Math.abs(sy - sy0) < minStep) {
+            if (pfy >= farY && i < last && Math.abs(sx - sx0) < minStep && Math.abs(sy - sy0) < minStep) {
                 continue;
             }
             pfx = fx;
@@ -1204,8 +1299,16 @@ public class MapView extends View implements Tiles.Listener {
         float k = Math.max(0.6f, Math.min(1.2f, (zoom - 10) / 7f));
         casingPaint.setStrokeWidth(13 * dp * k);
         routePaint.setStrokeWidth(8.5f * dp * k);
+        passedCasing.setStrokeWidth(12 * dp * k);
+        passedPaint.setStrokeWidth(8 * dp * k);
         altCasing.setStrokeWidth(11 * dp * k);
         altPaint.setStrokeWidth(7 * dp * k);
+    }
+
+    /** Percorrido: azul claro acinzentado (no escuro, mais apagado, para não brilhar mais que a rota). */
+    private void setPassedColors() {
+        passedCasing.setColor(dark ? 0xFF3A4A60 : 0xFF8FA9CC);
+        passedPaint.setColor(dark ? 0xFF6F86A6 : 0xFFC4D7F2);
     }
 
     private void toScreen(double wx, double wy, float ax, float ay, float[] out) {
